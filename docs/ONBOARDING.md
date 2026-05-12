@@ -19,6 +19,11 @@ POKit 시작해줘
 
 Manual Node commands below are smoke tests and fallback checks. The normal workflow is natural language first.
 
+For multi-step work, read `docs/GOAL_LOOP.md`.
+
+- Claude Code users can use `/goal` with a verifiable completion condition.
+- Codex users can ask POKit to follow the same goal loop through Brief, task list, skills, scripts, tests, and Linear Done updates.
+
 ## 1. Clone Or Fork
 
 - [ ] Clone or fork the POKit repository.

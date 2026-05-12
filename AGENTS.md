@@ -15,6 +15,12 @@ When the user says "POKit 시작해줘", "현재 상태 브리핑해줘", or "�
 node --experimental-strip-types scripts/session-brief.ts
 ```
 
+For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
+
+- In Claude Code, the user may set `/goal` with a verifiable completion condition.
+- In Codex, emulate the same loop with POKit Brief, session task list, skills, scripts, tests, and Linear Done updates.
+- Always create or confirm the Linear task list before implementation.
+
 Never write to Linear or GitHub without:
 1. A dry-run plan.
 2. User approval.

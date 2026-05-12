@@ -72,6 +72,13 @@ POKit should respond with a compact brief:
 
 Node commands are helper checks. The primary workflow is: user asks in natural language, the LLM reads skills/docs, then uses scripts only when needed.
 
+For longer work, use the POKit goal loop:
+
+- Claude Code: set `/goal` with a clear completion condition.
+- Codex: ask POKit to use the Brief, task list, skills, tests, and Linear Done updates as the goal loop.
+
+See [docs/GOAL_LOOP.md](docs/GOAL_LOOP.md).
+
 Generated artifacts are local by default. The public POKit template keeps reusable samples under `examples/`; team/private forks may choose to commit their own `artifacts/` after reviewing sensitive content.
 
 If an API key appears in chat, logs, screenshots, or commits, rotate it before continuing. See `SECURITY.md`.
