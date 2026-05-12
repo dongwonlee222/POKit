@@ -22,4 +22,12 @@ Quick read-only smoke test:
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => { const cycle = await m.getCurrentCycle(); const issues = await m.listIssues(cycle.id); console.log({ cycle, issueCount: issues.length }); })"
 ```
 
+Daily run context smoke test:
+
+```bash
+node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(JSON.stringify(await m.getWorkingCycleContext(), null, 2)))"
+```
+
+`getWorkingCycleContext()` uses the active cycle first, then the next upcoming cycle, then the team backlog.
+
 This command only calls GraphQL queries. It does not call any `apply*` write helper.

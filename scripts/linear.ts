@@ -43,12 +43,37 @@ export type Team = {
   name: string;
 };
 
+export type WorkingCycleContext = {
+  source: "linear_active" | "linear_upcoming" | "team_backlog";
+  cycle: Cycle;
+  issues: Issue[];
+};
+
 const LINEAR_GRAPHQL_ENDPOINT = "https://api.linear.app/graphql";
 let dotEnvLoaded = false;
 
 type LinearGraphqlResponse<T> = {
   data?: T;
   errors?: Array<{ message: string }>;
+};
+
+type LinearIssueNode = {
+  id: string;
+  identifier: string;
+  title: string;
+  description?: string;
+  url?: string;
+  labels: { nodes: Array<{ name: string }> };
+  state?: { name: string };
+  assignee?: { name: string } | null;
+};
+
+type LinearCycleNode = {
+  id: string;
+  name?: string | null;
+  number?: number;
+  startsAt?: string;
+  endsAt?: string;
 };
 
 function readRequiredEnv(name: "LINEAR_API_KEY" | "LINEAR_TEAM_ID"): string {
@@ -99,16 +124,39 @@ async function linearGraphql<T>(query: string, variables: Record<string, unknown
     body: JSON.stringify({ query, variables }),
   });
   const payload = await response.json() as LinearGraphqlResponse<T>;
-  if (!response.ok) {
-    throw new Error(`Linear API request failed with HTTP ${response.status}.`);
-  }
   if (payload.errors?.length) {
     throw new Error(`Linear API error: ${payload.errors.map((error) => error.message).join("; ")}`);
+  }
+  if (!response.ok) {
+    throw new Error(`Linear API request failed with HTTP ${response.status}.`);
   }
   if (!payload.data) {
     throw new Error("Linear API returned no data.");
   }
   return payload.data;
+}
+
+function normalizeCycle(cycle: LinearCycleNode): Cycle {
+  return {
+    id: cycle.id,
+    name: cycle.name ?? `Cycle ${cycle.number ?? cycle.id}`,
+    number: cycle.number,
+    startsAt: cycle.startsAt,
+    endsAt: cycle.endsAt,
+  };
+}
+
+function normalizeIssue(issue: LinearIssueNode): Issue {
+  return {
+    id: issue.id,
+    identifier: issue.identifier,
+    title: issue.title,
+    description: issue.description,
+    url: issue.url,
+    labels: issue.labels.nodes.map((label) => label.name),
+    state: issue.state?.name,
+    assignee: issue.assignee?.name,
+  };
 }
 
 export async function getCurrentCycle(): Promise<Cycle> {
@@ -117,13 +165,7 @@ export async function getCurrentCycle(): Promise<Cycle> {
   const data = await linearGraphql<{
     team: {
       cycles: {
-        nodes: Array<{
-          id: string;
-          name: string;
-          number?: number;
-          startsAt?: string;
-          endsAt?: string;
-        }>;
+        nodes: LinearCycleNode[];
       };
     } | null;
   }>(`
@@ -145,7 +187,7 @@ export async function getCurrentCycle(): Promise<Cycle> {
   if (!cycle) {
     throw new Error(`No active Linear cycle found for team ${teamId}.`);
   }
-  return cycle;
+  return normalizeCycle(cycle);
 }
 
 export async function listTeams(): Promise<Team[]> {
@@ -178,16 +220,7 @@ export async function listIssues(cycleId: string): Promise<Issue[]> {
   const data = await linearGraphql<{
     team: {
       issues: {
-        nodes: Array<{
-          id: string;
-          identifier: string;
-          title: string;
-          description?: string;
-          url?: string;
-          labels: { nodes: Array<{ name: string }> };
-          state?: { name: string };
-          assignee?: { name: string } | null;
-        }>;
+        nodes: LinearIssueNode[];
       };
     } | null;
   }>(`
@@ -216,16 +249,86 @@ export async function listIssues(cycleId: string): Promise<Issue[]> {
       }
     }
   `, { teamId, cycleId });
-  return data.team?.issues.nodes.map((issue) => ({
-    id: issue.id,
-    identifier: issue.identifier,
-    title: issue.title,
-    description: issue.description,
-    url: issue.url,
-    labels: issue.labels.nodes.map((label) => label.name),
-    state: issue.state?.name,
-    assignee: issue.assignee?.name,
-  })) ?? [];
+  return data.team?.issues.nodes.map(normalizeIssue) ?? [];
+}
+
+export async function getWorkingCycleContext(): Promise<WorkingCycleContext> {
+  readRequiredEnv("LINEAR_API_KEY");
+  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const data = await linearGraphql<{
+    team: {
+      activeCycles: { nodes: LinearCycleNode[] };
+      upcomingCycles: { nodes: LinearCycleNode[] };
+      issues: { nodes: LinearIssueNode[] };
+    } | null;
+  }>(`
+    query WorkingCycleCandidates($teamId: String!) {
+      team(id: $teamId) {
+        activeCycles: cycles(first: 1, filter: { isActive: { eq: true } }) {
+          nodes {
+            id
+            name
+            number
+            startsAt
+            endsAt
+          }
+        }
+        upcomingCycles: cycles(first: 1, filter: { isActive: { eq: false } }) {
+          nodes {
+            id
+            name
+            number
+            startsAt
+            endsAt
+          }
+        }
+        issues(first: 100) {
+          nodes {
+            id
+            identifier
+            title
+            description
+            url
+            labels {
+              nodes {
+                name
+              }
+            }
+            state {
+              name
+            }
+            assignee {
+              name
+            }
+          }
+        }
+      }
+    }
+  `, { teamId });
+  const activeCycle = data.team?.activeCycles.nodes[0];
+  if (activeCycle) {
+    return {
+      source: "linear_active",
+      cycle: normalizeCycle(activeCycle),
+      issues: await listIssues(activeCycle.id),
+    };
+  }
+  const upcomingCycle = data.team?.upcomingCycles.nodes[0];
+  if (upcomingCycle) {
+    return {
+      source: "linear_upcoming",
+      cycle: normalizeCycle(upcomingCycle),
+      issues: await listIssues(upcomingCycle.id),
+    };
+  }
+  return {
+    source: "team_backlog",
+    cycle: {
+      id: "team-backlog",
+      name: "Team Backlog",
+    },
+    issues: data.team?.issues.nodes.map(normalizeIssue) ?? [],
+  };
 }
 
 export async function planCreateIssue(input: IssueInput): Promise<Plan> {

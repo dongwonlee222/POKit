@@ -14,6 +14,22 @@ POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 
 - Action Nudge appears at most once per session and only when cycle state changed.
 - Fork users who want to commit personal memory/artifacts should review `.gitignore` first.
 
+## Linear Workflow
+
+Use Linear as the source of truth and POKit as the daily AI run layer.
+
+- Linear Cycle: weekly sprint container, usually starting every Monday.
+- POKit Run: daily read-only check that routes issues, drafts artifacts, and writes a Run Summary.
+- Linear writes: always represented as a dry-run approval plan first.
+
+POKit chooses the working context in this order:
+
+1. Active Linear cycle.
+2. Upcoming Linear cycle when no cycle is active.
+3. Team backlog when no cycles exist.
+
+This keeps first-time personal workspaces usable before a formal cycle starts.
+
 ## Day 2 Dry Run
 
 Use `examples/day2-dry-run/linear-cycle-fixture.yaml` to inspect the walking skeleton without calling Linear or GitHub.

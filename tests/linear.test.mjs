@@ -150,6 +150,138 @@ test("listTeams reads accessible Linear teams without requiring LINEAR_TEAM_ID",
   ]);
 });
 
+test("getWorkingCycleContext uses active cycle issues when an active cycle exists", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const queries = [];
+  globalThis.fetch = async (_url, init) => {
+    const requestBody = JSON.parse(init.body);
+    queries.push(requestBody.query);
+    if (requestBody.query.includes("query WorkingCycleCandidates")) {
+      return new Response(JSON.stringify({
+        data: {
+          team: {
+            issues: { nodes: [] },
+            activeCycles: {
+              nodes: [
+                {
+                  id: "cycle-active",
+                  name: "Active Cycle",
+                  number: 3,
+                  startsAt: "2026-05-11",
+                  endsAt: "2026-05-18",
+                },
+              ],
+            },
+            upcomingCycles: { nodes: [] },
+          },
+        },
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        team: {
+          issues: {
+            nodes: [
+              {
+                id: "issue-active",
+                identifier: "EVM-5",
+                title: "Active cycle issue",
+                labels: { nodes: [{ name: "pokit:prd" }] },
+                state: { name: "Todo" },
+                assignee: null,
+              },
+            ],
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { getWorkingCycleContext } = await loadLinearModule();
+
+  const context = await getWorkingCycleContext();
+
+  assert.equal(context.source, "linear_active");
+  assert.equal(context.cycle.id, "cycle-active");
+  assert.equal(context.issues[0].identifier, "EVM-5");
+  assert.match(queries[0], /query WorkingCycleCandidates/);
+});
+
+test("getWorkingCycleContext falls back to upcoming cycle when active cycle is missing", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  globalThis.fetch = async (_url, init) => {
+    const requestBody = JSON.parse(init.body);
+    if (requestBody.query.includes("query WorkingCycleCandidates")) {
+      return new Response(JSON.stringify({
+        data: {
+          team: {
+            issues: { nodes: [] },
+            activeCycles: { nodes: [] },
+            upcomingCycles: {
+              nodes: [
+                {
+                  id: "cycle-upcoming",
+                  name: null,
+                  number: 1,
+                  startsAt: "2026-05-18",
+                  endsAt: "2026-05-25",
+                },
+              ],
+            },
+          },
+        },
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        team: {
+          issues: { nodes: [] },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { getWorkingCycleContext } = await loadLinearModule();
+
+  const context = await getWorkingCycleContext();
+
+  assert.equal(context.source, "linear_upcoming");
+  assert.equal(context.cycle.id, "cycle-upcoming");
+  assert.equal(context.issues.length, 0);
+});
+
+test("getWorkingCycleContext falls back to team backlog when no cycles exist", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    data: {
+      team: {
+        activeCycles: { nodes: [] },
+        upcomingCycles: { nodes: [] },
+        issues: {
+          nodes: [
+            {
+              id: "issue-backlog",
+              identifier: "EVM-1",
+              title: "Backlog issue",
+              labels: { nodes: [] },
+              state: { name: "Todo" },
+              assignee: null,
+            },
+          ],
+        },
+      },
+    },
+  }), { status: 200 });
+  const { getWorkingCycleContext } = await loadLinearModule();
+
+  const context = await getWorkingCycleContext();
+
+  assert.equal(context.source, "team_backlog");
+  assert.equal(context.cycle.id, "team-backlog");
+  assert.equal(context.issues[0].identifier, "EVM-1");
+});
+
 test("listIssues reads cycle issues and normalizes labels", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";
