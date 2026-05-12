@@ -1,0 +1,17 @@
+language: ko-KR
+
+brief:
+  weather_enabled: true
+  weather_location: ""
+  action_nudge_max_day2: 1
+
+linear:
+  labels:
+    - pokit:prd
+    - pokit:criteria
+    - pokit:design
+    - pokit:research
+    - pokit:abtest
+
+artifacts:
+  hash_algorithm: sha256

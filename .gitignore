@@ -1,0 +1,7 @@
+.env
+node_modules/
+*.local.*
+.DS_Store
+
+# Personal artifacts. Fork users may un-ignore these in their private fork.
+artifacts/sprints/*-run-summary.md

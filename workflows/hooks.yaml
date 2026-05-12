@@ -1,0 +1,39 @@
+hooks:
+  session_start:
+    - resolve_today
+    - resolve_weather_best_effort
+    - read_context_map
+    - summarize_state_brief
+    - detect_state_change
+    - suggest_one_next_action
+
+  preflight_labels:
+    - check_pokit_labels
+    - plan_missing_label_creation
+    - require_user_approval
+
+  before_each_issue:
+    - load_issue_context
+    - resolve_labels
+    - check_existing_artifact
+    - check_content_hash
+
+  after_artifact:
+    - validate_frontmatter
+    - record_content_hash
+    - validate_artifact_path
+
+  before_external_write:
+    - require_dry_run_plan
+    - require_user_approval
+    - require_idempotency_key
+
+  after_run:
+    - write_run_summary
+    - update_current_cycle
+    - update_context_map
+    - update_resume_brief
+
+  on_error:
+    - collect_error
+    - write_failure_summary

@@ -1,0 +1,16 @@
+current_cycle:
+  id: null
+  summary_file: memory/current-cycle.md
+  state_file: memory/current-cycle.yaml
+  run_summary: null
+
+decision_log:
+  file: memory/decision-log.md
+  index_file: memory/decision-log.yaml
+  latest_decision_at: null
+
+read_order:
+  - memory/resume-brief.md
+  - memory/current-cycle.yaml
+  - memory/current-cycle.md
+  - memory/decision-log.yaml
