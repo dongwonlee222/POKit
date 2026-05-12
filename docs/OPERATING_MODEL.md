@@ -2,6 +2,20 @@
 
 POKit uses Linear as the official backlog and the current Codex/Claude session plan as the live work board.
 
+## Current Phase
+
+POKit Day 2 walking skeleton is complete. The project is now in dogfood validation: real Linear reads and approved writes are allowed only when represented by tracked Linear tasks and explicit approval.
+
+Still out of scope:
+
+- A/B test implementation
+- persona test implementation
+- PDF export
+- automatic cron
+- standalone CLI product
+
+Current-session work should start from Linear tasks, then use the session task list only as a temporary progress tracker.
+
 ## Roles
 
 - Linear issue: official task, priority, discussion, and weekly cycle placement.
@@ -28,6 +42,15 @@ Every external write needs:
 2. A visible `idempotencyKey`.
 3. Explicit user approval.
 4. An apply helper that refuses unsafe or incomplete plans.
+
+## Artifact Policy
+
+The public POKit repository should not keep user-specific generated artifacts in `artifacts/`.
+
+- `artifacts/` is the local workspace for generated PRDs, criteria, manifests, and run summaries.
+- `examples/` is the public workspace for reusable fixtures and dogfood samples.
+- Private forks may commit `memory/` and `artifacts/` when that matches the team's operating model.
+- Public commits should exclude credentials, customer data, private project details, and live workspace outputs.
 
 ## Next Backlog
 

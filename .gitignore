@@ -4,5 +4,7 @@ node_modules/
 .DS_Store
 
 # Personal artifacts. Fork users may un-ignore these in their private fork.
+artifacts/prds/*.md
+artifacts/criteria/*.md
 artifacts/sprints/*-run-summary.md
 artifacts/sprints/**/*-run-summary.md

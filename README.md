@@ -34,6 +34,10 @@ node --experimental-strip-types scripts/sprint-runner.ts
 
 The dry-run writes a Run Summary under `artifacts/sprints/`. It does not write to Linear or GitHub.
 
+Generated artifacts are local by default. The public POKit template keeps reusable samples under `examples/`; team/private forks may choose to commit their own `artifacts/` after reviewing sensitive content.
+
+If an API key appears in chat, logs, screenshots, or commits, rotate it before continuing. See `SECURITY.md`.
+
 ## Core Contract
 
 POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 절대 바꾸지 않는다.
@@ -52,6 +56,15 @@ Use Linear as the source of truth and POKit as the daily AI run layer.
 - POKit Run: daily read-only check that routes issues, drafts artifacts, and writes a Run Summary.
 - Linear writes: always represented as a dry-run approval plan first.
 
+POKit uses `LINEAR_API_KEY` and `LINEAR_TEAM_ID` to:
+
+- read teams, cycles, issues, and labels;
+- generate local PRD/criteria drafts from the current cycle;
+- prepare dry-run write plans for issue, label, cycle, or comment updates;
+- apply approved Linear writes only after explicit user approval.
+
+Without a Linear API key, users can still read the repo docs, skills, templates, and examples, but POKit cannot automatically inspect or update their Linear workspace.
+
 POKit chooses the working context in this order:
 
 1. Active Linear cycle.
@@ -66,8 +79,8 @@ See `docs/OPERATING_MODEL.md` for the working agreement between Linear, daily PO
 
 Use `examples/day2-dry-run/linear-cycle-fixture.yaml` to inspect the walking skeleton without calling Linear or GitHub.
 
-Expected outputs:
+Example outputs:
 
-- `artifacts/prds/POKIT-18.md`
-- `artifacts/criteria/POKIT-22.md`
-- `artifacts/sprints/2026-W20-dry-run-simulation.md`
+- `examples/dogfood/prds/POKIT-18.md`
+- `examples/dogfood/criteria/POKIT-22.md`
+- `examples/dogfood/sprints/2026-W20-dry-run-simulation.md`
