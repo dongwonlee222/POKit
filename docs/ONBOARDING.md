@@ -118,3 +118,85 @@ artifacts/sprints/[cycle]/retro.md
 - [ ] First Run Summary was generated.
 - [ ] At least one PRD or criteria draft was generated.
 - [ ] The user understands that external writes require dry-run review and explicit approval.
+
+## First-run Smoke Test
+
+Run these commands in order after `.env` is ready.
+
+### 1. Label Preflight
+
+```bash
+node --experimental-strip-types scripts/label-preflight.ts
+```
+
+Expected:
+
+- Prints `POKit Label Preflight Plan`.
+- Prints an `idempotencyKey`.
+- Does not create labels.
+- If `writes` is not `none`, stop and review the dry-run plan before approving any label creation.
+
+Check when it fails:
+
+- `LINEAR_API_KEY` exists in `.env`.
+- `LINEAR_TEAM_ID` exists in `.env`.
+- The API key can access the selected Linear workspace.
+
+### 2. Read-only Sprint Dry-run
+
+```bash
+node --experimental-strip-types scripts/sprint-runner.ts
+```
+
+Expected:
+
+- Writes `artifacts/sprints/[cycle]/[date]-run-summary.md`.
+- The first section is `AI가 하지 않은 것`.
+- Does not write to Linear or GitHub.
+
+Check when it fails:
+
+- The Linear team has an active cycle, upcoming cycle, or backlog issues.
+- The selected team id matches the workspace you expect.
+
+### 3. Artifact Draft Generation
+
+```bash
+node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
+```
+
+Expected:
+
+- Writes local PRD or criteria drafts for issues labeled `pokit:prd` or `pokit:criteria`.
+- Writes artifact paths under `Artifact Write Result` in the Run Summary.
+- Does not write to GitHub.
+- Does not write to Linear unless a separate dry-run plan is explicitly approved.
+
+Check when it generates nothing:
+
+- At least one active cycle issue has `pokit:prd` or `pokit:criteria`.
+- The issue has enough description for a draft.
+- Completed or canceled Linear issues are skipped.
+
+### 4. Retro Draft
+
+```bash
+node --experimental-strip-types scripts/retro-summary.ts
+```
+
+Expected:
+
+- Writes `artifacts/sprints/[cycle]/retro.md`.
+- Includes `external_writes: none`.
+- Summarizes completed issues, unfinished issues, generated artifacts, and decision-log candidates.
+
+Check when it looks empty:
+
+- Run `scripts/sprint-runner.ts --write-artifacts` first.
+- Confirm generated artifacts exist under `artifacts/prds/` or `artifacts/criteria/`.
+
+### Write Safety Summary
+
+- Read-only/no external write: `label-preflight`, `sprint-runner`, `retro-summary`.
+- Local file write only: `sprint-runner --write-artifacts`, `retro-summary`.
+- External Linear/GitHub write: only allowed through a dry-run plan plus explicit user approval.
