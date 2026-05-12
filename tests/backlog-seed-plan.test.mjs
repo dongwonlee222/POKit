@@ -29,3 +29,12 @@ test("renderBacklogSeedPlanMarkdown shows approval-first warning", async () => {
   assert.match(markdown, /idempotencyKey/);
   assert.match(markdown, /pokit:prd|pokit:criteria/);
 });
+
+test("applyBacklogSeedPlans refuses without explicit approval", async () => {
+  const { applyBacklogSeedPlans } = await loadSeedModule();
+
+  await assert.rejects(
+    () => applyBacklogSeedPlans(),
+    /--apply-approved/
+  );
+});

@@ -335,3 +335,60 @@ test("listIssues reads cycle issues and normalizes labels", async () => {
     },
   ]);
 });
+
+test("applyCreateIssue refuses to write without explicit approval", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { applyCreateIssue, planCreateIssue } = await loadLinearModule();
+  const plan = await planCreateIssue({ title: "Seed issue" });
+
+  await assert.rejects(
+    () => applyCreateIssue(plan),
+    /explicit approval/
+  );
+});
+
+test("applyCreateIssue creates an issue only with approval and idempotency key", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        issueCreate: {
+          success: true,
+          issue: {
+            id: "issue-created",
+            identifier: "EVM-20",
+            title: "Seed issue",
+            description: "Seed description",
+            url: "https://linear.app/example/issue/EVM-20",
+            labels: { nodes: [{ name: "pokit:criteria" }] },
+            state: { name: "Todo" },
+            assignee: null,
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyCreateIssue, planCreateIssue } = await loadLinearModule();
+  const plan = await planCreateIssue({
+    title: "Seed issue",
+    description: "Seed description",
+    labels: ["pokit:criteria"],
+  });
+
+  const issue = await applyCreateIssue(plan, { approved: true });
+
+  assert.match(requestBody.query, /mutation CreateIssue/);
+  assert.doesNotMatch(requestBody.query, /query /);
+  assert.equal(requestBody.variables.input.teamId, "team-123");
+  assert.equal(requestBody.variables.input.title, "Seed issue");
+  assert.match(requestBody.variables.input.description, /Seed description/);
+  assert.match(requestBody.variables.input.description, /POKit labels requested: pokit:criteria/);
+  assert.match(requestBody.variables.input.description, /POKit idempotency key: linear:create_issue:Seed issue/);
+  assert.deepEqual(requestBody.variables.input.labelIds, []);
+  assert.equal(requestBody.variables.idempotencyKey, undefined);
+  assert.equal(issue.identifier, "EVM-20");
+});

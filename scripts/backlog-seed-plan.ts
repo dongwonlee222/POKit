@@ -1,4 +1,4 @@
-import { planCreateIssue, type Plan } from "./linear.ts";
+import { applyCreateIssue, planCreateIssue, type Issue, type Plan } from "./linear.ts";
 
 type SeedIssue = {
   title: string;
@@ -96,7 +96,28 @@ export function renderBacklogSeedPlanMarkdown(plans: Plan[]): string {
   return lines.join("\n");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+export async function applyBacklogSeedPlans(options: { approved?: boolean } = {}): Promise<Issue[]> {
+  if (!options.approved) {
+    throw new Error("Refusing to create Linear seed issues without --apply-approved.");
+  }
   const plans = await buildBacklogSeedPlans();
-  console.log(renderBacklogSeedPlanMarkdown(plans));
+  const created: Issue[] = [];
+  for (const plan of plans) {
+    created.push(await applyCreateIssue(plan, { approved: true }));
+  }
+  return created;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  if (process.argv.includes("--apply-approved")) {
+    const created = await applyBacklogSeedPlans({ approved: true });
+    console.log(JSON.stringify(created.map((issue) => ({
+      identifier: issue.identifier,
+      title: issue.title,
+      url: issue.url,
+    })), null, 2));
+  } else {
+    const plans = await buildBacklogSeedPlans();
+    console.log(renderBacklogSeedPlanMarkdown(plans));
+  }
 }

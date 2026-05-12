@@ -18,6 +18,12 @@ export type IssueInput = {
   cycleId?: string;
 };
 
+type CreateIssuePayload = IssueInput;
+
+export type ApplyOptions = {
+  approved?: boolean;
+};
+
 export type Issue = {
   id: string;
   identifier: string;
@@ -345,9 +351,68 @@ export async function planCreateIssue(input: IssueInput): Promise<Plan> {
   };
 }
 
-export async function applyCreateIssue(plan: Plan): Promise<Issue> {
-  void plan;
-  throw new Error("Refusing external write until Linear apply is implemented with approval checks.");
+export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
+  if (!options.approved) {
+    throw new Error("Refusing external write without explicit approval.");
+  }
+  if (!plan.idempotencyKey) {
+    throw new Error("Refusing external write without idempotency key.");
+  }
+  if (plan.writes.length !== 1 || plan.writes[0].type !== "create_issue") {
+    throw new Error("Refusing create issue apply for unsupported plan shape.");
+  }
+  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const payload = plan.writes[0].payload as CreateIssuePayload;
+  if (!payload.title) {
+    throw new Error("Refusing create issue apply without title.");
+  }
+  const description = [
+    payload.description,
+    payload.labels?.length ? `\n\nPOKit labels requested: ${payload.labels.join(", ")}` : "",
+    `\n\nPOKit idempotency key: ${plan.idempotencyKey}`,
+  ].filter(Boolean).join("");
+  const data = await linearGraphql<{
+    issueCreate: {
+      success: boolean;
+      issue: LinearIssueNode;
+    };
+  }>(`
+    mutation CreateIssue($input: IssueCreateInput!) {
+      issueCreate(input: $input) {
+        success
+        issue {
+          id
+          identifier
+          title
+          description
+          url
+          labels {
+            nodes {
+              name
+            }
+          }
+          state {
+            name
+          }
+          assignee {
+            name
+          }
+        }
+      }
+    }
+  `, {
+    input: {
+      teamId,
+      title: payload.title,
+      description,
+      cycleId: payload.cycleId,
+      labelIds: [],
+    },
+  });
+  if (!data.issueCreate.success) {
+    throw new Error("Linear issueCreate returned success=false.");
+  }
+  return normalizeIssue(data.issueCreate.issue);
 }
 
 export async function planMissingLabels(labels: string[]): Promise<Plan> {
