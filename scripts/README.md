@@ -10,6 +10,12 @@ External write hooks must satisfy `before_external_write` in `workflows/hooks.ya
 
 `scripts/linear.ts` reads `LINEAR_API_KEY` and `LINEAR_TEAM_ID` from the environment or local `.env`.
 
+If you do not know your team id yet, list accessible teams first:
+
+```bash
+node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(await m.listTeams()))"
+```
+
 Quick read-only smoke test:
 
 ```bash

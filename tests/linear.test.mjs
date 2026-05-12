@@ -109,6 +109,44 @@ test("getCurrentCycle can read Linear env values from local .env", async () => {
   assert.equal(cycle.id, "cycle-from-file");
 });
 
+test("listTeams reads accessible Linear teams without requiring LINEAR_TEAM_ID", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  delete process.env.LINEAR_TEAM_ID;
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        teams: {
+          nodes: [
+            {
+              id: "team-123",
+              key: "POK",
+              name: "POKit",
+            },
+            {
+              id: "team-456",
+              key: "PROD",
+              name: "Product",
+            },
+          ],
+        },
+      },
+    }), { status: 200 });
+  };
+  const { listTeams } = await loadLinearModule();
+
+  const teams = await listTeams();
+
+  assert.equal(requestBody.variables.first, 100);
+  assert.match(requestBody.query, /query Teams/);
+  assert.doesNotMatch(requestBody.query, /mutation/);
+  assert.deepEqual(teams, [
+    { id: "team-123", key: "POK", name: "POKit" },
+    { id: "team-456", key: "PROD", name: "Product" },
+  ]);
+});
+
 test("listIssues reads cycle issues and normalizes labels", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";

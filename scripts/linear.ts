@@ -37,6 +37,12 @@ export type Cycle = {
   endsAt?: string;
 };
 
+export type Team = {
+  id: string;
+  key: string;
+  name: string;
+};
+
 const LINEAR_GRAPHQL_ENDPOINT = "https://api.linear.app/graphql";
 let dotEnvLoaded = false;
 
@@ -140,6 +146,30 @@ export async function getCurrentCycle(): Promise<Cycle> {
     throw new Error(`No active Linear cycle found for team ${teamId}.`);
   }
   return cycle;
+}
+
+export async function listTeams(): Promise<Team[]> {
+  readRequiredEnv("LINEAR_API_KEY");
+  const data = await linearGraphql<{
+    teams: {
+      nodes: Team[];
+    };
+  }>(`
+    query Teams($first: Int!) {
+      teams(first: $first) {
+        nodes {
+          id
+          key
+          name
+        }
+      }
+    }
+  `, { first: 100 });
+  return data.teams.nodes.map((team) => ({
+    id: team.id,
+    key: team.key,
+    name: team.name,
+  }));
 }
 
 export async function listIssues(cycleId: string): Promise<Issue[]> {
