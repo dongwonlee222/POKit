@@ -4,37 +4,55 @@ POKit의 첫 번째 약속은 신뢰다.
 
 POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a separate CLI, SaaS, or chat UI. Clone or fork this repo, fill `.env`, open Codex CLI or Claude Code in the repo root, and work in natural language.
 
-New users should start with `docs/ONBOARDING.md`.
+Start with [docs/ONBOARDING.md](docs/ONBOARDING.md) when setting up a new workspace.
 
-## First Run
+## 5 Minute Quickstart
 
-1. Clone or fork this repo.
-2. Create a local `.env` from `.env.example`.
-3. Add a Linear personal API key:
+1. Clone or fork this repo, then open the repo root in Codex CLI or Claude Code.
+2. Create a local `.env` from `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+3. Add Linear credentials to `.env`:
 
 ```bash
 LINEAR_API_KEY=lin_api_...
+LINEAR_TEAM_ID=...
 ```
 
-4. Find your Linear team id:
+If you do not know the team id yet:
 
 ```bash
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(await m.listTeams()))"
 ```
 
-5. Add the selected team id to `.env`:
+4. Check required labels with a dry-run:
 
 ```bash
-LINEAR_TEAM_ID=...
+node --experimental-strip-types scripts/label-preflight.ts
 ```
 
-6. Run a read-only daily sprint dry-run:
+5. Run the first read-only sprint dry-run:
 
 ```bash
 node --experimental-strip-types scripts/sprint-runner.ts
 ```
 
-The dry-run writes a Run Summary under `artifacts/sprints/`. It does not write to Linear or GitHub.
+6. Generate local draft artifacts when the Run Summary looks right:
+
+```bash
+node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
+```
+
+Expected local outputs:
+
+- `artifacts/sprints/[cycle]/[date]-run-summary.md`
+- `artifacts/prds/[issue-id].md`
+- `artifacts/criteria/[issue-id].md`
+
+These commands do not write to GitHub. Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
 
 Generated artifacts are local by default. The public POKit template keeps reusable samples under `examples/`; team/private forks may choose to commit their own `artifacts/` after reviewing sensitive content.
 
