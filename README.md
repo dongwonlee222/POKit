@@ -4,6 +4,36 @@ POKit의 첫 번째 약속은 신뢰다.
 
 POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a separate CLI, SaaS, or chat UI. Clone or fork this repo, fill `.env`, open Codex CLI or Claude Code in the repo root, and work in natural language.
 
+## First Run
+
+1. Clone or fork this repo.
+2. Create a local `.env` from `.env.example`.
+3. Add a Linear personal API key:
+
+```bash
+LINEAR_API_KEY=lin_api_...
+```
+
+4. Find your Linear team id:
+
+```bash
+node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(await m.listTeams()))"
+```
+
+5. Add the selected team id to `.env`:
+
+```bash
+LINEAR_TEAM_ID=...
+```
+
+6. Run a read-only daily sprint dry-run:
+
+```bash
+node --experimental-strip-types scripts/sprint-runner.ts
+```
+
+The dry-run writes a Run Summary under `artifacts/sprints/`. It does not write to Linear or GitHub.
+
 ## Core Contract
 
 POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 절대 바꾸지 않는다.

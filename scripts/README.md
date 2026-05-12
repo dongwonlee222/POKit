@@ -30,4 +30,10 @@ node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m)
 
 `getWorkingCycleContext()` uses the active cycle first, then the next upcoming cycle, then the team backlog.
 
+Write a local Run Summary dry-run:
+
+```bash
+node --experimental-strip-types scripts/sprint-runner.ts
+```
+
 This command only calls GraphQL queries. It does not call any `apply*` write helper.

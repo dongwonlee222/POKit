@@ -5,3 +5,4 @@ node_modules/
 
 # Personal artifacts. Fork users may un-ignore these in their private fork.
 artifacts/sprints/*-run-summary.md
+artifacts/sprints/**/*-run-summary.md
