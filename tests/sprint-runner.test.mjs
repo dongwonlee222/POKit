@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 async function loadRunnerModule() {
@@ -86,4 +90,76 @@ test("buildSprintDryRunSummary handles empty cycle without external writes", asy
   assert.equal(result.needsApproval.length, 0);
   assert.match(result.markdown, /Cycle issue가 없음/);
   assert.match(result.markdown, /Linear\/GitHub 외부 write를 실행하지 않음/);
+});
+
+test("writeArtifactDrafts creates PRD and criteria drafts with content hash", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-artifacts-"));
+  const { buildSprintDryRunSummary, writeArtifactDrafts } = await loadRunnerModule();
+  const summary = buildSprintDryRunSummary({
+    generatedAt: "2026-05-12T12:00:00+09:00",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        {
+          id: "issue-prd",
+          identifier: "EVM-10",
+          title: "결제 실패 사유 안내",
+          description: "고객이 다음 행동을 알 수 있게 한다.\n\nPOKit labels requested: pokit:prd\n\nPOKit idempotency key: linear:create_issue:test",
+          labels: ["pokit:prd"],
+        },
+        {
+          id: "issue-criteria",
+          identifier: "EVM-11",
+          title: "State Brief 표시",
+          description: "세션 시작 시 cycle 상태를 보여준다.",
+          labels: ["pokit:criteria"],
+        },
+      ],
+    },
+  });
+
+  const result = writeArtifactDrafts(summary, { rootDir: tempDir });
+
+  assert.deepEqual(result.written.sort(), [
+    "artifacts/criteria/EVM-11.md",
+    "artifacts/prds/EVM-10.md",
+  ]);
+  const prd = await readFile(join(tempDir, "artifacts/prds/EVM-10.md"), "utf8");
+  const criteria = await readFile(join(tempDir, "artifacts/criteria/EVM-11.md"), "utf8");
+  assert.match(prd, /artifact_type: prd/);
+  assert.match(prd, /content_hash: [a-f0-9]{64}/);
+  assert.match(prd, /# PRD Draft: 결제 실패 사유 안내/);
+  assert.doesNotMatch(prd, /POKit idempotency key/);
+  assert.match(criteria, /artifact_type: acceptance_criteria/);
+  assert.match(criteria, /# Acceptance Criteria Draft: State Brief 표시/);
+});
+
+test("writeArtifactDrafts does not overwrite edited artifact when hash changed", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-artifacts-"));
+  const { buildSprintDryRunSummary, writeArtifactDrafts } = await loadRunnerModule();
+  const summary = buildSprintDryRunSummary({
+    generatedAt: "2026-05-12T12:00:00+09:00",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        {
+          id: "issue-prd",
+          identifier: "EVM-10",
+          title: "결제 실패 사유 안내",
+          description: "고객이 다음 행동을 알 수 있게 한다.",
+          labels: ["pokit:prd"],
+        },
+      ],
+    },
+  });
+
+  writeArtifactDrafts(summary, { rootDir: tempDir });
+  await writeFile(join(tempDir, "artifacts/prds/EVM-10.md"), "---\ncontent_hash: edited\n---\n\nhuman edit\n");
+  const result = writeArtifactDrafts(summary, { rootDir: tempDir });
+
+  assert.deepEqual(result.written, []);
+  assert.equal(result.needsApproval[0].path, "artifacts/prds/EVM-10.md");
+  assert.equal(existsSync(join(tempDir, "artifacts/prds/EVM-10.md")), true);
 });

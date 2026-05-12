@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
 
@@ -40,6 +41,14 @@ export type SprintDryRunSummary = {
   needsApproval: ApprovalPlan[];
   failed: Array<{ issue: Issue; reason: string }>;
   markdown: string;
+};
+
+export type ArtifactWriteResult = {
+  written: string[];
+  needsApproval: Array<{
+    path: string;
+    reason: string;
+  }>;
 };
 
 type BuildInput = {
@@ -143,6 +152,35 @@ export function writeSprintDryRunSummary(summary: SprintDryRunSummary): string {
   return outputPath;
 }
 
+export function writeArtifactDrafts(summary: SprintDryRunSummary, options: { rootDir?: string } = {}): ArtifactWriteResult {
+  const rootDir = options.rootDir ?? ".";
+  const result: ArtifactWriteResult = {
+    written: [],
+    needsApproval: [],
+  };
+  for (const item of summary.generated) {
+    const body = renderArtifactDraft(item, summary);
+    const contentHash = hashContent(body);
+    const content = body.replace("content_hash: __CONTENT_HASH__", `content_hash: ${contentHash}`);
+    const outputPath = join(rootDir, item.path);
+    if (existsSync(outputPath)) {
+      const existing = readFileSync(outputPath, "utf8");
+      const existingHash = readFrontmatterValue(existing, "content_hash");
+      if (existingHash !== contentHash) {
+        result.needsApproval.push({
+          path: item.path,
+          reason: "Existing artifact content hash differs; refusing to overwrite.",
+        });
+        continue;
+      }
+    }
+    mkdirSync(join(outputPath, ".."), { recursive: true });
+    writeFileSync(outputPath, content, "utf8");
+    result.written.push(item.path);
+  }
+  return result;
+}
+
 function hasEnoughContext(issue: Issue): boolean {
   return Boolean(issue.description?.trim());
 }
@@ -153,6 +191,111 @@ function proposeLabel(issue: Issue): "pokit:prd" | "pokit:criteria" {
     return "pokit:prd";
   }
   return "pokit:criteria";
+}
+
+function renderArtifactDraft(item: GeneratedItem, summary: SprintDryRunSummary): string {
+  if (item.artifactType === "prd") {
+    return [
+      "---",
+      `linear_issue_id: ${item.issue.identifier}`,
+      `cycle_id: ${summary.context.cycle.id}`,
+      "artifact_type: prd",
+      "status: draft",
+      "skill_used: prd-author",
+      "content_hash: __CONTENT_HASH__",
+      "---",
+      "",
+      `# PRD Draft: ${item.issue.title}`,
+      "",
+      "## Problem",
+      "",
+      cleanIssueDescription(item.issue.description),
+      "",
+      "## Goal",
+      "",
+      "- TODO: 목표를 PO가 확인한다.",
+      "",
+      "## Non-Goals",
+      "",
+      "- TODO: 제외 범위를 PO가 확인한다.",
+      "",
+      "## User Scenario",
+      "",
+      "- TODO: 대표 사용자 시나리오를 작성한다.",
+      "",
+      "## Requirements",
+      "",
+      "- TODO: 구현 요구사항을 정리한다.",
+      "",
+      "## Acceptance Notes",
+      "",
+      "- TODO: 검증 관점 메모를 정리한다.",
+      "",
+      "## Open Questions",
+      "",
+      "- TODO: PO 확인 질문을 정리한다.",
+      "",
+      "## Source Context",
+      "",
+      `- Linear issue: ${item.issue.identifier}`,
+      `- Linear URL: ${item.issue.url ?? "N/A"}`,
+      `- Labels: ${item.issue.labels.join(", ")}`,
+      "",
+    ].join("\n");
+  }
+  return [
+    "---",
+    `linear_issue_id: ${item.issue.identifier}`,
+    `cycle_id: ${summary.context.cycle.id}`,
+    "artifact_type: acceptance_criteria",
+    "status: draft",
+    "skill_used: acceptance-criteria-author",
+    "content_hash: __CONTENT_HASH__",
+    "---",
+    "",
+    `# Acceptance Criteria Draft: ${item.issue.title}`,
+    "",
+    "## Scenario",
+    "",
+    cleanIssueDescription(item.issue.description),
+    "",
+    "## Criteria",
+    "",
+    "- Given TODO",
+    "- When TODO",
+    "- Then TODO",
+    "",
+    "## Edge Cases",
+    "",
+    "- TODO: edge case를 정리한다.",
+    "",
+    "## Open Questions",
+    "",
+    "- TODO: PO 확인 질문을 정리한다.",
+    "",
+    "## Source Context",
+    "",
+    `- Linear issue: ${item.issue.identifier}`,
+    `- Linear URL: ${item.issue.url ?? "N/A"}`,
+    `- Labels: ${item.issue.labels.join(", ")}`,
+    "",
+  ].join("\n");
+}
+
+function hashContent(content: string): string {
+  return createHash("sha256").update(content.replace("content_hash: __CONTENT_HASH__", "content_hash:")).digest("hex");
+}
+
+function cleanIssueDescription(description: string | undefined): string {
+  return (description ?? "")
+    .replace(/\n*POKit labels requested:.*$/gm, "")
+    .replace(/\n*POKit idempotency key:.*$/gm, "")
+    .trim();
+}
+
+function readFrontmatterValue(content: string, key: string): string | null {
+  const match = content.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
+  return match?.[1]?.trim() ?? null;
 }
 
 function renderRunSummary(summary: SprintDryRunSummary): string {
@@ -251,6 +394,10 @@ function safePathSegment(value: string): string {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const summary = await runSprintDryRun();
+  if (process.argv.includes("--write-artifacts")) {
+    const result = writeArtifactDrafts(summary);
+    console.log(JSON.stringify(result, null, 2));
+  }
   const outputPath = writeSprintDryRunSummary(summary);
   console.log(`Wrote ${outputPath}`);
 }
