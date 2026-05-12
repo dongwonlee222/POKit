@@ -104,7 +104,7 @@ test("buildSprintDryRunSummary handles empty cycle without external writes", asy
 
 test("writeArtifactDrafts creates PRD and criteria drafts with content hash", async () => {
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-artifacts-"));
-  const { buildSprintDryRunSummary, writeArtifactDrafts } = await loadRunnerModule();
+  const { attachArtifactWriteResult, buildSprintDryRunSummary, writeArtifactDrafts } = await loadRunnerModule();
   const summary = buildSprintDryRunSummary({
     generatedAt: "2026-05-12T12:00:00+09:00",
     context: {
@@ -143,6 +143,11 @@ test("writeArtifactDrafts creates PRD and criteria drafts with content hash", as
   assert.doesNotMatch(prd, /POKit idempotency key/);
   assert.match(criteria, /artifact_type: acceptance_criteria/);
   assert.match(criteria, /# Acceptance Criteria Draft: State Brief 표시/);
+
+  const updatedSummary = attachArtifactWriteResult(summary, result);
+  assert.match(updatedSummary.markdown, /## 7\. Artifact Write Result/);
+  assert.match(updatedSummary.markdown, /`artifacts\/prds\/EVM-10\.md`/);
+  assert.match(updatedSummary.markdown, /needs approval:\n  - 없음/);
 });
 
 test("writeArtifactDrafts does not overwrite edited artifact when hash changed", async () => {

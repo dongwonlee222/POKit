@@ -46,6 +46,7 @@ export type SprintDryRunSummary = {
   needsApproval: ApprovalPlan[];
   skipped: SkippedItem[];
   failed: Array<{ issue: Issue; reason: string }>;
+  artifactWriteResult?: ArtifactWriteResult;
   markdown: string;
 };
 
@@ -194,6 +195,16 @@ export function writeArtifactDrafts(summary: SprintDryRunSummary, options: { roo
     result.written.push(item.path);
   }
   return result;
+}
+
+export function attachArtifactWriteResult(summary: SprintDryRunSummary, result: ArtifactWriteResult): SprintDryRunSummary {
+  const updated: SprintDryRunSummary = {
+    ...summary,
+    artifactWriteResult: result,
+    markdown: "",
+  };
+  updated.markdown = renderRunSummary(updated);
+  return updated;
 }
 
 function hasEnoughContext(issue: Issue): boolean {
@@ -400,7 +411,29 @@ function renderRunSummary(summary: SprintDryRunSummary): string {
     }
   }
 
-  lines.push("", "## 7. 다음 추천 행동", "");
+  lines.push("", "## 7. Artifact Write Result", "");
+  if (!summary.artifactWriteResult) {
+    lines.push("- write-artifacts 실행 안 함");
+  } else {
+    lines.push("- written:");
+    if (summary.artifactWriteResult.written.length === 0) {
+      lines.push("  - 없음");
+    } else {
+      for (const path of summary.artifactWriteResult.written) {
+        lines.push(`  - \`${path}\``);
+      }
+    }
+    lines.push("- needs approval:");
+    if (summary.artifactWriteResult.needsApproval.length === 0) {
+      lines.push("  - 없음");
+    } else {
+      for (const item of summary.artifactWriteResult.needsApproval) {
+        lines.push(`  - \`${item.path}\`: ${item.reason}`);
+      }
+    }
+  }
+
+  lines.push("", "## 8. 다음 추천 행동", "");
   if (summary.needsLabel.length > 0) {
     lines.push(`"${summary.needsLabel[0].issue.identifier}는 ${summary.needsLabel[0].proposedLabel}로 진행하자"`);
   } else if (summary.needsClarification.length > 0) {
@@ -419,9 +452,10 @@ function safePathSegment(value: string): string {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const summary = await runSprintDryRun();
+  let summary = await runSprintDryRun();
   if (process.argv.includes("--write-artifacts")) {
     const result = writeArtifactDrafts(summary);
+    summary = attachArtifactWriteResult(summary, result);
     console.log(JSON.stringify(result, null, 2));
   }
   const outputPath = writeSprintDryRunSummary(summary);
