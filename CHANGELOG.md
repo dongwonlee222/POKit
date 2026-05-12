@@ -7,7 +7,11 @@ POKit v0.1.0 is the Day 2 dogfood release candidate.
 ### Included
 
 - GitHub-distributed repo-native AI workspace for PO/PM work.
+- LLM-first quickstart for Codex and Claude natural-language use.
+- POKit Brief / next-cycle nudge dashboard.
+- Goal-loop guidance for Claude Code `/goal` and Codex skill-based operation.
 - Linear read helpers for teams, working cycle context, cycle issues, and labels.
+- Optional Linear team selection with automatic single-team detection and `LINEAR_TEAM_KEY` support.
 - Dry-run first Linear write helpers with idempotency keys and explicit approval guards.
 - Sprint runner that routes `pokit:prd` and `pokit:criteria` issues.
 - Run Summary with `AI가 하지 않은 것` first.
@@ -15,7 +19,7 @@ POKit v0.1.0 is the Day 2 dogfood release candidate.
 - Completed/canceled Linear issue skipping.
 - Label preflight dry-run helper.
 - Cycle retro draft helper.
-- Onboarding checklist, README quickstart, first-run smoke test, and example Linear issues.
+- Onboarding checklist, README quickstart, first-run smoke test, skill guidance, and example Linear issues.
 - Security guidance for `.env`, API key rotation, and generated artifacts.
 - Public repo artifact policy: dogfood examples live under `examples/`, local generated outputs stay under `artifacts/`.
 
@@ -31,7 +35,7 @@ POKit v0.1.0 is the Day 2 dogfood release candidate.
 ### Release Gate
 
 - Clean check recorded in `docs/RELEASE_CHECKLIST.md`.
-- Test suite passed: 27/27.
+- Test suite passed: 31/31.
 - GitHub tag `v0.1.0` is not created yet.
 - GitHub release is not created yet.
 - Tag/release creation requires separate user approval.

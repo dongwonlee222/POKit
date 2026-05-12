@@ -12,7 +12,8 @@ Checked on 2026-05-12.
 - [x] `.env` is not tracked.
 - [x] Generated local artifacts under `artifacts/prds/*.md`, `artifacts/criteria/*.md`, `artifacts/sprints/**/retro.md`, and `artifacts/sprints/**/*-run-summary.md` are not tracked.
 - [x] Secret pattern scan found no committed Linear API key, GitHub token, Supabase password, or private key.
-- [x] Test suite passed: 27/27.
+- [x] LLM-first README and onboarding flow checked.
+- [x] Test suite passed: 31/31.
 
 ## Release Gate
 
