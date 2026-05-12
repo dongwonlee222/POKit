@@ -60,6 +60,8 @@ POKit chooses the working context in this order:
 
 This keeps first-time personal workspaces usable before a formal cycle starts.
 
+See `docs/OPERATING_MODEL.md` for the working agreement between Linear, daily POKit runs, session task lists, and GitHub commits.
+
 ## Day 2 Dry Run
 
 Use `examples/day2-dry-run/linear-cycle-fixture.yaml` to inspect the walking skeleton without calling Linear or GitHub.

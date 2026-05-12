@@ -36,4 +36,10 @@ Write a local Run Summary dry-run:
 node --experimental-strip-types scripts/sprint-runner.ts
 ```
 
+Print the initial Linear backlog seed plan:
+
+```bash
+node --experimental-strip-types scripts/backlog-seed-plan.ts
+```
+
 This command only calls GraphQL queries. It does not call any `apply*` write helper.
