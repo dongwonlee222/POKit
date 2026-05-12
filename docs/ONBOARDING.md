@@ -88,6 +88,83 @@ artifacts/criteria/[issue-id].md
 - [ ] Confirm each generated artifact has `content_hash` frontmatter.
 - [ ] Review generated content before committing it anywhere.
 
+## Example Linear Issues
+
+Use safe sample data for the first run. Put one or both examples into your active Linear cycle.
+
+### PRD Example
+
+Title:
+
+```text
+결제 실패 사유 안내 개선
+```
+
+Description:
+
+```text
+고객이 결제 실패 후 다음 행동을 알기 어렵다.
+
+이번 cycle에서는 실패 화면에 고객용 실패 사유와 다음 행동 CTA를 보여주는 요구사항을 정리한다.
+
+Include:
+- 실패 사유를 고객용 문장으로 표시
+- 재시도 가능한 경우와 문의가 필요한 경우를 구분
+- 내부 에러 코드는 노출하지 않음
+
+Exclude:
+- 결제 정책 자체 변경
+- PG 연동 로직 변경
+```
+
+Label:
+
+```text
+pokit:prd
+```
+
+Expected output:
+
+```text
+artifacts/prds/[issue-id].md
+```
+
+### Acceptance Criteria Example
+
+Title:
+
+```text
+세션 시작 State Brief 표시
+```
+
+Description:
+
+```text
+PO가 Codex 또는 Claude Code를 repo root에서 열면 현재 cycle 상태를 짧게 확인할 수 있어야 한다.
+
+Expected behavior:
+- 현재 cycle 이름을 보여준다.
+- cycle issue 수를 보여준다.
+- 마지막 Run Summary 경로를 보여준다.
+- 상태 변화가 있을 때만 Action Nudge를 최대 1개 보여준다.
+```
+
+Label:
+
+```text
+pokit:criteria
+```
+
+Expected output:
+
+```text
+artifacts/criteria/[issue-id].md
+```
+
+### Unlabeled Issue Behavior
+
+If an issue has no `pokit:*` label, POKit does not fail silently. The sprint runner proposes a label in the Run Summary and leaves the item under `라벨 필요` with a dry-run approval plan.
+
 ## 7. Retro Draft
 
 - [ ] Generate a local cycle retro draft:
