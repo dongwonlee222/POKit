@@ -43,3 +43,11 @@ node --experimental-strip-types scripts/backlog-seed-plan.ts
 ```
 
 This command only calls GraphQL queries. It does not call any `apply*` write helper.
+
+Print the Day 2 POKit label preflight plan:
+
+```bash
+node --experimental-strip-types scripts/label-preflight.ts
+```
+
+This command checks required labels and prints a dry-run `create_label` plan. It does not create labels.
