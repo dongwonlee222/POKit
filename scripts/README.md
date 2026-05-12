@@ -51,3 +51,11 @@ node --experimental-strip-types scripts/label-preflight.ts
 ```
 
 This command checks required labels and prints a dry-run `create_label` plan. It does not create labels.
+
+Write a local cycle retro draft:
+
+```bash
+node --experimental-strip-types scripts/retro-summary.ts
+```
+
+This command reads Linear cycle state and local artifacts, then writes `artifacts/sprints/[cycle]/retro.md`. It does not write to Linear or GitHub.
