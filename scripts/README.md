@@ -69,3 +69,14 @@ node --experimental-strip-types scripts/session-brief.ts
 ```
 
 This command reads Linear cycle state and local run artifacts, then prints the next-cycle nudge dashboard. It does not write to Linear or GitHub.
+
+Print detail views for quick follow-up commands:
+
+```bash
+node --experimental-strip-types scripts/session-brief.ts --detail cycle
+node --experimental-strip-types scripts/session-brief.ts --detail backlog
+node --experimental-strip-types scripts/session-brief.ts --detail approvals
+node --experimental-strip-types scripts/session-brief.ts --candidate 1
+```
+
+Use these when the user asks for "cycle 자세히", "backlog 자세히", or a numbered candidate detail before approving the next run.

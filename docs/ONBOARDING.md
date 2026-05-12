@@ -19,9 +19,19 @@ POKit 시작해줘. Brief의 다음 후보를 기준으로 task list를 만들�
 
 - [ ] Confirm the response includes:
   - current cycle status;
-  - next cycle candidates;
+  - numbered next cycle candidates with issue IDs and titles;
   - one recommended bundle;
   - an execution sentence you can approve or edit.
+- [ ] Use numbered commands when you want to move fast:
+
+```text
+1번 자세히 보여줘
+1, 2, 3번 다음 cycle에 담고 돌려줘
+cycle 자세히 보여줘
+backlog 자세히 보여줘
+승인 대기 자세히 보여줘
+```
+
 - [ ] Let the LLM run helper scripts only when it needs data, verification, or local artifact generation.
 
 Manual Node commands below are smoke tests and fallback checks. The normal workflow is natural language first.
@@ -39,6 +49,7 @@ When you say `POKit 시작해줘`, the LLM should:
 - [ ] show the compact POKit Brief;
 - [ ] inspect Linear cycle state through helper scripts when needed;
 - [ ] identify next cycle candidates and one recommended bundle;
+- [ ] map brief numbers back to Linear issue IDs before making any write plan;
 - [ ] show any approval-needed external write plan before applying it;
 - [ ] keep Node commands behind the scenes unless you are troubleshooting.
 

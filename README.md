@@ -30,7 +30,7 @@ POKit 시작해줘
 5. Follow the brief's execution sentence, for example:
 
 ```text
-다음 cycle에 EVM-20, EVM-21, EVM-22 담고 POKit 돌려줘
+1번, 2번, 3번 다음 cycle에 담고 POKit 돌려줘
 ```
 
 Expected local outputs after a run:
@@ -43,8 +43,17 @@ POKit should start with a compact brief:
 
 ```text
 📌 현재: Todo 3 · 진행 1 · 완료 1
-🧺 다음 후보: EVM-20, EVM-21, EVM-25
-💬 실행: “다음 cycle에 EVM-20, EVM-21, EVM-25 담고 POKit 돌려줘”
+🧺 다음 후보
+1. EVM-20 LLM-first Quickstart · Todo · pokit:criteria
+2. EVM-21 Team optional · Todo · pokit:criteria
+3. EVM-25 Session brief · Todo · pokit:criteria
+💬 실행: “1번, 2번, 3번 다음 cycle에 담고 POKit 돌려줘”
+⚡ 빠른 명령
+1. “1번 자세히 보여줘”
+2. “1, 2, 3번 다음 cycle에 담고 돌려줘”
+3. “cycle 자세히 보여줘”
+4. “backlog 자세히 보여줘”
+5. “승인 대기 자세히 보여줘”
 ```
 
 Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
@@ -55,6 +64,10 @@ Node commands are helper checks. The primary workflow is: user asks in natural l
 
 ```bash
 node --experimental-strip-types scripts/session-brief.ts
+node --experimental-strip-types scripts/session-brief.ts --candidate 1
+node --experimental-strip-types scripts/session-brief.ts --detail cycle
+node --experimental-strip-types scripts/session-brief.ts --detail backlog
+node --experimental-strip-types scripts/session-brief.ts --detail approvals
 node --experimental-strip-types scripts/label-preflight.ts
 node --experimental-strip-types scripts/sprint-runner.ts
 node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
