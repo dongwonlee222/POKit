@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { buildArchiveGuardrail } from "./archive-guardrail.ts";
 import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 
@@ -25,6 +26,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
   const counts = countIssues(input.context.issues);
   const candidates = selectNextCandidates(input.context.issues);
   const recentDone = selectRecentDone(input.context.issues);
+  const archiveGuardrail = buildArchiveGuardrail({ issues: input.context.issues });
   const runSummaryPath = findLatestRunSummary(rootDir, input.context.cycle.name);
   const retroPath = findRetro(rootDir, input.context.cycle.name);
   const candidateIds = candidates.map((issue) => issue.identifier);
@@ -52,6 +54,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     "5. “승인 대기 자세히 보여줘”",
     "",
     `✅ 최근 완료: ${recentDone.length ? recentDone.map((issue) => issue.identifier).join(", ") : "없음"}`,
+    ...(archiveGuardrail.briefLine ? [archiveGuardrail.briefLine] : []),
     `Run Summary: ${runSummaryPath ?? "없음"}`,
     `Retro: ${retroPath ?? "없음"}`,
     "",

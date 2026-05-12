@@ -80,3 +80,11 @@ node --experimental-strip-types scripts/session-brief.ts --candidate 1
 ```
 
 Use these when the user asks for "cycle 자세히", "backlog 자세히", or a numbered candidate detail before approving the next run.
+
+Print the completed issue archive dry-run contract:
+
+```bash
+node --experimental-strip-types scripts/archive-guardrail.ts
+```
+
+This command reads Linear cycle state and proposes local `artifacts/archive/` writes when completed issues pass the 200 soft limit. It does not archive, delete, or mutate Linear issues.

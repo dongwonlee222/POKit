@@ -32,6 +32,19 @@ Current-session work should start from Linear tasks, then use the session task l
 5. Commit code/docs changes to GitHub.
 6. At cycle end, summarize completed work and open risks before closing the cycle.
 
+## Completed Issue Archive Guardrail
+
+Linear Free workspaces have a 250 issue limit, so POKit uses a 200 completed issue soft limit to avoid surprise blockers.
+
+When the current cycle/context has 200 or more completed issues:
+
+1. POKit Brief shows an archive nudge.
+2. `scripts/archive-guardrail.ts` prints a dry-run contract for local archive files.
+3. The archive contract preserves old completed issues in `artifacts/archive/linear-completed-YYYY-MM.jsonl` and `.md`.
+4. Linear cleanup stays blocked until the user explicitly approves a separate cleanup plan.
+
+POKit keeps the newest 150 completed issues visible by default and proposes older completed issues as archive candidates. This preserves useful recent context while keeping the Linear issue count below the Free plan ceiling.
+
 ## Write Safety
 
 POKit must not change Linear or GitHub silently.

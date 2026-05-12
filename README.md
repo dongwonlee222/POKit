@@ -110,6 +110,21 @@ POKit uses `LINEAR_API_KEY` and optional `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY` t
 - prepare dry-run write plans for issue, label, cycle, or comment updates;
 - apply approved Linear writes only after explicit user approval.
 
+### Completed Issue Archive Guardrail
+
+Linear Free workspaces have a 250 issue limit. POKit treats 200 completed issues as the soft limit:
+
+- below 200 completed issues: no archive nudge;
+- at 200 or more completed issues: the session Brief shows an archive recommendation;
+- archive candidates are written to local `artifacts/archive/linear-completed-YYYY-MM.jsonl` and `.md` plans first;
+- POKit never archives, deletes, or mutates Linear issues without explicit approval.
+
+To inspect the local archive dry-run contract:
+
+```bash
+node --experimental-strip-types scripts/archive-guardrail.ts
+```
+
 If the API key can access exactly one Linear team, POKit selects it automatically. If multiple teams are available, POKit asks for `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY`.
 
 Without a Linear API key, users can still read the repo docs, skills, templates, and examples, but POKit cannot automatically inspect or update their Linear workspace.
