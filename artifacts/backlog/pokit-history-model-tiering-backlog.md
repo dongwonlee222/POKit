@@ -1,6 +1,6 @@
-# POKit History and Model Tiering Backlog Dry-Run Plan
+# POKit History and Model Tiering Backlog Plan
 
-No Linear issues were created. Review this plan before approving any external write.
+This document records the reviewed backlog plan that was used to create Linear issues EVM-32 through EVM-39. It is kept as planning history; future external writes still require a fresh dry-run plan, idempotency key, and user approval.
 
 ## Context
 
@@ -212,7 +212,7 @@ Acceptance notes:
 
 ## Notes Before Applying
 
-- This is a dry-run plan only.
-- No Linear issues were created.
-- Apply only after explicit user approval.
+- This was the reviewed plan for EVM-32 through EVM-39.
+- Future changes need a new dry-run plan.
+- Apply external writes only after explicit user approval.
 - If Cycle 1 is a meta development cycle, use Cycle 2 as the first meaningful cycle-close dogfood target.

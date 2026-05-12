@@ -2,6 +2,8 @@
 
 Use this checklist to get from a fresh clone to the first POKit run. The normal workflow is LLM-first: the user speaks in Codex or Claude, and the LLM uses scripts only as helpers.
 
+POKit is meant to be forked. The public upstream repo contains reusable docs, scripts, skills, and examples. Your fork or private workspace contains your `.env`, Linear context, memory, and generated artifacts.
+
 ## 0. Start With The LLM
 
 - [ ] Open Codex CLI or Claude Code in the repository root.
@@ -33,6 +35,7 @@ backlog 자세히 보여줘
 ```
 
 - [ ] Let the LLM run helper scripts only when it needs data, verification, or local artifact generation.
+- [ ] Approve work by purpose. For example, "put these issues into the next cycle and prepare the run" can include the necessary cycle assignment and label sync. Done transitions, releases, GitHub pushes, decision-log confirmation, and cycle close confirmation still need separate approval.
 
 Manual Node commands below are smoke tests and fallback checks. The normal workflow is natural language first.
 
@@ -75,6 +78,7 @@ LINEAR_API_KEY=lin_api_...
 - [ ] Keep `.env` local. Never commit it.
 - [ ] If the API key appears in chat, logs, screenshots, commits, or shared docs, rotate it before continuing.
 - [ ] Read `SECURITY.md` before using a shared or public repo.
+- [ ] Do not paste API keys into prompts. If that happens, rotate the key.
 
 ## 3. Find Linear Team
 
@@ -95,7 +99,13 @@ LINEAR_TEAM_KEY=EVM
 
 ## 4. Label Preflight
 
-- [ ] Run the Day 2 label preflight:
+- [ ] Ask the LLM to check labels:
+
+```text
+Linear label preflight 해줘
+```
+
+- [ ] Or run the helper manually:
 
 ```bash
 node --experimental-strip-types scripts/label-preflight.ts
@@ -106,7 +116,13 @@ node --experimental-strip-types scripts/label-preflight.ts
 
 ## 5. First Read-only Sprint Dry-run
 
-- [ ] Run the sprint runner without artifact writes:
+- [ ] Ask POKit for a read-only run:
+
+```text
+이번 cycle dry-run summary 만들어줘
+```
+
+- [ ] Or run the helper manually:
 
 ```bash
 node --experimental-strip-types scripts/sprint-runner.ts
@@ -126,7 +142,13 @@ pokit:prd
 pokit:criteria
 ```
 
-- [ ] Run artifact generation:
+- [ ] Ask POKit to draft artifacts:
+
+```text
+생성 가능 항목부터 draft 만들어줘
+```
+
+- [ ] Or run the helper manually:
 
 ```bash
 node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
@@ -141,6 +163,43 @@ artifacts/criteria/[issue-id].md
 
 - [ ] Confirm each generated artifact has `content_hash` frontmatter.
 - [ ] Review generated content before committing it anywhere.
+
+## 7. First Cycle Close
+
+When all selected cycle issues are complete, ask:
+
+```text
+이번 cycle 종료 summary 만들어줘
+```
+
+Expected behavior:
+
+- POKit separates completed, carried-over, pending approval, and clarification items.
+- POKit does not mark Linear issues Done without approval.
+- POKit shows Run Summary and Retro links.
+- If the cycle is operationally complete, POKit shows one celebration message with emoji and the next execution sentence.
+
+## 8. What To Commit
+
+Public upstream repos should usually commit:
+
+- docs, scripts, skills, tests, examples;
+- sanitized templates and reusable sample artifacts.
+
+Private/team forks may choose to commit:
+
+- `memory/`;
+- selected `artifacts/`;
+- `.modu-harness/state/current.json`;
+- team-specific operating notes.
+
+Never commit:
+
+- `.env`;
+- API keys or tokens;
+- customer data;
+- private contracts or submitted originals;
+- generated artifacts that contain sensitive project context.
 
 ## Example Linear Issues
 

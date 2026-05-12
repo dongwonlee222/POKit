@@ -6,6 +6,16 @@ POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a sep
 
 Start with [docs/ONBOARDING.md](docs/ONBOARDING.md) when setting up a new workspace.
 
+## Who This Is For
+
+Use POKit when you want a lightweight AI workspace that sits on top of your Linear backlog:
+
+- PO/PMs who want PRD, acceptance criteria, run summary, and retro drafts from Linear issues.
+- Small teams that already use Linear cycles and GitHub.
+- People who prefer telling Codex or Claude what to do in natural language instead of operating a separate CLI product.
+
+POKit is a repo template. Your team owns the fork, `.env`, generated artifacts, and Linear workspace.
+
 ## 5 Minute Quickstart
 
 1. Clone or fork this repo, then open the repo root in Codex CLI or Claude Code.
@@ -27,7 +37,9 @@ LINEAR_API_KEY=lin_api_...
 POKit 시작해줘
 ```
 
-5. Follow the brief's execution sentence, for example:
+5. If your Linear workspace has no active cycle issues yet, create one safe sample issue from [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues), add `pokit:prd` or `pokit:criteria`, and put it in the current cycle.
+
+6. Follow the brief's execution sentence, for example:
 
 ```text
 1번, 2번, 3번 다음 cycle에 담고 POKit 돌려줘
@@ -57,6 +69,36 @@ POKit should start with a compact brief:
 ```
 
 Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
+
+Approval is by purpose, not by tiny mechanical step. For example, if you approve "put EVM-32 through EVM-34 into Cycle 2 and prepare the run", POKit may apply the directly required cycle assignment and label sync under that same approved plan. Destructive actions, Done transitions, releases, GitHub pushes, decision-log confirmation, and cycle-close confirmation still need their own explicit approval.
+
+## How To Use POKit Day To Day
+
+1. Put candidate work into Linear.
+2. Label each issue with one POKit routing label:
+
+```text
+pokit:prd
+pokit:criteria
+```
+
+3. Open Codex or Claude in the repo root and say:
+
+```text
+POKit 시작해줘
+```
+
+4. Pick the numbered bundle from the Brief or ask for detail:
+
+```text
+1번 자세히 보여줘
+backlog 자세히 보여줘
+1, 2, 3번 다음 cycle에 담고 돌려줘
+```
+
+5. Review generated local artifacts before sharing or committing them.
+6. Approve Linear/GitHub writes only after reading the dry-run plan and idempotency key.
+7. At the end of a cycle, run or ask for a retro/close summary before planning the next cycle.
 
 ## Helper Commands
 
@@ -94,6 +136,7 @@ POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 
 - State Brief renders every session and is read-only.
 - Action Nudge appears at most once per session and only when cycle state changed.
 - Fork users who want to commit personal memory/artifacts should review `.gitignore` first.
+- Cycle completion should feel explicit: when a cycle is operationally complete, POKit should show one short celebration message with emoji, completion count, Run Summary, Retro, and the next execution sentence.
 
 ## Linear Workflow
 
