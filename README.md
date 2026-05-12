@@ -13,3 +13,13 @@ POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 
 - State Brief renders every session and is read-only.
 - Action Nudge appears at most once per session and only when cycle state changed.
 - Fork users who want to commit personal memory/artifacts should review `.gitignore` first.
+
+## Day 2 Dry Run
+
+Use `examples/day2-dry-run/linear-cycle-fixture.yaml` to inspect the walking skeleton without calling Linear or GitHub.
+
+Expected outputs:
+
+- `artifacts/prds/POKIT-18.md`
+- `artifacts/criteria/POKIT-22.md`
+- `artifacts/sprints/2026-W20-dry-run-simulation.md`

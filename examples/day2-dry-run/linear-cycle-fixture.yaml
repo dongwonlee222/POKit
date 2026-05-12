@@ -1,0 +1,36 @@
+cycle:
+  id: 2026-W20
+  name: Day 2 Dry Run Cycle
+  starts_at: 2026-05-11
+  ends_at: 2026-05-17
+
+issues:
+  - id: issue-prd-001
+    identifier: POKIT-18
+    title: 결제 실패 사유를 고객에게 명확히 보여준다
+    labels:
+      - pokit:prd
+    description: >
+      고객이 결제 실패 후 같은 오류를 반복하지 않도록 실패 사유와 다음 행동을 안내한다.
+      정책상 노출하면 안 되는 내부 에러 코드는 숨겨야 한다.
+    expected_route: artifacts/prds/POKIT-18.md
+
+  - id: issue-criteria-001
+    identifier: POKIT-22
+    title: 세션 시작 시 현재 cycle 상태를 짧게 보여준다
+    labels:
+      - pokit:criteria
+    description: >
+      Codex 또는 Claude Code 세션 시작 시 current cycle, issue count, 마지막 run summary 링크를
+      읽기 전용 State Brief로 보여준다.
+    expected_route: artifacts/criteria/POKIT-22.md
+
+  - id: issue-unlabeled-001
+    identifier: POKIT-25
+    title: 알림 설정 개선
+    labels: []
+    description: >
+      사용자가 어떤 알림을 받을지 직접 고를 수 있게 한다.
+      상세 정책과 채널 우선순위는 아직 정해지지 않았다.
+    expected_route: Needs Label
+    proposed_label: pokit:criteria
