@@ -3,9 +3,19 @@ node_modules/
 *.local.*
 .DS_Store
 
-# Personal artifacts. Fork users may un-ignore these in their private fork.
-artifacts/prds/*.md
-artifacts/criteria/*.md
-artifacts/sprints/**/retro.md
-artifacts/sprints/*-run-summary.md
-artifacts/sprints/**/*-run-summary.md
+# Local workspace state and generated outputs. Public repos should keep real
+# work context out of git; publish sanitized examples under examples/ instead.
+.modu-harness/
+artifacts/*
+!artifacts/prds/
+artifacts/prds/*
+!artifacts/prds/.gitkeep
+!artifacts/criteria/
+artifacts/criteria/*
+!artifacts/criteria/.gitkeep
+!artifacts/manifests/
+artifacts/manifests/*
+!artifacts/manifests/.gitkeep
+!artifacts/sprints/
+artifacts/sprints/**
+!artifacts/sprints/README.md

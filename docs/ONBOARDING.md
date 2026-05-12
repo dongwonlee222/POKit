@@ -181,17 +181,19 @@ Expected behavior:
 
 ## 8. What To Commit
 
-Public upstream repos should usually commit:
+Public upstream repos should commit:
 
 - docs, scripts, skills, tests, examples;
 - sanitized templates and reusable sample artifacts.
 
-Private/team forks may choose to commit:
+Keep these local by default, even in private/team forks:
 
 - `memory/`;
-- selected `artifacts/`;
+- `artifacts/`;
 - `.modu-harness/state/current.json`;
 - team-specific operating notes.
+
+Only commit local memory or artifacts after explicit team policy and content review. If something should be public documentation, rewrite it as a sanitized example under `examples/`.
 
 Never commit:
 
@@ -299,7 +301,7 @@ artifacts/sprints/[cycle]/retro.md
 - [ ] Keep public examples under `examples/`.
 - [ ] Keep local generated outputs under `artifacts/`.
 - [ ] Do not commit private customer data, credentials, contracts, or sensitive project details.
-- [ ] In a private fork, decide as a team whether `memory/` and `artifacts/` should be committed.
+- [ ] Keep `memory/`, `artifacts/`, and `.modu-harness/` local by default. Commit them only after explicit team policy and content review.
 
 ## 9. Ready For Daily Use
 

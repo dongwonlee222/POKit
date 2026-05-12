@@ -123,7 +123,7 @@ For longer work, use the POKit goal loop:
 
 See [docs/GOAL_LOOP.md](docs/GOAL_LOOP.md).
 
-Generated artifacts are local by default. The public POKit template keeps reusable samples under `examples/`; team/private forks may choose to commit their own `artifacts/` after reviewing sensitive content.
+Generated artifacts are local by default and should stay out of public GitHub repos. The public POKit template keeps reusable, sanitized samples under `examples/`.
 
 If an API key appears in chat, logs, screenshots, or commits, rotate it before continuing. See `SECURITY.md`.
 
@@ -135,7 +135,7 @@ POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 
 - Run Summary lists generated, needs-label, needs-clarification, needs-approval, and failed items separately, with "what AI did not do" shown first.
 - State Brief renders every session and is read-only.
 - Action Nudge appears at most once per session and only when cycle state changed.
-- Fork users who want to commit personal memory/artifacts should review `.gitignore` first.
+- Do not commit real work context from `artifacts/`, `.modu-harness/`, `.env`, or generated run summaries. Publish only sanitized examples under `examples/`.
 - Cycle completion should feel explicit: when a cycle is operationally complete, POKit should show one short celebration message with emoji, completion count, Run Summary, Retro, and the next execution sentence.
 
 ## Linear Workflow

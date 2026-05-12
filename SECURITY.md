@@ -35,7 +35,8 @@ Generated PRDs, criteria, run summaries, and memory files may contain private pr
 - Keep local generated outputs under `artifacts/`.
 - Review generated files before committing them.
 - Do not put customer data, credentials, contracts, or private implementation details in the public upstream repo.
-- If your team wants to version memory or artifacts, do it in a private/team fork after reviewing the content.
+- Keep `memory/`, `artifacts/`, and `.modu-harness/` local by default, even in private/team forks.
+- If your team wants to version memory or artifacts, require explicit team policy and content review first.
 - Before pushing to a public GitHub repo, check `git status --short` and inspect every untracked artifact.
 
 ## External Writes

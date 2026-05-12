@@ -21,7 +21,7 @@ Current-session work should start from Linear tasks, then use the session task l
 POKit is distributed as a GitHub repository, not as a hosted service or standalone CLI.
 
 - Public upstream: reusable docs, scripts, skills, tests, and examples.
-- Team/private fork: local `.env`, team memory, generated artifacts, and workspace-specific operating notes.
+- Team/private workspace: local `.env`, team memory, generated artifacts, and workspace-specific operating notes. Keep these out of public GitHub pushes by default.
 - Linear workspace: official backlog, cycle placement, status, priority, and discussion history.
 
 New users should fork or clone the repo, create a local `.env`, connect Linear, and operate through Codex or Claude in the repo root.
@@ -83,8 +83,8 @@ The public POKit repository should not keep user-specific generated artifacts in
 
 - `artifacts/` is the local workspace for generated PRDs, criteria, manifests, and run summaries.
 - `examples/` is the public workspace for reusable fixtures and dogfood samples.
-- Private forks may commit `memory/` and `artifacts/` when that matches the team's operating model.
-- Public commits should exclude credentials, customer data, private project details, and live workspace outputs.
+- Public commits should exclude credentials, customer data, private project details, local memory, generated artifacts, and live workspace outputs.
+- Private/team forks should also treat `memory/`, `artifacts/`, and `.modu-harness/` as sensitive by default. Commit them only after explicit team policy and content review.
 
 If a generated artifact is useful as documentation, move or rewrite it as a sanitized example under `examples/` before committing it to a public upstream repo.
 
