@@ -1,6 +1,6 @@
 # POKit Onboarding Checklist
 
-Use this checklist to get from a fresh clone to the first POKit dry-run.
+Use this checklist to get from a fresh clone to the first POKit run. The normal workflow is LLM-first: the user speaks in Codex or Claude, and the LLM uses scripts only as helpers.
 
 ## 0. Start With The LLM
 
@@ -11,11 +11,18 @@ Use this checklist to get from a fresh clone to the first POKit dry-run.
 POKit 시작해줘
 ```
 
+- [ ] Or, for a longer run, say:
+
+```text
+POKit 시작해줘. Brief의 다음 후보를 기준으로 task list를 만들고, 하나씩 완료한 뒤 Linear Done 처리해줘.
+```
+
 - [ ] Confirm the response includes:
   - current cycle status;
   - next cycle candidates;
   - one recommended bundle;
   - an execution sentence you can approve or edit.
+- [ ] Let the LLM run helper scripts only when it needs data, verification, or local artifact generation.
 
 Manual Node commands below are smoke tests and fallback checks. The normal workflow is natural language first.
 
@@ -23,6 +30,17 @@ For multi-step work, read `docs/GOAL_LOOP.md`.
 
 - Claude Code users can use `/goal` with a verifiable completion condition.
 - Codex users can ask POKit to follow the same goal loop through Brief, task list, skills, scripts, tests, and Linear Done updates.
+
+## What The LLM Checks Internally
+
+When you say `POKit 시작해줘`, the LLM should:
+
+- [ ] read `AGENTS.md`, `docs/GOAL_LOOP.md`, and relevant POKit skills;
+- [ ] show the compact POKit Brief;
+- [ ] inspect Linear cycle state through helper scripts when needed;
+- [ ] identify next cycle candidates and one recommended bundle;
+- [ ] show any approval-needed external write plan before applying it;
+- [ ] keep Node commands behind the scenes unless you are troubleshooting.
 
 ## 1. Clone Or Fork
 
@@ -223,7 +241,7 @@ artifacts/sprints/[cycle]/retro.md
 
 ## First-run Smoke Test
 
-Run these commands in order after `.env` is ready.
+These commands are optional smoke tests after `.env` is ready. Use them when the LLM reports setup trouble or when you want to verify the local environment manually.
 
 ### 1. Label Preflight
 
