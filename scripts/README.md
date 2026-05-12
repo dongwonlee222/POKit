@@ -59,3 +59,11 @@ node --experimental-strip-types scripts/retro-summary.ts
 ```
 
 This command reads Linear cycle state and local artifacts, then writes `artifacts/sprints/[cycle]/retro.md`. It does not write to Linear or GitHub.
+
+Print the compact session start brief:
+
+```bash
+node --experimental-strip-types scripts/session-brief.ts
+```
+
+This command reads Linear cycle state and local run artifacts, then prints the next-cycle nudge dashboard. It does not write to Linear or GitHub.

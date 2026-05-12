@@ -54,6 +54,24 @@ Expected local outputs:
 
 These commands do not write to GitHub. Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
 
+## LLM-first Use
+
+After setup, use natural language in Codex or Claude:
+
+```text
+POKit 시작해줘
+```
+
+POKit should respond with a compact brief:
+
+```text
+📌 현재: Todo 3 · 진행 1 · 완료 1
+🧺 다음 후보: EVM-20, EVM-21, EVM-25
+💬 실행: “다음 cycle에 EVM-20, EVM-21, EVM-25 담고 POKit 돌려줘”
+```
+
+Node commands are helper checks. The primary workflow is: user asks in natural language, the LLM reads skills/docs, then uses scripts only when needed.
+
 Generated artifacts are local by default. The public POKit template keeps reusable samples under `examples/`; team/private forks may choose to commit their own `artifacts/` after reviewing sensitive content.
 
 If an API key appears in chat, logs, screenshots, or commits, rotate it before continuing. See `SECURITY.md`.

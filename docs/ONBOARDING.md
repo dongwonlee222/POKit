@@ -2,6 +2,23 @@
 
 Use this checklist to get from a fresh clone to the first POKit dry-run.
 
+## 0. Start With The LLM
+
+- [ ] Open Codex CLI or Claude Code in the repository root.
+- [ ] Say:
+
+```text
+POKit 시작해줘
+```
+
+- [ ] Confirm the response includes:
+  - current cycle status;
+  - next cycle candidates;
+  - one recommended bundle;
+  - an execution sentence you can approve or edit.
+
+Manual Node commands below are smoke tests and fallback checks. The normal workflow is natural language first.
+
 ## 1. Clone Or Fork
 
 - [ ] Clone or fork the POKit repository.
