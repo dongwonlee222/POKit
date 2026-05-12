@@ -101,7 +101,7 @@ type LinearCycleNode = {
   endsAt?: string;
 };
 
-function readRequiredEnv(name: "LINEAR_API_KEY" | "LINEAR_TEAM_ID"): string {
+function readRequiredEnv(name: "LINEAR_API_KEY"): string {
   loadDotEnvOnce();
   const value = process.env[name];
   if (!value) {
@@ -136,6 +136,29 @@ function loadDotEnvOnce(): void {
     }
     process.env[key] = rawValue.replace(/^["']|["']$/g, "");
   }
+}
+
+async function resolveTeamId(): Promise<string> {
+  loadDotEnvOnce();
+  if (process.env.LINEAR_TEAM_ID) {
+    return process.env.LINEAR_TEAM_ID;
+  }
+  const teams = await listTeams();
+  if (process.env.LINEAR_TEAM_KEY) {
+    const team = teams.find((candidate) => candidate.key.toLowerCase() === process.env.LINEAR_TEAM_KEY?.toLowerCase());
+    if (team) {
+      return team.id;
+    }
+    throw new Error(`No Linear team matched LINEAR_TEAM_KEY=${process.env.LINEAR_TEAM_KEY}. Available teams: ${formatTeamOptions(teams)}.`);
+  }
+  if (teams.length === 1) {
+    return teams[0].id;
+  }
+  throw new Error(`LINEAR_TEAM_ID is optional only when one team is available. Set LINEAR_TEAM_ID or LINEAR_TEAM_KEY. Available teams: ${formatTeamOptions(teams)}.`);
+}
+
+function formatTeamOptions(teams: Team[]): string {
+  return teams.map((team) => `${team.name} (${team.key}, ${team.id})`).join("; ") || "none";
 }
 
 async function linearGraphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
@@ -186,7 +209,7 @@ function normalizeIssue(issue: LinearIssueNode): Issue {
 
 export async function getCurrentCycle(): Promise<Cycle> {
   readRequiredEnv("LINEAR_API_KEY");
-  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const teamId = await resolveTeamId();
   const data = await linearGraphql<{
     team: {
       cycles: {
@@ -241,7 +264,7 @@ export async function listTeams(): Promise<Team[]> {
 
 export async function listIssues(cycleId: string): Promise<Issue[]> {
   readRequiredEnv("LINEAR_API_KEY");
-  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const teamId = await resolveTeamId();
   const data = await linearGraphql<{
     team: {
       issues: {
@@ -279,7 +302,7 @@ export async function listIssues(cycleId: string): Promise<Issue[]> {
 
 export async function listLabels(): Promise<LinearLabel[]> {
   readRequiredEnv("LINEAR_API_KEY");
-  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const teamId = await resolveTeamId();
   const data = await linearGraphql<{
     team: {
       labels: {
@@ -306,7 +329,7 @@ export async function listLabels(): Promise<LinearLabel[]> {
 
 export async function getWorkingCycleContext(): Promise<WorkingCycleContext> {
   readRequiredEnv("LINEAR_API_KEY");
-  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const teamId = await resolveTeamId();
   const data = await linearGraphql<{
     team: {
       activeCycles: { nodes: LinearCycleNode[] };
@@ -407,7 +430,7 @@ export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): 
   if (plan.writes.length !== 1 || plan.writes[0].type !== "create_issue") {
     throw new Error("Refusing create issue apply for unsupported plan shape.");
   }
-  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const teamId = await resolveTeamId();
   const payload = plan.writes[0].payload as CreateIssuePayload;
   if (!payload.title) {
     throw new Error("Refusing create issue apply without title.");
@@ -554,7 +577,7 @@ export async function applyCreateLabel(plan: Plan, options: ApplyOptions = {}): 
   if (!plan.writes.every((write) => write.type === "create_label")) {
     throw new Error("Refusing label create apply for unsupported plan shape.");
   }
-  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const teamId = await resolveTeamId();
   const labels: LinearLabel[] = [];
   for (const write of plan.writes) {
     const payload = write.payload as CreateLabelPayload;

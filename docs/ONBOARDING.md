@@ -49,16 +49,19 @@ LINEAR_API_KEY=lin_api_...
 
 ## 3. Find Linear Team
 
-- [ ] List accessible Linear teams:
+- [ ] Skip this section if your Linear API key can access only one team.
+- [ ] If POKit says multiple teams are available, list accessible Linear teams:
 
 ```bash
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(await m.listTeams()))"
 ```
 
-- [ ] Copy the intended team id into `.env`:
+- [ ] Copy either the intended team id or key into `.env`:
 
 ```bash
 LINEAR_TEAM_ID=...
+# or
+LINEAR_TEAM_KEY=EVM
 ```
 
 ## 4. Label Preflight
@@ -238,7 +241,7 @@ Expected:
 Check when it fails:
 
 - `LINEAR_API_KEY` exists in `.env`.
-- `LINEAR_TEAM_ID` exists in `.env`.
+- `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY` exists in `.env` when the API key can access multiple teams.
 - The API key can access the selected Linear workspace.
 
 ### 2. Read-only Sprint Dry-run

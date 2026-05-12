@@ -90,12 +90,14 @@ Use Linear as the source of truth and POKit as the daily AI run layer.
 - POKit Run: daily read-only check that routes issues, drafts artifacts, and writes a Run Summary.
 - Linear writes: always represented as a dry-run approval plan first.
 
-POKit uses `LINEAR_API_KEY` and `LINEAR_TEAM_ID` to:
+POKit uses `LINEAR_API_KEY` and optional `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY` to:
 
 - read teams, cycles, issues, and labels;
 - generate local PRD/criteria drafts from the current cycle;
 - prepare dry-run write plans for issue, label, cycle, or comment updates;
 - apply approved Linear writes only after explicit user approval.
+
+If the API key can access exactly one Linear team, POKit selects it automatically. If multiple teams are available, POKit asks for `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY`.
 
 Without a Linear API key, users can still read the repo docs, skills, templates, and examples, but POKit cannot automatically inspect or update their Linear workspace.
 

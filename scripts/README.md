@@ -8,7 +8,9 @@ External write hooks must satisfy `before_external_write` in `workflows/hooks.ya
 
 ## Linear Read-Only Helpers
 
-`scripts/linear.ts` reads `LINEAR_API_KEY` and `LINEAR_TEAM_ID` from the environment or local `.env`.
+`scripts/linear.ts` reads `LINEAR_API_KEY` and optional `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY` from the environment or local `.env`.
+
+If one Linear team is available, POKit selects it automatically. If multiple teams are available, set `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY`.
 
 If you do not know your team id yet, list accessible teams first:
 

@@ -76,6 +76,110 @@ test("getCurrentCycle reads the active Linear cycle without mutating", async () 
   });
 });
 
+test("getCurrentCycle auto-selects the only available Linear team", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  delete process.env.LINEAR_TEAM_ID;
+  delete process.env.LINEAR_TEAM_KEY;
+  const tempDir = join(tmpdir(), `pokit-linear-auto-team-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  process.chdir(tempDir);
+  const requestBodies = [];
+  globalThis.fetch = async (_url, init) => {
+    const requestBody = JSON.parse(init.body);
+    requestBodies.push(requestBody);
+    if (requestBody.query.includes("query Teams")) {
+      return new Response(JSON.stringify({
+        data: {
+          teams: {
+            nodes: [{ id: "team-only", key: "ONE", name: "Only Team" }],
+          },
+        },
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        team: {
+          cycles: {
+            nodes: [{ id: "cycle-only", name: "Only Cycle" }],
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { getCurrentCycle } = await loadLinearModule();
+
+  const cycle = await getCurrentCycle();
+
+  assert.equal(requestBodies[1].variables.teamId, "team-only");
+  assert.equal(cycle.id, "cycle-only");
+});
+
+test("getCurrentCycle resolves LINEAR_TEAM_KEY when team id is omitted", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_KEY = "EVM";
+  delete process.env.LINEAR_TEAM_ID;
+  const tempDir = join(tmpdir(), `pokit-linear-team-key-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  process.chdir(tempDir);
+  const requestBodies = [];
+  globalThis.fetch = async (_url, init) => {
+    const requestBody = JSON.parse(init.body);
+    requestBodies.push(requestBody);
+    if (requestBody.query.includes("query Teams")) {
+      return new Response(JSON.stringify({
+        data: {
+          teams: {
+            nodes: [
+              { id: "team-pok", key: "POK", name: "POKit" },
+              { id: "team-evm", key: "EVM", name: "Evmodu" },
+            ],
+          },
+        },
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        team: {
+          cycles: {
+            nodes: [{ id: "cycle-evm", name: "Cycle EVM" }],
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { getCurrentCycle } = await loadLinearModule();
+
+  const cycle = await getCurrentCycle();
+
+  assert.equal(requestBodies[1].variables.teamId, "team-evm");
+  assert.equal(cycle.id, "cycle-evm");
+});
+
+test("getCurrentCycle explains team selection when multiple teams exist", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  delete process.env.LINEAR_TEAM_ID;
+  delete process.env.LINEAR_TEAM_KEY;
+  const tempDir = join(tmpdir(), `pokit-linear-many-teams-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  process.chdir(tempDir);
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    data: {
+      teams: {
+        nodes: [
+          { id: "team-1", key: "ONE", name: "One" },
+          { id: "team-2", key: "TWO", name: "Two" },
+        ],
+      },
+    },
+  }), { status: 200 });
+  const { getCurrentCycle } = await loadLinearModule();
+
+  await assert.rejects(
+    () => getCurrentCycle(),
+    /Set LINEAR_TEAM_ID or LINEAR_TEAM_KEY.*One \(ONE, team-1\).*Two \(TWO, team-2\)/
+  );
+});
+
 test("getCurrentCycle can read Linear env values from local .env", async () => {
   delete process.env.LINEAR_API_KEY;
   delete process.env.LINEAR_TEAM_ID;
