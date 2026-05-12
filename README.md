@@ -15,54 +15,31 @@ Start with [docs/ONBOARDING.md](docs/ONBOARDING.md) when setting up a new worksp
 cp .env.example .env
 ```
 
-3. Add Linear credentials to `.env`:
+3. Add a Linear API key to `.env`:
 
 ```bash
 LINEAR_API_KEY=lin_api_...
-LINEAR_TEAM_ID=...
 ```
 
-If you do not know the team id yet:
-
-```bash
-node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(await m.listTeams()))"
-```
-
-4. Check required labels with a dry-run:
-
-```bash
-node --experimental-strip-types scripts/label-preflight.ts
-```
-
-5. Run the first read-only sprint dry-run:
-
-```bash
-node --experimental-strip-types scripts/sprint-runner.ts
-```
-
-6. Generate local draft artifacts when the Run Summary looks right:
-
-```bash
-node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
-```
-
-Expected local outputs:
-
-- `artifacts/sprints/[cycle]/[date]-run-summary.md`
-- `artifacts/prds/[issue-id].md`
-- `artifacts/criteria/[issue-id].md`
-
-These commands do not write to GitHub. Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
-
-## LLM-first Use
-
-After setup, use natural language in Codex or Claude:
+4. In Codex or Claude, say:
 
 ```text
 POKit 시작해줘
 ```
 
-POKit should respond with a compact brief:
+5. Follow the brief's execution sentence, for example:
+
+```text
+다음 cycle에 EVM-20, EVM-21, EVM-22 담고 POKit 돌려줘
+```
+
+Expected local outputs after a run:
+
+- `artifacts/sprints/[cycle]/[date]-run-summary.md`
+- `artifacts/prds/[issue-id].md`
+- `artifacts/criteria/[issue-id].md`
+
+POKit should start with a compact brief:
 
 ```text
 📌 현재: Todo 3 · 진행 1 · 완료 1
@@ -70,7 +47,19 @@ POKit should respond with a compact brief:
 💬 실행: “다음 cycle에 EVM-20, EVM-21, EVM-25 담고 POKit 돌려줘”
 ```
 
+Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
+
+## Helper Commands
+
 Node commands are helper checks. The primary workflow is: user asks in natural language, the LLM reads skills/docs, then uses scripts only when needed.
+
+```bash
+node --experimental-strip-types scripts/session-brief.ts
+node --experimental-strip-types scripts/label-preflight.ts
+node --experimental-strip-types scripts/sprint-runner.ts
+node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
+node --experimental-strip-types scripts/retro-summary.ts
+```
 
 For longer work, use the POKit goal loop:
 
