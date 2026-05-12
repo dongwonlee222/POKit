@@ -93,7 +93,7 @@ async function linearGraphql<T>(query: string, variables: Record<string, unknown
   const response = await fetch(LINEAR_GRAPHQL_ENDPOINT, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${apiKey}`,
+      "Authorization": apiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ query, variables }),

@@ -25,6 +25,9 @@ test.afterEach(() => {
 test("getCurrentCycle fails clearly when Linear env is missing", async () => {
   delete process.env.LINEAR_API_KEY;
   delete process.env.LINEAR_TEAM_ID;
+  const tempDir = join(tmpdir(), `pokit-linear-empty-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  process.chdir(tempDir);
   const { getCurrentCycle } = await loadLinearModule();
 
   await assert.rejects(
@@ -104,7 +107,7 @@ test("getCurrentCycle can read Linear env values from local .env", async () => {
 
   const cycle = await getCurrentCycle();
 
-  assert.equal(authorizationHeader, "Bearer lin_api_from_file");
+  assert.equal(authorizationHeader, "lin_api_from_file");
   assert.equal(requestBody.variables.teamId, "team-from-file");
   assert.equal(cycle.id, "cycle-from-file");
 });
