@@ -4,6 +4,8 @@ POKit의 첫 번째 약속은 신뢰다.
 
 POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a separate CLI, SaaS, or chat UI. Clone or fork this repo, fill `.env`, open Codex CLI or Claude Code in the repo root, and work in natural language.
 
+New users should start with `docs/ONBOARDING.md`.
+
 ## First Run
 
 1. Clone or fork this repo.
