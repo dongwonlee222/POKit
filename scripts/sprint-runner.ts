@@ -32,6 +32,11 @@ export type ApprovalPlan = {
   }>;
 };
 
+export type SkippedItem = {
+  issue: Issue;
+  reason: string;
+};
+
 export type SprintDryRunSummary = {
   generatedAt: string;
   context: WorkingCycleContext;
@@ -39,6 +44,7 @@ export type SprintDryRunSummary = {
   needsLabel: NeedsLabelItem[];
   needsClarification: NeedsClarificationItem[];
   needsApproval: ApprovalPlan[];
+  skipped: SkippedItem[];
   failed: Array<{ issue: Issue; reason: string }>;
   markdown: string;
 };
@@ -64,9 +70,17 @@ export function buildSprintDryRunSummary(input: BuildInput): SprintDryRunSummary
   const needsLabel: NeedsLabelItem[] = [];
   const needsClarification: NeedsClarificationItem[] = [];
   const needsApproval: ApprovalPlan[] = [];
+  const skipped: SkippedItem[] = [];
   const failed: Array<{ issue: Issue; reason: string }> = [];
 
   for (const issue of input.context.issues) {
+    if (isCompletedIssue(issue)) {
+      skipped.push({
+        issue,
+        reason: `Issue state is ${issue.state}. Completed or canceled issues are not re-processed.`,
+      });
+      continue;
+    }
     const routeLabel = issue.labels.find((label) => POKIT_LABELS.includes(label as typeof POKIT_LABELS[number]));
     if (!routeLabel) {
       const proposedLabel = proposeLabel(issue);
@@ -130,6 +144,7 @@ export function buildSprintDryRunSummary(input: BuildInput): SprintDryRunSummary
     needsLabel,
     needsClarification,
     needsApproval,
+    skipped,
     failed,
     markdown: "",
   };
@@ -183,6 +198,11 @@ export function writeArtifactDrafts(summary: SprintDryRunSummary, options: { roo
 
 function hasEnoughContext(issue: Issue): boolean {
   return Boolean(issue.description?.trim());
+}
+
+function isCompletedIssue(issue: Issue): boolean {
+  const normalized = issue.state?.trim().toLowerCase();
+  return normalized === "done" || normalized === "completed" || normalized === "canceled" || normalized === "cancelled" || normalized === "duplicate";
 }
 
 function proposeLabel(issue: Issue): "pokit:prd" | "pokit:criteria" {
@@ -315,10 +335,16 @@ function renderRunSummary(summary: SprintDryRunSummary): string {
     "- Linear/GitHub 외부 write를 실행하지 않음.",
     "- 산출물 파일을 생성하거나 기존 파일을 덮어쓰지 않음.",
     "- 라벨/댓글/status 변경은 승인 대기 plan으로만 정리함.",
-    "",
-    "## 2. 생성 가능",
-    "",
   ];
+
+  if (summary.skipped.length > 0) {
+    lines.push("- 완료/취소된 Linear issue는 다시 처리하지 않음:");
+    for (const item of summary.skipped) {
+      lines.push(`  - ${item.issue.identifier}: ${item.reason}`);
+    }
+  }
+
+  lines.push("", "## 2. 생성 가능", "");
 
   if (summary.generated.length === 0) {
     lines.push("- Cycle issue가 없음");
@@ -339,7 +365,7 @@ function renderRunSummary(summary: SprintDryRunSummary): string {
     }
   }
 
-  lines.push("## 4. 라벨 필요", "");
+  lines.push("", "## 4. 라벨 필요", "");
   if (summary.needsLabel.length === 0) {
     lines.push("- 없음");
   } else {

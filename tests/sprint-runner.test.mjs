@@ -55,15 +55,25 @@ test("buildSprintDryRunSummary groups generated, needs-label, clarification, and
           labels: ["pokit:prd"],
           state: "Todo",
         },
+        {
+          id: "issue-done",
+          identifier: "EVM-14",
+          title: "완료된 보안 문서",
+          description: "이미 완료된 issue다.",
+          labels: ["pokit:criteria"],
+          state: "Done",
+        },
       ],
     },
   });
 
   assert.equal(result.generated.length, 2);
+  assert.equal(result.skipped[0].issue.identifier, "EVM-14");
   assert.equal(result.needsLabel[0].issue.identifier, "EVM-12");
   assert.equal(result.needsClarification[0].issue.identifier, "EVM-13");
   assert.equal(result.needsApproval[0].idempotencyKey, "linear:comment:EVM-12:label-suggestion");
   assert.match(result.markdown, /## 1\. AI가 하지 않은 것/);
+  assert.match(result.markdown, /EVM-14: Issue state is Done/);
   assert.match(result.markdown, /EVM-10: `artifacts\/prds\/EVM-10\.md`/);
   assert.match(result.markdown, /EVM-11: `artifacts\/criteria\/EVM-11\.md`/);
   assert.match(result.markdown, /EVM-12 알림 설정 개선/);
