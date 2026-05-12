@@ -19,6 +19,20 @@ export type IssueInput = {
 };
 
 type CreateIssuePayload = IssueInput;
+type AssignIssueToCyclePayload = {
+  issueId: string;
+  issueIdentifier: string;
+  cycleId: string;
+};
+type CreateLabelPayload = {
+  name: string;
+};
+type AssignLabelToIssuePayload = {
+  issueId: string;
+  issueIdentifier: string;
+  labelId: string;
+  labelName: string;
+};
 
 export type ApplyOptions = {
   approved?: boolean;
@@ -46,6 +60,11 @@ export type Cycle = {
 export type Team = {
   id: string;
   key: string;
+  name: string;
+};
+
+export type LinearLabel = {
+  id: string;
   name: string;
 };
 
@@ -258,6 +277,33 @@ export async function listIssues(cycleId: string): Promise<Issue[]> {
   return data.team?.issues.nodes.map(normalizeIssue) ?? [];
 }
 
+export async function listLabels(): Promise<LinearLabel[]> {
+  readRequiredEnv("LINEAR_API_KEY");
+  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const data = await linearGraphql<{
+    team: {
+      labels: {
+        nodes: LinearLabel[];
+      };
+    } | null;
+  }>(`
+    query TeamLabels($teamId: String!) {
+      team(id: $teamId) {
+        labels(first: 100) {
+          nodes {
+            id
+            name
+          }
+        }
+      }
+    }
+  `, { teamId });
+  return data.team?.labels.nodes.map((label) => ({
+    id: label.id,
+    name: label.name,
+  })) ?? [];
+}
+
 export async function getWorkingCycleContext(): Promise<WorkingCycleContext> {
   readRequiredEnv("LINEAR_API_KEY");
   const teamId = readRequiredEnv("LINEAR_TEAM_ID");
@@ -415,14 +461,200 @@ export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): 
   return normalizeIssue(data.issueCreate.issue);
 }
 
-export async function planMissingLabels(labels: string[]): Promise<Plan> {
+export async function planAssignIssueToCycle(input: AssignIssueToCyclePayload): Promise<Plan> {
   return {
-    idempotencyKey: `linear:create_labels:${labels.sort().join(",")}`,
-    summary: `Create missing POKit labels: ${labels.join(", ")}`,
-    writes: labels.map((label) => ({
+    idempotencyKey: `linear:assign_cycle:${input.issueIdentifier}:${input.cycleId}`,
+    summary: `Assign ${input.issueIdentifier} to cycle ${input.cycleId}`,
+    writes: [
+      {
+        type: "update_issue",
+        target: input.issueIdentifier,
+        payload: input,
+      },
+    ],
+  };
+}
+
+export async function applyAssignIssueToCycle(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
+  if (!options.approved) {
+    throw new Error("Refusing external write without explicit approval.");
+  }
+  if (!plan.idempotencyKey) {
+    throw new Error("Refusing external write without idempotency key.");
+  }
+  if (plan.writes.length !== 1 || plan.writes[0].type !== "update_issue") {
+    throw new Error("Refusing cycle assignment apply for unsupported plan shape.");
+  }
+  const payload = plan.writes[0].payload as AssignIssueToCyclePayload;
+  if (!payload.issueId || !payload.cycleId) {
+    throw new Error("Refusing cycle assignment apply without issueId and cycleId.");
+  }
+  const data = await linearGraphql<{
+    issueUpdate: {
+      success: boolean;
+      issue: LinearIssueNode;
+    };
+  }>(`
+    mutation UpdateIssue($issueId: String!, $input: IssueUpdateInput!) {
+      issueUpdate(id: $issueId, input: $input) {
+        success
+        issue {
+          id
+          identifier
+          title
+          description
+          url
+          labels {
+            nodes {
+              name
+            }
+          }
+          state {
+            name
+          }
+          assignee {
+            name
+          }
+        }
+      }
+    }
+  `, {
+    issueId: payload.issueId,
+    input: {
+      cycleId: payload.cycleId,
+    },
+  });
+  if (!data.issueUpdate.success) {
+    throw new Error("Linear issueUpdate returned success=false.");
+  }
+  return normalizeIssue(data.issueUpdate.issue);
+}
+
+export async function planMissingLabels(labels: string[]): Promise<Plan> {
+  const existingLabels = new Set((await listLabels()).map((label) => label.name));
+  const missingLabels = labels.filter((label) => !existingLabels.has(label)).sort();
+  return {
+    idempotencyKey: `linear:create_labels:${missingLabels.join(",")}`,
+    summary: `Create missing POKit labels: ${missingLabels.join(", ") || "none"}`,
+    writes: missingLabels.map((label) => ({
       type: "create_label",
       target: "linear_workspace",
       payload: { name: label },
     })),
   };
+}
+
+export async function applyCreateLabel(plan: Plan, options: ApplyOptions = {}): Promise<LinearLabel[]> {
+  if (!options.approved) {
+    throw new Error("Refusing external write without explicit approval.");
+  }
+  if (!plan.idempotencyKey) {
+    throw new Error("Refusing external write without idempotency key.");
+  }
+  if (!plan.writes.every((write) => write.type === "create_label")) {
+    throw new Error("Refusing label create apply for unsupported plan shape.");
+  }
+  const teamId = readRequiredEnv("LINEAR_TEAM_ID");
+  const labels: LinearLabel[] = [];
+  for (const write of plan.writes) {
+    const payload = write.payload as CreateLabelPayload;
+    if (!payload.name) {
+      throw new Error("Refusing label create apply without name.");
+    }
+    const data = await linearGraphql<{
+      issueLabelCreate: {
+        success: boolean;
+        issueLabel: LinearLabel;
+      };
+    }>(`
+      mutation CreateIssueLabel($input: IssueLabelCreateInput!) {
+        issueLabelCreate(input: $input) {
+          success
+          issueLabel {
+            id
+            name
+          }
+        }
+      }
+    `, {
+      input: {
+        teamId,
+        name: payload.name,
+      },
+    });
+    if (!data.issueLabelCreate.success) {
+      throw new Error("Linear issueLabelCreate returned success=false.");
+    }
+    labels.push(data.issueLabelCreate.issueLabel);
+  }
+  return labels;
+}
+
+export async function planAssignLabelToIssue(input: AssignLabelToIssuePayload): Promise<Plan> {
+  return {
+    idempotencyKey: `linear:assign_label:${input.issueIdentifier}:${input.labelName}`,
+    summary: `Assign ${input.labelName} to ${input.issueIdentifier}`,
+    writes: [
+      {
+        type: "update_issue",
+        target: input.issueIdentifier,
+        payload: input,
+      },
+    ],
+  };
+}
+
+export async function applyAssignLabelToIssue(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
+  if (!options.approved) {
+    throw new Error("Refusing external write without explicit approval.");
+  }
+  if (!plan.idempotencyKey) {
+    throw new Error("Refusing external write without idempotency key.");
+  }
+  if (plan.writes.length !== 1 || plan.writes[0].type !== "update_issue") {
+    throw new Error("Refusing label assignment apply for unsupported plan shape.");
+  }
+  const payload = plan.writes[0].payload as AssignLabelToIssuePayload;
+  if (!payload.issueId || !payload.labelId) {
+    throw new Error("Refusing label assignment apply without issueId and labelId.");
+  }
+  const data = await linearGraphql<{
+    issueUpdate: {
+      success: boolean;
+      issue: LinearIssueNode;
+    };
+  }>(`
+    mutation UpdateIssue($issueId: String!, $input: IssueUpdateInput!) {
+      issueUpdate(id: $issueId, input: $input) {
+        success
+        issue {
+          id
+          identifier
+          title
+          description
+          url
+          labels {
+            nodes {
+              name
+            }
+          }
+          state {
+            name
+          }
+          assignee {
+            name
+          }
+        }
+      }
+    }
+  `, {
+    issueId: payload.issueId,
+    input: {
+      labelIds: [payload.labelId],
+    },
+  });
+  if (!data.issueUpdate.success) {
+    throw new Error("Linear issueUpdate returned success=false.");
+  }
+  return normalizeIssue(data.issueUpdate.issue);
 }

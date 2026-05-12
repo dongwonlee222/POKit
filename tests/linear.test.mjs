@@ -392,3 +392,173 @@ test("applyCreateIssue creates an issue only with approval and idempotency key",
   assert.equal(requestBody.variables.idempotencyKey, undefined);
   assert.equal(issue.identifier, "EVM-20");
 });
+
+test("applyAssignIssueToCycle refuses without explicit approval", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { applyAssignIssueToCycle, planAssignIssueToCycle } = await loadLinearModule();
+  const plan = await planAssignIssueToCycle({
+    issueId: "issue-123",
+    issueIdentifier: "EVM-5",
+    cycleId: "cycle-123",
+  });
+
+  await assert.rejects(
+    () => applyAssignIssueToCycle(plan),
+    /explicit approval/
+  );
+});
+
+test("applyAssignIssueToCycle updates cycle only with approval and idempotency key", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        issueUpdate: {
+          success: true,
+          issue: {
+            id: "issue-123",
+            identifier: "EVM-5",
+            title: "Seed issue",
+            description: "Seed description",
+            url: "https://linear.app/example/issue/EVM-5",
+            labels: { nodes: [] },
+            state: { name: "Todo" },
+            assignee: null,
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyAssignIssueToCycle, planAssignIssueToCycle } = await loadLinearModule();
+  const plan = await planAssignIssueToCycle({
+    issueId: "issue-123",
+    issueIdentifier: "EVM-5",
+    cycleId: "cycle-123",
+  });
+
+  const issue = await applyAssignIssueToCycle(plan, { approved: true });
+
+  assert.equal(plan.idempotencyKey, "linear:assign_cycle:EVM-5:cycle-123");
+  assert.match(requestBody.query, /mutation UpdateIssue/);
+  assert.equal(requestBody.variables.issueId, "issue-123");
+  assert.equal(requestBody.variables.input.cycleId, "cycle-123");
+  assert.equal(issue.identifier, "EVM-5");
+});
+
+test("planMissingLabels creates dry-run plan for labels not present in Linear", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    data: {
+      team: {
+        labels: {
+          nodes: [
+            { id: "label-prd", name: "pokit:prd" },
+          ],
+        },
+      },
+    },
+  }), { status: 200 });
+  const { planMissingLabels } = await loadLinearModule();
+
+  const plan = await planMissingLabels(["pokit:prd", "pokit:criteria"]);
+
+  assert.equal(plan.idempotencyKey, "linear:create_labels:pokit:criteria");
+  assert.equal(plan.writes.length, 1);
+  assert.deepEqual(plan.writes[0].payload, { name: "pokit:criteria" });
+});
+
+test("applyCreateLabel refuses without explicit approval", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { applyCreateLabel } = await loadLinearModule();
+  const plan = {
+    idempotencyKey: "linear:create_labels:pokit:criteria",
+    summary: "Create missing POKit labels: pokit:criteria",
+    writes: [
+      {
+        type: "create_label",
+        target: "linear_workspace",
+        payload: { name: "pokit:criteria" },
+      },
+    ],
+  };
+
+  await assert.rejects(
+    () => applyCreateLabel(plan),
+    /explicit approval/
+  );
+});
+
+test("applyCreateLabel creates missing label with approval", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    if (requestBody.query.includes("query TeamLabels")) {
+      return new Response(JSON.stringify({
+        data: { team: { labels: { nodes: [] } } },
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        issueLabelCreate: {
+          success: true,
+          issueLabel: { id: "label-criteria", name: "pokit:criteria" },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyCreateLabel, planMissingLabels } = await loadLinearModule();
+  const plan = await planMissingLabels(["pokit:criteria"]);
+
+  const labels = await applyCreateLabel(plan, { approved: true });
+
+  assert.match(requestBody.query, /mutation CreateIssueLabel/);
+  assert.equal(requestBody.variables.input.teamId, "team-123");
+  assert.equal(requestBody.variables.input.name, "pokit:criteria");
+  assert.deepEqual(labels, [{ id: "label-criteria", name: "pokit:criteria" }]);
+});
+
+test("applyAssignLabelToIssue adds label id to issue with approval", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        issueUpdate: {
+          success: true,
+          issue: {
+            id: "issue-123",
+            identifier: "EVM-5",
+            title: "Seed issue",
+            labels: { nodes: [{ name: "pokit:criteria" }] },
+            state: { name: "Todo" },
+            assignee: null,
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyAssignLabelToIssue, planAssignLabelToIssue } = await loadLinearModule();
+  const plan = await planAssignLabelToIssue({
+    issueId: "issue-123",
+    issueIdentifier: "EVM-5",
+    labelId: "label-criteria",
+    labelName: "pokit:criteria",
+  });
+
+  const issue = await applyAssignLabelToIssue(plan, { approved: true });
+
+  assert.equal(plan.idempotencyKey, "linear:assign_label:EVM-5:pokit:criteria");
+  assert.match(requestBody.query, /mutation UpdateIssue/);
+  assert.deepEqual(requestBody.variables.input.labelIds, ["label-criteria"]);
+  assert.deepEqual(issue.labels, ["pokit:criteria"]);
+});
