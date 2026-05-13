@@ -105,6 +105,18 @@ This command is local. It blocks durable implementation when no Linear cycle or 
 node --experimental-strip-types scripts/cycle-guard.ts --mode planning
 ```
 
+Check cycle assignment safety before moving work into a cycle:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <target-cycle-id> --cycle-name "Cycle 3"
+```
+
+If the target cycle is already complete, the guard blocks by default:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <cycle-id> --cycle-name "Cycle 2" --target-cycle-complete
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

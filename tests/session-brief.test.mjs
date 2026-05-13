@@ -215,6 +215,43 @@ test("buildSessionBrief shows completed upcoming cycle instead of stale active c
   assert.doesNotMatch(brief, /✅ Cycle 1 완료/);
 });
 
+test("buildCycleDetail shows upcoming work surface after active cycle is complete", async () => {
+  const { buildCycleDetail } = await loadBriefModule();
+
+  const detail = buildCycleDetail({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-3", name: "Cycle 3", startsAt: "2026-05-26T00:00:00.000Z" },
+        issues: [
+          { id: "issue-35", identifier: "EVM-35", title: "Prioritizer", description: "todo", labels: ["pokit:criteria"], state: "Todo" },
+        ],
+      },
+      backlogIssues: [],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T00:00:00.000Z",
+    },
+  });
+
+  assert.match(detail, /📅 .* · Cycle 3/);
+  assert.match(detail, /Todo\n1\. EVM-35 Prioritizer · Todo · pokit:criteria/);
+  assert.doesNotMatch(detail, /EVM-1 old work/);
+});
+
 test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {
   const { buildSessionBrief } = await loadBriefModule();
 

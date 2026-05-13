@@ -4,10 +4,13 @@ export type CycleGuardMode = "implementation" | "planning";
 
 export type CycleGuardInput = {
   mode?: CycleGuardMode;
+  operation?: "implementation" | "cycle_assignment";
   issueIdentifier?: string;
   cycleId?: string;
   cycleName?: string;
   approvedBundlePath?: string;
+  targetCycleComplete?: boolean;
+  reopenCompletedCycle?: boolean;
 };
 
 export type CycleGuardResult = {
@@ -30,6 +33,23 @@ export function evaluateCycleGuard(input: CycleGuardInput): CycleGuardResult {
     return {
       allowed: true,
       message: "Planning and dry-run work may proceed without cycle context.",
+    };
+  }
+
+  if (input.operation === "cycle_assignment" && input.targetCycleComplete) {
+    if (input.reopenCompletedCycle) {
+      return {
+        allowed: true,
+        message: `Cycle-first guard passed by explicit completed-cycle reopen for ${input.issueIdentifier ?? "new work"} in ${input.cycleName ?? input.cycleId ?? "target cycle"}.`,
+      };
+    }
+    return {
+      allowed: false,
+      message: [
+        "Completed cycle is immutable.",
+        "Move new work to the next cycle instead of adding Todo to a completed cycle.",
+        "Allowed exception: explicitly reopen the completed cycle, then rerun with --reopen-completed-cycle.",
+      ].join(" "),
     };
   }
 
@@ -77,10 +97,13 @@ function formatCycle(cycle: ApprovedBundle["cycle"]): string {
 function readCliInput(args: string[], env: NodeJS.ProcessEnv): CycleGuardInput {
   return {
     mode: readFlag(args, "--mode") as CycleGuardMode | undefined,
+    operation: readFlag(args, "--operation") as CycleGuardInput["operation"] | undefined,
     issueIdentifier: readFlag(args, "--issue") ?? env.POKIT_ISSUE,
     cycleId: readFlag(args, "--cycle-id") ?? env.POKIT_CYCLE_ID,
     cycleName: readFlag(args, "--cycle-name") ?? env.POKIT_CYCLE_NAME,
     approvedBundlePath: readFlag(args, "--approved-bundle") ?? env.POKIT_APPROVED_BUNDLE,
+    targetCycleComplete: readBooleanFlag(args, "--target-cycle-complete") || env.POKIT_TARGET_CYCLE_COMPLETE === "1",
+    reopenCompletedCycle: readBooleanFlag(args, "--reopen-completed-cycle") || env.POKIT_REOPEN_COMPLETED_CYCLE === "1",
   };
 }
 
@@ -90,6 +113,10 @@ function readFlag(args: string[], flag: string): string | undefined {
     return undefined;
   }
   return args[index + 1];
+}
+
+function readBooleanFlag(args: string[], flag: string): boolean {
+  return args.includes(flag);
 }
 
 async function main(): Promise<void> {
@@ -103,4 +130,3 @@ async function main(): Promise<void> {
 if (import.meta.url === `file://${process.argv[1]}`) {
   void main();
 }
-

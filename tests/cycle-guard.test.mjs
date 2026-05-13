@@ -62,3 +62,36 @@ test("evaluateCycleGuard allows implementation with an approved cycle bundle", a
   assert.match(result.message, /Cycle 2/);
 });
 
+test("evaluateCycleGuard blocks assigning new work to an operationally complete cycle", async () => {
+  const { evaluateCycleGuard } = await loadCycleGuardModule();
+
+  const result = evaluateCycleGuard({
+    mode: "implementation",
+    issueIdentifier: "EVM-35",
+    cycleId: "cycle-2",
+    cycleName: "Cycle 2",
+    targetCycleComplete: true,
+    operation: "cycle_assignment",
+  });
+
+  assert.equal(result.allowed, false);
+  assert.match(result.message, /Completed cycle is immutable/);
+  assert.match(result.message, /Move new work to the next cycle/);
+});
+
+test("evaluateCycleGuard allows reopening a complete cycle only when explicit", async () => {
+  const { evaluateCycleGuard } = await loadCycleGuardModule();
+
+  const result = evaluateCycleGuard({
+    mode: "implementation",
+    issueIdentifier: "EVM-35",
+    cycleId: "cycle-2",
+    cycleName: "Cycle 2",
+    targetCycleComplete: true,
+    operation: "cycle_assignment",
+    reopenCompletedCycle: true,
+  });
+
+  assert.equal(result.allowed, true);
+  assert.match(result.message, /explicit completed-cycle reopen/);
+});

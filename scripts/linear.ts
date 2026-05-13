@@ -291,7 +291,9 @@ function selectUpcomingCycleNode(
   const candidates = uniqueCycles([...upcomingCycles, ...issueCycles.values()])
     .filter((cycle) => cycle.id !== activeCycleId)
     .sort(compareCycles);
-  return candidates.find((cycle) => selectIssuesForCycle(issues, cycle.id).length > 0) ?? candidates[0];
+  return candidates.find((cycle) => selectOpenIssuesForCycle(issues, cycle.id).length > 0)
+    ?? candidates.find((cycle) => selectIssuesForCycle(issues, cycle.id).length > 0)
+    ?? candidates[0];
 }
 
 function uniqueCycles(cycles: LinearCycleNode[]): LinearCycleNode[] {
@@ -327,6 +329,16 @@ function cycleSortTime(cycle: LinearCycleNode): number {
 function isTerminalIssueState(state: string | undefined): boolean {
   const normalized = normalizeState(state);
   return normalized === "done" || normalized === "completed" || normalized === "canceled" || normalized === "cancelled" || normalized === "duplicate";
+}
+
+function selectOpenIssuesForCycle(issues: LinearIssueNode[], cycleId: string | undefined): Issue[] {
+  if (!cycleId) {
+    return [];
+  }
+  return issues
+    .filter((issue) => issue.cycle?.id === cycleId)
+    .filter((issue) => !isTerminalIssueState(issue.state?.name))
+    .map(normalizeIssue);
 }
 
 function selectWorkingCycleContext(context: Omit<WorkingContext, "selected" | "fetchedAt">): WorkingCycleContext {

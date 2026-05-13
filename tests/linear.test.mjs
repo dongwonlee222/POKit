@@ -349,6 +349,83 @@ test("getWorkingContext returns active, upcoming, and backlog surfaces from one 
   assert.match(context.fetchedAt, /^20\d\d-\d\d-\d\dT/);
 });
 
+test("getWorkingContext skips completed upcoming cycles when a later upcoming cycle has Todo work", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    data: {
+      team: {
+        activeCycles: {
+          nodes: [
+            {
+              id: "cycle-active",
+              name: "Cycle 1",
+              number: 1,
+              startsAt: "2026-05-11",
+              endsAt: "2026-05-18",
+            },
+          ],
+        },
+        upcomingCycles: {
+          nodes: [
+            {
+              id: "cycle-2",
+              name: "Cycle 2",
+              number: 2,
+              startsAt: "2026-05-19",
+              endsAt: "2026-05-25",
+            },
+            {
+              id: "cycle-3",
+              name: "Cycle 3",
+              number: 3,
+              startsAt: "2026-05-26",
+              endsAt: "2026-06-01",
+            },
+          ],
+        },
+        issues: {
+          nodes: [
+            {
+              id: "issue-active",
+              identifier: "EVM-1",
+              title: "Old active issue",
+              labels: { nodes: [{ name: "pokit:criteria" }] },
+              state: { name: "Done" },
+              assignee: null,
+              cycle: { id: "cycle-active" },
+            },
+            {
+              id: "issue-cycle-2",
+              identifier: "EVM-32",
+              title: "Completed cycle 2 issue",
+              labels: { nodes: [{ name: "pokit:criteria" }] },
+              state: { name: "Done" },
+              assignee: null,
+              cycle: { id: "cycle-2" },
+            },
+            {
+              id: "issue-cycle-3",
+              identifier: "EVM-35",
+              title: "Next cycle work",
+              labels: { nodes: [{ name: "pokit:criteria" }] },
+              state: { name: "Todo" },
+              assignee: null,
+              cycle: { id: "cycle-3" },
+            },
+          ],
+        },
+      },
+    },
+  }), { status: 200 });
+  const { getWorkingContext } = await loadLinearModule();
+
+  const context = await getWorkingContext();
+
+  assert.equal(context.upcomingCycle?.cycle.id, "cycle-3");
+  assert.deepEqual(context.upcomingCycle?.issues.map((issue) => issue.identifier), ["EVM-35"]);
+});
+
 test("getWorkingCycleContext uses active cycle issues when an active cycle exists", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";

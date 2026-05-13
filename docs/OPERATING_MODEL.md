@@ -44,6 +44,16 @@ node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-42 --cycle-id
 
 The guard intentionally does not ask for more user approvals. It only blocks implementation when traceability is missing.
 
+Completed cycles are immutable by default. Once a cycle is operationally complete, new Todo work must move to the next Linear cycle, not back into the completed cycle. The only exception is an explicit user command to reopen that completed cycle.
+
+Before assigning issues to a cycle, run or emulate:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <target-cycle-id> --cycle-name "Cycle 3"
+```
+
+If the target cycle is complete, include `--target-cycle-complete`; the guard must block unless the user explicitly said to reopen the completed cycle and `--reopen-completed-cycle` is present.
+
 ## Product Philosophy and Decision Rules
 
 POKit is built to keep scrum automation lightweight. The product should feel like a helpful operator around Linear, not like a gatekeeper that asks for permission on every small step.
@@ -91,11 +101,13 @@ The default execution unit is the whole current Cycle. Individual issue wording 
 All new durable work must follow the same funnel:
 
 1. Capture the idea as a Linear Backlog item.
-2. Group it into the current Cycle bundle.
+2. Group it into the current open or next Cycle bundle.
 3. Run implementation only after the Cycle guard passes.
 4. Complete the Cycle flow through verification, commit, and Linear Done.
 
 Chat-only intent may produce analysis or a dry-run plan, but not durable project changes.
+
+When the user says "Cycle N 완료 상태를 확인하고 다음 후보를 묶어줘", interpret "다음 후보" as Cycle N+1 preparation. Do not add new work back into Cycle N unless the user explicitly says to reopen Cycle N.
 
 If definition is insufficient, stop and ask for the missing scope, policy, or acceptance criteria before implementing. Do not ask for mechanical substeps when the Cycle definition is already clear.
 

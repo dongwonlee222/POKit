@@ -40,8 +40,11 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 - In Codex, emulate the same loop with POKit Brief, session task list, skills, scripts, tests, and Linear Done updates.
 - Always create or confirm the Linear task list before implementation.
 - Before durable implementation, run or emulate `node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-123 --cycle-id <cycle-id>`.
+- Before assigning work to a cycle, run or emulate `node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-123 --cycle-id <target-cycle-id>`.
 - Backlog-only work may plan, inspect, and produce dry-run artifacts, but must not change durable project files.
 - New work must enter Linear as a Backlog item first, then be grouped into the current Cycle bundle before implementation. Do not run durable work from chat-only intent.
+- Completed cycles are immutable by default. If a cycle is operationally complete, move new work to the next cycle; do not add Todo back into the completed cycle unless the user explicitly says to reopen it.
+- When the user asks to confirm a completed cycle and bundle the next candidates, interpret that as next-cycle preparation, not as adding work back into the completed cycle.
 - When a user asks to proceed, the default scope is the whole current Cycle, not a single issue. Treat local edits, verification, commit, and Linear Done as one Cycle-completion flow unless the user explicitly narrows the scope.
 - Do not ask the user to approve mechanical substeps like "commit this task" or "mark this task Done" after they approved progressing the Cycle. Pause only when definition is insufficient, or for destructive actions, public pushes/releases/tags, ambiguous scope, or policy changes outside the Cycle.
 - Use the Cycle Steward check before plans, completion reports, and next-action sentences: the next action should move the current Cycle forward, not isolate a single issue unless the user explicitly selected it.

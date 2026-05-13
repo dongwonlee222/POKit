@@ -88,7 +88,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
 export function buildCycleDetail(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
   const resolved = resolveSessionContext(input.context, now);
-  const cycleSurface = resolved.activeSurface ?? resolved.primarySurface;
+  const cycleSurface = resolved.displaySurface;
   const issuesByState = groupCycleIssues(cycleSurface.issues);
   return [
     "# POKit Cycle Detail",
