@@ -72,4 +72,13 @@ Never write to Linear or GitHub without:
 2. User approval.
 3. An idempotency key.
 
+Dry-run plans must be user-readable approval previews, not just internal safety labels. Show:
+
+- what will change in the external system;
+- which issue IDs/titles are affected and their current/target status;
+- the local evidence used to justify the change;
+- what will not change or remains carry-over;
+- the idempotency key;
+- the exact approval sentence the user can say.
+
 All artifacts are drafts. Do not overwrite an artifact when its content hash changed; mark it `Needs Approval`.

@@ -44,6 +44,7 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
   const changelog = extractChangelogCandidates(completedIssues);
   const runSummaryOnly = completedIssues.filter((issue) => !changelog.some((item) => item.issue.identifier === issue.identifier));
   const decisionCandidates = buildDecisionLogCandidates(input.context.issues).slice(0, 3);
+  const approvalPreview = buildExternalWriteApprovalPreview(input.context, completedIssues, carryOverIssues);
   const nextAction = carryOverIssues.length
     ? `${cycleName(input.context)} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`
     : `${cycleName(input.context)} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`;
@@ -96,6 +97,10 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
     "## Decision-log Candidates",
     "",
     ...decisionCandidates,
+    "",
+    "## External Write Approval Preview",
+    "",
+    ...approvalPreview,
     "",
     "## Next Action",
     "",
@@ -195,6 +200,27 @@ function buildDecisionLogCandidates(issues: Issue[]): string[] {
   return candidates.length ? candidates : ["- 없음"];
 }
 
+function buildExternalWriteApprovalPreview(context: WorkingCycleContext, completedIssues: Issue[], carryOverIssues: Issue[]): string[] {
+  const completedIds = completedIssues.map((issue) => issue.identifier).sort(compareIssueIdentifierText);
+  const idempotencyKey = `linear:cycle-close:${context.cycle.id}:done:${completedIds.join(",")}`;
+  return [
+    "승인하면 Linear에서 바뀌는 것",
+    "",
+    ...completedIssues.map((issue) => `- ${issue.identifier} ${issue.title} · Done 유지 · local evidence: completed in close draft`),
+    ...carryOverIssues.map((issue) => `- ${issue.identifier} ${issue.title} · ${issue.state ?? "No state"} → carry-over 유지 · reason: not completed locally`),
+    "",
+    "승인 판단에 필요한 근거",
+    "",
+    `- completed count: ${completedIssues.length}`,
+    `- carry-over count: ${carryOverIssues.length}`,
+    "- external writes already performed: none",
+    "- 실제 승인 전에는 Linear 현재 상태를 다시 조회해야 한다.",
+    "",
+    `idempotency key: \`${idempotencyKey}\``,
+    `승인 문장: "${cycleName(context)} 완료 증거를 확인했고, 위 Linear 상태 변경을 승인해"`,
+  ];
+}
+
 function isCompletedIssue(issue: Issue): boolean {
   const normalized = issue.state?.trim().toLowerCase();
   return normalized === "done" || normalized === "completed" || normalized === "canceled" || normalized === "cancelled" || normalized === "duplicate";
@@ -227,6 +253,10 @@ function compareIssueIdentifier(left: Issue, right: Issue): number {
 
 function issueNumber(identifier: string): number {
   return Number(identifier.match(/\d+$/)?.[0] ?? Number.MAX_SAFE_INTEGER);
+}
+
+function compareIssueIdentifierText(left: string, right: string): number {
+  return issueNumber(left) - issueNumber(right);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

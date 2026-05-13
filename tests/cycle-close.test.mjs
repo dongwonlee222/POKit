@@ -56,6 +56,12 @@ test("buildCycleCloseDraft separates completed, carry-over, approvals, artifacts
   assert.match(markdown, /EVM-38 changelog 후보 자동 추출 → Changelog 후보 자동 추출/);
   assert.doesNotMatch(markdown, /EVM-47 테스트 보강 →/);
   assert.match(markdown, /Decision-log Candidates/);
+  assert.match(markdown, /External Write Approval Preview/);
+  assert.match(markdown, /승인하면 Linear에서 바뀌는 것/);
+  assert.match(markdown, /EVM-35 prioritizer ICE-lite 시범 구현 · Done 유지 · local evidence: completed in close draft/);
+  assert.match(markdown, /EVM-46 버전 관리 정책 정리 · Todo → carry-over 유지 · reason: not completed locally/);
+  assert.match(markdown, /idempotency key: `linear:cycle-close:cycle-3:done:EVM-35,EVM-36,EVM-37,EVM-38,EVM-39,EVM-47`/);
+  assert.match(markdown, /승인 문장: "Cycle 3 완료 증거를 확인했고, 위 Linear 상태 변경을 승인해"/);
   assert.match(markdown, /Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
 });
 
