@@ -18,7 +18,8 @@ Checked on 2026-05-13.
 - [x] Completed-cycle immutability guard checked.
 - [x] Release/Hotfix policy checked: normal deployment stays in the Cycle completion condition; deployment omission or urgent redeploy uses a versioned Hotfix Cycle with source/resume Cycle metadata.
 - [x] Hotfix Cycle dry-run checked for EVM-44 deployment omission tracking.
-- [x] Test suite passed: 60/60.
+- [x] Cycle maintenance dry-run checked for Cycle 1/2 Linear completion drift.
+- [x] Test suite passed: 64/64.
 
 ## Release Gate
 

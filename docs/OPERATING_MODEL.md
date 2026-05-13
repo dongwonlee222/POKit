@@ -280,6 +280,14 @@ When the selected work surface is operationally complete, the cycle close flow s
 
 The same cycle completion message should not repeat unless the cycle state changes.
 
+POKit operational completion and Linear date-based cycle state can drift. When a Cycle is operationally complete but still appears as Linear current or upcoming, print a cycle maintenance dry-run before applying any Linear cycle update:
+
+```bash
+node --experimental-strip-types scripts/cycle-maintenance.ts --completed-at 2026-05-13T15:00:00.000Z
+```
+
+The dry-run may propose `cycleUpdate` plans with `completedAt` and an explanatory description. Apply those plans only after user approval because they change Linear cycle state.
+
 ## Completion Report Format
 
 When POKit finishes a work item, it should close with a short report instead of leaving the user to infer the next step.

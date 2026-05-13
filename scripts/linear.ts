@@ -5,7 +5,7 @@ export type Plan = {
   idempotencyKey: string;
   summary: string;
   writes: Array<{
-    type: "create_issue" | "create_label" | "comment_issue" | "update_issue" | "create_cycle";
+    type: "create_issue" | "create_label" | "comment_issue" | "update_issue" | "create_cycle" | "update_cycle";
     target: string;
     payload: unknown;
   }>;
@@ -25,6 +25,15 @@ export type CycleInput = {
   endsAt: string;
   description?: string;
   teamId?: string;
+};
+export type CycleUpdateInput = {
+  cycleId: string;
+  cycleName?: string;
+  completedAt?: string;
+  startsAt?: string;
+  endsAt?: string;
+  name?: string;
+  description?: string;
 };
 export type HotfixCycleInput = {
   name: string;
@@ -72,6 +81,7 @@ export type Cycle = {
   number?: number;
   startsAt?: string;
   endsAt?: string;
+  completedAt?: string;
 };
 
 export type Team = {
@@ -149,6 +159,7 @@ type LinearCycleNode = {
   number?: number;
   startsAt?: string;
   endsAt?: string;
+  completedAt?: string;
 };
 
 function readRequiredEnv(name: "LINEAR_API_KEY"): string {
@@ -239,13 +250,17 @@ async function linearGraphql<T>(query: string, variables: Record<string, unknown
 }
 
 function normalizeCycle(cycle: LinearCycleNode): Cycle {
-  return {
+  const normalized: Cycle = {
     id: cycle.id,
     name: cycle.name ?? `Cycle ${cycle.number ?? cycle.id}`,
     number: cycle.number,
     startsAt: cycle.startsAt,
     endsAt: cycle.endsAt,
   };
+  if (cycle.completedAt !== undefined) {
+    normalized.completedAt = cycle.completedAt;
+  }
+  return normalized;
 }
 
 function normalizeIssue(issue: LinearIssueNode): Issue {
@@ -859,6 +874,71 @@ export async function applyCreateCycle(plan: Plan, options: ApplyOptions = {}): 
     throw new Error("Linear cycleCreate returned success=false.");
   }
   return normalizeCycle(data.cycleCreate.cycle);
+}
+
+export async function planUpdateCycle(input: CycleUpdateInput): Promise<Plan> {
+  const action = input.completedAt ? "complete" : "update";
+  return {
+    idempotencyKey: `linear:update_cycle:${input.cycleId}:${action}`,
+    summary: `${input.completedAt ? "Complete" : "Update"} Linear cycle: ${input.cycleName ?? input.cycleId}`,
+    writes: [
+      {
+        type: "update_cycle",
+        target: input.cycleId,
+        payload: input,
+      },
+    ],
+  };
+}
+
+export async function applyUpdateCycle(plan: Plan, options: ApplyOptions = {}): Promise<Cycle> {
+  if (!options.approved) {
+    throw new Error("Refusing external write without explicit approval.");
+  }
+  if (!plan.idempotencyKey) {
+    throw new Error("Refusing external write without idempotency key.");
+  }
+  if (plan.writes.length !== 1 || plan.writes[0].type !== "update_cycle") {
+    throw new Error("Refusing update cycle apply for unsupported plan shape.");
+  }
+  const payload = plan.writes[0].payload as CycleUpdateInput;
+  if (!payload.cycleId) {
+    throw new Error("Refusing update cycle apply without cycleId.");
+  }
+  const input = Object.fromEntries(Object.entries({
+    completedAt: payload.completedAt,
+    startsAt: payload.startsAt,
+    endsAt: payload.endsAt,
+    name: payload.name,
+    description: payload.description,
+  }).filter(([, value]) => value !== undefined));
+  const data = await linearGraphql<{
+    cycleUpdate: {
+      success: boolean;
+      cycle: LinearCycleNode;
+    };
+  }>(`
+    mutation UpdateCycle($cycleId: String!, $input: CycleUpdateInput!) {
+      cycleUpdate(id: $cycleId, input: $input) {
+        success
+        cycle {
+          id
+          name
+          number
+          startsAt
+          endsAt
+          completedAt
+        }
+      }
+    }
+  `, {
+    cycleId: payload.cycleId,
+    input,
+  });
+  if (!data.cycleUpdate.success) {
+    throw new Error("Linear cycleUpdate returned success=false.");
+  }
+  return normalizeCycle(data.cycleUpdate.cycle);
 }
 
 export async function planMissingLabels(labels: string[]): Promise<Plan> {

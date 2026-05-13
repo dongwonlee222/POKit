@@ -129,6 +129,12 @@ Print the Hotfix Cycle creation and issue move dry-run:
 node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3" --issue EVM-44 --issue-id EVM-44
 ```
 
+Print the Cycle maintenance completion dry-run:
+
+```bash
+node --experimental-strip-types scripts/cycle-maintenance.ts --completed-at 2026-05-13T15:00:00.000Z
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

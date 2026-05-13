@@ -852,6 +852,67 @@ test("applyCreateCycle creates a Linear cycle only with approval and idempotency
   assert.equal(cycle.id, "cycle-hotfix");
 });
 
+test("planUpdateCycle creates a dry-run cycle completion plan", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { planUpdateCycle } = await loadLinearModule();
+
+  const plan = await planUpdateCycle({
+    cycleId: "cycle-1",
+    cycleName: "Cycle 1",
+    completedAt: "2026-05-13T15:00:00.000Z",
+    description: "Operationally completed by POKit.",
+  });
+
+  assert.equal(plan.idempotencyKey, "linear:update_cycle:cycle-1:complete");
+  assert.equal(plan.writes[0].type, "update_cycle");
+  assert.equal(plan.writes[0].target, "cycle-1");
+  assert.deepEqual(plan.writes[0].payload, {
+    cycleId: "cycle-1",
+    cycleName: "Cycle 1",
+    completedAt: "2026-05-13T15:00:00.000Z",
+    description: "Operationally completed by POKit.",
+  });
+});
+
+test("applyUpdateCycle updates a Linear cycle only with approval and idempotency key", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        cycleUpdate: {
+          success: true,
+          cycle: {
+            id: "cycle-1",
+            name: "Cycle 1",
+            number: 1,
+            startsAt: "2026-05-11T15:00:00.000Z",
+            endsAt: "2026-05-13T15:00:00.000Z",
+            completedAt: "2026-05-13T15:00:00.000Z",
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyUpdateCycle, planUpdateCycle } = await loadLinearModule();
+  const plan = await planUpdateCycle({
+    cycleId: "cycle-1",
+    cycleName: "Cycle 1",
+    completedAt: "2026-05-13T15:00:00.000Z",
+  });
+
+  const cycle = await applyUpdateCycle(plan, { approved: true });
+
+  assert.match(requestBody.query, /mutation UpdateCycle/);
+  assert.equal(requestBody.variables.cycleId, "cycle-1");
+  assert.equal(requestBody.variables.input.completedAt, "2026-05-13T15:00:00.000Z");
+  assert.equal(cycle.id, "cycle-1");
+  assert.equal(cycle.completedAt, "2026-05-13T15:00:00.000Z");
+});
+
 test("planMissingLabels creates dry-run plan for labels not present in Linear", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";
