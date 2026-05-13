@@ -22,6 +22,7 @@ POKit v0.1.0 is the Day 2/3 dogfood release candidate.
 - Cycle-first completion reports and compact resume brief generation.
 - Cycle-level next-action wording so users are not asked to approve mechanical substeps.
 - Brief output now shows one Cycle-level execution sentence and no numbered quick-command prompts.
+- Release/Hotfix Cycle policy and guard metadata for deployment omissions and urgent redeploys.
 - Label preflight dry-run helper.
 - Cycle retro draft helper.
 - Onboarding checklist, README quickstart, first-run smoke test, skill guidance, and example Linear issues.
@@ -41,7 +42,7 @@ POKit v0.1.0 is the Day 2/3 dogfood release candidate.
 ### Release Gate
 
 - Clean check recorded in `docs/RELEASE_CHECKLIST.md`.
-- Test suite passed: 54/54.
+- Test suite passed: 56/56.
 - GitHub tag `v0.1.0` is not created yet.
 - GitHub release is not created yet.
 - Tag/release creation requires separate user approval.

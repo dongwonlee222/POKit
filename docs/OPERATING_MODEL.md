@@ -121,6 +121,34 @@ Forbidden next-action patterns:
 - `EVM-43만 진행해줘` unless the user explicitly selected `EVM-43`
 - any instruction that turns the user into a mechanical approval manager
 
+## Release And Hotfix Cycles
+
+Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.
+
+Do not create separate release tasks for normal planned work. If deployment is part of a Cycle's completion condition, finish the deployment inside that same Cycle or make an explicit deployment deferral before marking the Cycle complete. If deployment is not part of the Cycle's completion condition, the Cycle may finish after implementation, verification, commit, and Linear Done.
+
+Hotfix Cycles are only for urgent correction after a Cycle was completed or should have been deployed. Use a Hotfix Cycle for:
+
+- bugs or documentation errors found after deployment;
+- urgent leftover work that must be fixed and redeployed before the normal Cycle continues;
+- deployment omissions, where deployment should have happened before the Cycle was closed.
+
+Hotfix work must be tracked in Linear and must include:
+
+- `sourceCycle`: the completed or deployable Cycle being corrected;
+- `targetVersion`: the patch or release candidate version, such as `v0.1.1` or `v0.1.0-rc.1`;
+- `resumeCycle`: the normal Cycle to return to after the Hotfix;
+- `releaseKind`: `hotfix`;
+- the release scope, such as GitHub push, tag, release, package publish, or docs deploy.
+
+Hotfix is not a bucket for planned Cycle work. It is a short, versioned interruption for urgent correction or deployment omission. After the Hotfix is verified and either deployed or explicitly deferred, POKit returns to `resumeCycle`.
+
+Before GitHub push, tag, release, package publish, or public docs deploy, run or emulate the release guard:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue EVM-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3"
+```
+
 ## Model Tier Policy
 
 Use stronger models where judgment matters, and cheaper models where the contract is already narrow.

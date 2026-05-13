@@ -16,10 +16,12 @@ Checked on 2026-05-13.
 - [x] Cycle-first next-action wording checked.
 - [x] Brief user scenario checked: no numbered quick-command prompts remain in the default brief.
 - [x] Completed-cycle immutability guard checked.
-- [x] Test suite passed: 54/54.
+- [x] Release/Hotfix policy checked: normal deployment stays in the Cycle completion condition; deployment omission or urgent redeploy uses a versioned Hotfix Cycle with source/resume Cycle metadata.
+- [x] Test suite passed: 56/56.
 
 ## Release Gate
 
 - [ ] User approves `v0.1.0` tag creation.
 - [ ] User approves GitHub release creation, if needed.
+- [ ] If this is Hotfix work, `sourceCycle`, `targetVersion`, `resumeCycle`, and release scope are recorded before deploy.
 - [ ] Linear/GitHub writes remain dry-run or explicitly approved.

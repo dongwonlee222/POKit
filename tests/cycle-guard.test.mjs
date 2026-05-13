@@ -95,3 +95,44 @@ test("evaluateCycleGuard allows reopening a complete cycle only when explicit", 
   assert.equal(result.allowed, true);
   assert.match(result.message, /explicit completed-cycle reopen/);
 });
+
+test("evaluateCycleGuard blocks hotfix release work without version and cycle metadata", async () => {
+  const { evaluateCycleGuard } = await loadCycleGuardModule();
+
+  const result = evaluateCycleGuard({
+    mode: "implementation",
+    operation: "external_release",
+    issueIdentifier: "EVM-44",
+    cycleId: "hotfix-cycle",
+    cycleName: "Hotfix v0.1.0",
+    releaseKind: "hotfix",
+    sourceCycle: "Cycle 2",
+  });
+
+  assert.equal(result.allowed, false);
+  assert.match(result.message, /Hotfix release guard blocked/);
+  assert.match(result.message, /targetVersion/);
+  assert.match(result.message, /resumeCycle/);
+});
+
+test("evaluateCycleGuard allows hotfix release work with version and cycle metadata", async () => {
+  const { evaluateCycleGuard } = await loadCycleGuardModule();
+
+  const result = evaluateCycleGuard({
+    mode: "implementation",
+    operation: "external_release",
+    issueIdentifier: "EVM-44",
+    cycleId: "hotfix-cycle",
+    cycleName: "Hotfix v0.1.0",
+    releaseKind: "hotfix",
+    sourceCycle: "Cycle 2",
+    targetVersion: "v0.1.0",
+    resumeCycle: "Cycle 3",
+  });
+
+  assert.equal(result.allowed, true);
+  assert.match(result.message, /Hotfix release guard passed/);
+  assert.match(result.message, /Cycle 2/);
+  assert.match(result.message, /v0.1.0/);
+  assert.match(result.message, /Cycle 3/);
+});

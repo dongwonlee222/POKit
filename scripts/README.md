@@ -117,6 +117,12 @@ If the target cycle is already complete, the guard blocks by default:
 node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <cycle-id> --cycle-name "Cycle 2" --target-cycle-complete
 ```
 
+Check Hotfix release metadata before public deploy work:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue EVM-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3"
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

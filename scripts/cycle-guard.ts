@@ -4,13 +4,17 @@ export type CycleGuardMode = "implementation" | "planning";
 
 export type CycleGuardInput = {
   mode?: CycleGuardMode;
-  operation?: "implementation" | "cycle_assignment";
+  operation?: "implementation" | "cycle_assignment" | "external_release";
   issueIdentifier?: string;
   cycleId?: string;
   cycleName?: string;
   approvedBundlePath?: string;
   targetCycleComplete?: boolean;
   reopenCompletedCycle?: boolean;
+  releaseKind?: "normal" | "hotfix";
+  sourceCycle?: string;
+  targetVersion?: string;
+  resumeCycle?: string;
 };
 
 export type CycleGuardResult = {
@@ -50,6 +54,24 @@ export function evaluateCycleGuard(input: CycleGuardInput): CycleGuardResult {
         "Move new work to the next cycle instead of adding Todo to a completed cycle.",
         "Allowed exception: explicitly reopen the completed cycle, then rerun with --reopen-completed-cycle.",
       ].join(" "),
+    };
+  }
+
+  if (input.operation === "external_release" && input.releaseKind === "hotfix") {
+    const missing = [
+      input.sourceCycle ? "" : "sourceCycle",
+      input.targetVersion ? "" : "targetVersion",
+      input.resumeCycle ? "" : "resumeCycle",
+    ].filter(Boolean);
+    if (missing.length) {
+      return {
+        allowed: false,
+        message: `Hotfix release guard blocked. Missing ${missing.join(", ")}.`,
+      };
+    }
+    return {
+      allowed: true,
+      message: `Hotfix release guard passed for ${input.issueIdentifier ?? "release work"} from ${input.sourceCycle} to ${input.targetVersion}; resume ${input.resumeCycle}.`,
     };
   }
 
@@ -104,6 +126,10 @@ function readCliInput(args: string[], env: NodeJS.ProcessEnv): CycleGuardInput {
     approvedBundlePath: readFlag(args, "--approved-bundle") ?? env.POKIT_APPROVED_BUNDLE,
     targetCycleComplete: readBooleanFlag(args, "--target-cycle-complete") || env.POKIT_TARGET_CYCLE_COMPLETE === "1",
     reopenCompletedCycle: readBooleanFlag(args, "--reopen-completed-cycle") || env.POKIT_REOPEN_COMPLETED_CYCLE === "1",
+    releaseKind: readFlag(args, "--release-kind") as CycleGuardInput["releaseKind"] | undefined,
+    sourceCycle: readFlag(args, "--source-cycle") ?? env.POKIT_SOURCE_CYCLE,
+    targetVersion: readFlag(args, "--target-version") ?? env.POKIT_TARGET_VERSION,
+    resumeCycle: readFlag(args, "--resume-cycle") ?? env.POKIT_RESUME_CYCLE,
   };
 }
 
