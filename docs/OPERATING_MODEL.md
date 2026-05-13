@@ -16,6 +16,20 @@ Still out of scope:
 
 Current-session work should start from Linear tasks, then use the session task list only as a temporary progress tracker.
 
+## Documentation Source Of Truth
+
+Keep Markdown light by assigning each document one job:
+
+- `README.md`: short product promise, quickstart, and links to canonical docs.
+- `docs/ONBOARDING.md`: step-by-step setup and first-run procedure.
+- `docs/OPERATING_MODEL.md`: canonical policy source for approvals, cycle execution, completion, artifact handling, and documentation ownership.
+- `workflows/hooks.yaml`: canonical workflow hook list.
+- `docs/DESIGN.md`: design background and historical rationale. If it conflicts with `OPERATING_MODEL.md` or `workflows/hooks.yaml`, the newer canonical files win.
+- `examples/`: sanitized reusable samples.
+- `artifacts/`: local generated workspace output, not canonical documentation.
+
+Do not duplicate full policy text across README, ONBOARDING, and DESIGN. Link to the canonical section instead.
+
 ## Cycle-first Execution Guard
 
 POKit thinks in Backlog and executes in Cycle.
@@ -52,6 +66,35 @@ This means:
 - when approval scope and safety conflict, prefer preserving write safety without fragmenting the user into many tiny confirmations.
 
 The practical test is simple: if a step is only there to execute the approved goal, it belongs inside the intent. If the step changes outside state in a way the user would care about independently, it needs a separate ask.
+
+## Cycle Steward Persona
+
+POKit uses a lightweight Cycle Steward persona when producing plans, completion reports, and next-action sentences.
+
+The Cycle Steward checks:
+
+- Is the next action Cycle-first?
+- Did POKit accidentally split one Cycle task into mechanical approvals?
+- Is POKit asking the user to approve too many small steps?
+- Are remaining Todo items grouped into a sensible bundle?
+- Does the final next-action sentence move the Cycle forward?
+
+The Cycle Steward prefers:
+
+- Cycle outcome over issue-only action.
+- Bundle over isolated task.
+- Intent-level approval over mechanical approval.
+- Simple wording over process-heavy explanation.
+
+Individual issue wording is allowed only when the user explicitly selects an issue or numbered candidate.
+
+Forbidden next-action patterns:
+
+- `커밋해줘`
+- `Done 처리해줘`
+- `테스트 돌려줘`
+- `EVM-43만 진행해줘` unless the user explicitly selected `EVM-43`
+- any instruction that turns the user into a mechanical approval manager
 
 ## Distribution Model
 
@@ -105,14 +148,17 @@ Every external write needs:
 
 Approval should happen at the user's intent level. If the user approves a clear goal such as "move these three issues into Cycle 2 and prepare the run", POKit may perform the directly required mechanical writes such as cycle assignment and label synchronization under that same approved plan.
 
+When the approved intent is to complete a specific Cycle task, POKit treats local edits, verification, commit, and Linear Done transition as one coherent task-completion flow. The user should not have to separately approve "commit this task" or "mark this task Done" after already asking to complete the Cycle task.
+
 Separate explicit approval is still required for:
 
-- marking issues Done;
 - deleting, archiving, or closing records;
 - GitHub push, release, or tag creation;
 - decision-log confirmation;
 - changelog confirmation;
 - cycle close confirmation.
+
+If the task scope is ambiguous, stop and clarify the task boundary instead of splitting the work into mechanical approval prompts.
 
 ## Artifact Policy
 
@@ -120,6 +166,7 @@ The public POKit repository should not keep user-specific generated artifacts in
 
 - `artifacts/` is the local workspace for generated PRDs, criteria, manifests, and run summaries.
 - `examples/` is the public workspace for reusable fixtures and dogfood samples.
+- `POKit-Day1-Design/` and `POKit-Day1-Design.zip` are local design exports, not canonical docs.
 - Public commits should exclude credentials, customer data, private project details, local memory, generated artifacts, and live workspace outputs.
 - Private/team forks should also treat `memory/`, `artifacts/`, and `.modu-harness/` as sensitive by default. Commit them only after explicit team policy and content review.
 
@@ -129,7 +176,9 @@ If a generated artifact is useful as documentation, move or rewrite it as a sani
 
 A Linear cycle is a time box, but POKit can treat it as operationally complete as soon as the selected work is done.
 
-When Todo is 0, In Progress is 0, approval pending is 0, and clarification is 0, the cycle close flow should show a one-time celebration message with:
+Operationally complete means every issue in the selected work surface is either Done or has an explicit carry-over note. Compute this from sprint dry-run categories, not only raw status counts. Cancelled or custom-status issues without a carry-over note block completion and must appear in the close summary.
+
+When the selected work surface is operationally complete, the cycle close flow should show a one-time celebration message with:
 
 - an emoji celebration line;
 - completed count;
@@ -158,9 +207,11 @@ For unfinished or approval-pending work, include enough task content to act with
 - why it is pending
 - next action
 
-The final line should be an executable sentence the user can say next, such as `EVM-42(Cycle-first guard hook) Done 처리하고 커밋해줘`.
+The final line should be an executable sentence the user can say next, such as `Cycle 2의 EVM-42 Cycle-first guard hook을 완료까지 진행해줘`.
 
 Use emoji as section markers only. They should make status easier to scan, not make the report decorative.
+
+The final line must point at the next Cycle outcome, not a mechanical substep. If the user did not explicitly select one issue, prefer `Cycle 2 남은 Todo를 우선순위대로 묶어서 완료까지 진행해줘`. Use issue-specific wording only when the user selected that issue or numbered candidate.
 
 ## Next Backlog
 

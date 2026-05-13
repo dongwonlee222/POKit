@@ -1,5 +1,7 @@
 # POKit Day 2 Implementation Plan
 
+> Historical plan. This file records the original Day 2 build plan and is not the source of truth for current operating policy or hook names. Use `docs/OPERATING_MODEL.md` for policy and `workflows/hooks.yaml` for canonical hooks.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the smallest GitHub-distributed POKit repo skeleton that can read a cycle, route PRD/criteria work, generate draft artifacts, produce a Run Summary, and protect external writes behind dry-run approval.

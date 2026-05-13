@@ -3,6 +3,10 @@ node_modules/
 *.local.*
 .DS_Store
 
+# Local design exports or unpacked reference bundles.
+POKit-Day1-Design/
+POKit-Day1-Design.zip
+
 # Local workspace state and generated outputs. Public repos should keep real
 # work context out of git; publish sanitized examples under examples/ instead.
 .modu-harness/

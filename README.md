@@ -14,6 +14,13 @@ POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a sep
 
 Start with [docs/ONBOARDING.md](docs/ONBOARDING.md) when setting up a new workspace.
 
+## Docs Map
+
+- [docs/ONBOARDING.md](docs/ONBOARDING.md): setup and first-run procedure.
+- [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md): source of truth for policies, approvals, cycle rules, and doc ownership.
+- [workflows/hooks.yaml](workflows/hooks.yaml): source of truth for workflow hook names.
+- [docs/DESIGN.md](docs/DESIGN.md): design background; defer to the files above when details drift.
+
 ## Who This Is For
 
 Use POKit when you want a lightweight AI workspace that sits on top of your Linear backlog:
@@ -131,13 +138,13 @@ For longer work, use the POKit goal loop:
 
 See [docs/GOAL_LOOP.md](docs/GOAL_LOOP.md).
 
-Generated artifacts are local by default and should stay out of public GitHub repos. The public POKit template keeps reusable, sanitized samples under `examples/`.
+Generated artifacts are local by default and should stay out of public GitHub repos. The public POKit template keeps reusable, sanitized samples under `examples/`. See [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md#artifact-policy) for the canonical artifact policy.
 
 If an API key appears in chat, logs, screenshots, or commits, rotate it before continuing. See `SECURITY.md`.
 
 ## Core Contract
 
-POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 절대 바꾸지 않는다.
+POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 절대 바꾸지 않는다. Detailed policy lives in [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md).
 
 - All AI-generated artifacts are drafts with source context and rationale.
 - Run Summary lists generated, needs-label, needs-clarification, needs-approval, and failed items separately, with "what AI did not do" shown first.

@@ -929,13 +929,14 @@ sequenceDiagram
 
 ## 2.14 Workflow Hook 설계
 
-Hook은 POKit의 실행 엔진이 아니라 workflow lifecycle에 붙는 안전장치와 품질 게이트다. hook 선언은 `workflows/hooks.yaml`에 두고, 실제 구현은 Phase 2부터 `scripts/hooks.ts`로 분리한다. Day 2에는 hook 이름과 호출 지점만 skill 문서에 명시한다.
+Hook은 POKit의 실행 엔진이 아니라 workflow lifecycle에 붙는 안전장치와 품질 게이트다. hook 선언의 정본은 `workflows/hooks.yaml`이다. 이 문서는 설계 배경을 설명하며, hook 목록이 달라지면 `workflows/hooks.yaml`을 우선한다.
 
 기본 hook 포인트는 다음과 같다.
 
 - **before_run**: cycle 실행 전 `.env`, Linear token, current cycle, git 상태, 필수 디렉터리를 확인한다.
 - **session_start**: AI 세션 시작 시 날짜, best-effort 날씨, current cycle, backlog count, 마지막 run summary를 짧게 요약한다. action nudge는 상태 변화가 있을 때만 최대 1개 표시한다.
 - **preflight_labels**: 첫 cycle 실행 전 `pokit:*` 라벨 존재 여부를 확인하고, 누락 라벨 생성 plan을 만든다.
+- **before_implementation**: durable file change 전 Linear cycle 또는 승인된 cycle bundle 귀속 여부를 확인한다. Planning/dry-run은 허용한다.
 - **before_each_issue**: issue 처리 전 label, issue id, cycle id, 기존 artifact 존재 여부, content hash 변경 여부를 확인한다.
 - **after_artifact**: 산출물 생성 직후 frontmatter, content hash, YAML manifest, Mermaid block, 파일 경로, issue id 매칭을 검증한다.
 - **after_each_issue**: issue별 결과를 run summary에 추가한다.
@@ -967,6 +968,11 @@ hooks:
     - check_current_cycle
     - check_git_status
     - check_required_directories
+
+  before_implementation:
+    - require_linear_cycle_or_approved_bundle
+    - allow_planning_and_dry_run_without_cycle
+    - block_durable_file_changes_without_cycle_context
 
   loop:
     before_each_issue:

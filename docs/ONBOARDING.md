@@ -16,7 +16,7 @@ POKit 시작해줘
 - [ ] Or, for a longer run, say:
 
 ```text
-POKit 시작해줘. Brief의 다음 후보를 기준으로 task list를 만들고, 하나씩 완료한 뒤 Linear Done 처리해줘.
+POKit 시작해줘. Brief의 다음 후보를 기준으로 Cycle bundle을 만들고, 완료 조건까지 진행해줘.
 ```
 
 - [ ] Confirm the response includes:

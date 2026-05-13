@@ -41,6 +41,11 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 - Always create or confirm the Linear task list before implementation.
 - Before durable implementation, run or emulate `node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-123 --cycle-id <cycle-id>`.
 - Backlog-only work may plan, inspect, and produce dry-run artifacts, but must not change durable project files.
+- When a user asks to proceed with a Cycle task, treat local edits, verification, commit, and Linear Done as one task-completion flow unless the user explicitly narrows the scope.
+- Do not ask the user to approve mechanical substeps like "commit this task" or "mark this task Done" after they approved completing the Cycle task. Pause only for destructive actions, public pushes/releases/tags, ambiguous scope, or policy changes outside the task.
+- Use the Cycle Steward check before plans, completion reports, and next-action sentences: the next action should move the current Cycle forward, not isolate a single issue unless the user explicitly selected it.
+- Default next action wording must target the Cycle bundle, such as "Cycle 2 남은 Todo를 우선순위대로 묶어서 완료까지 진행해줘".
+- Forbidden next-action wording: standalone "커밋해줘", "Done 처리해줘", "테스트 돌려줘", or issue-only wording when the user did not explicitly select that issue.
 
 When a POKit work item is finished, use the completion report format:
 
@@ -51,6 +56,7 @@ When a POKit work item is finished, use the completion report format:
 
 For unfinished or approval-pending items, include the task ID, title, current status, and why it is still pending so the user does not have to remember what each number means.
 Use emoji as section markers only; keep the report short and readable.
+The next sentence must continue or complete the current Cycle bundle, not ask for a mechanical substep. Use Cycle-level wording unless the user explicitly picked one issue.
 
 Never write to Linear or GitHub without:
 1. A dry-run plan.
