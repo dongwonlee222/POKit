@@ -18,6 +18,11 @@ hooks:
     - check_existing_artifact
     - check_content_hash
 
+  before_implementation:
+    - require_linear_cycle_or_approved_bundle
+    - allow_planning_and_dry_run_without_cycle
+    - block_durable_file_changes_without_cycle_context
+
   after_artifact:
     - validate_frontmatter
     - record_content_hash

@@ -74,8 +74,40 @@ export type WorkingCycleContext = {
   issues: Issue[];
 };
 
+export type CycleWorkSurface = {
+  source: "linear_active" | "linear_upcoming";
+  cycle: Cycle;
+  issues: Issue[];
+};
+
+export type WorkingContext = {
+  activeCycle?: CycleWorkSurface;
+  upcomingCycle?: CycleWorkSurface;
+  backlogIssues: Issue[];
+  selected: WorkingCycleContext;
+  fetchedAt: string;
+};
+
+export type WorkingContextReadOptions = {
+  refresh?: boolean;
+};
+
 const LINEAR_GRAPHQL_ENDPOINT = "https://api.linear.app/graphql";
+const WORKING_CONTEXT_CACHE_TTL_MS = 30_000;
 let dotEnvLoaded = false;
+let workingContextCache:
+  | {
+      teamId: string;
+      expiresAt: number;
+      value: WorkingContext;
+    }
+  | undefined;
+let workingContextInFlight:
+  | {
+      teamId: string;
+      request: Promise<WorkingContext>;
+    }
+  | undefined;
 
 type LinearGraphqlResponse<T> = {
   data?: T;
@@ -91,6 +123,7 @@ type LinearIssueNode = {
   labels: { nodes: Array<{ name: string }> };
   state?: { name: string };
   assignee?: { name: string } | null;
+  cycle?: LinearCycleNode | null;
 };
 
 type LinearCycleNode = {
@@ -161,6 +194,10 @@ function formatTeamOptions(teams: Team[]): string {
   return teams.map((team) => `${team.name} (${team.key}, ${team.id})`).join("; ") || "none";
 }
 
+function normalizeState(value: string | undefined): string {
+  return value?.trim().toLowerCase() ?? "";
+}
+
 async function linearGraphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
   const apiKey = readRequiredEnv("LINEAR_API_KEY");
   const response = await fetch(LINEAR_GRAPHQL_ENDPOINT, {
@@ -205,6 +242,229 @@ function normalizeIssue(issue: LinearIssueNode): Issue {
     state: issue.state?.name,
     assignee: issue.assignee?.name,
   };
+}
+
+function selectIssuesForCycle(issues: LinearIssueNode[], cycleId: string | undefined): Issue[] {
+  if (!cycleId) {
+    return [];
+  }
+  return issues
+    .filter((issue) => issue.cycle?.id === cycleId)
+    .map(normalizeIssue);
+}
+
+function selectBacklogIssues(issues: LinearIssueNode[], options: { onlyBacklogState: boolean }): Issue[] {
+  return issues
+    .filter((issue) => !issue.cycle?.id)
+    .filter((issue) => !options.onlyBacklogState || normalizeState(issue.state?.name) === "backlog")
+    .map(normalizeIssue);
+}
+
+function buildCycleWorkSurface(
+  source: CycleWorkSurface["source"],
+  cycle: LinearCycleNode | undefined,
+  issues: Issue[],
+): CycleWorkSurface | undefined {
+  if (!cycle) {
+    return undefined;
+  }
+  return {
+    source,
+    cycle: normalizeCycle(cycle),
+    issues,
+  };
+}
+
+function selectUpcomingCycleNode(
+  upcomingCycles: LinearCycleNode[],
+  issues: LinearIssueNode[],
+  activeCycleId: string | undefined,
+): LinearCycleNode | undefined {
+  const issueCycles = new Map<string, LinearCycleNode>();
+  for (const issue of issues) {
+    const cycle = issue.cycle;
+    if (!cycle?.id || cycle.id === activeCycleId || isTerminalIssueState(issue.state?.name)) {
+      continue;
+    }
+    issueCycles.set(cycle.id, cycle);
+  }
+  const candidates = uniqueCycles([...upcomingCycles, ...issueCycles.values()])
+    .filter((cycle) => cycle.id !== activeCycleId)
+    .sort(compareCycles);
+  return candidates.find((cycle) => selectIssuesForCycle(issues, cycle.id).length > 0) ?? candidates[0];
+}
+
+function uniqueCycles(cycles: LinearCycleNode[]): LinearCycleNode[] {
+  const seen = new Set<string>();
+  const unique: LinearCycleNode[] = [];
+  for (const cycle of cycles) {
+    if (seen.has(cycle.id)) {
+      continue;
+    }
+    seen.add(cycle.id);
+    unique.push(cycle);
+  }
+  return unique;
+}
+
+function compareCycles(left: LinearCycleNode, right: LinearCycleNode): number {
+  const leftTime = cycleSortTime(left);
+  const rightTime = cycleSortTime(right);
+  if (leftTime !== rightTime) {
+    return leftTime - rightTime;
+  }
+  return (left.number ?? Number.MAX_SAFE_INTEGER) - (right.number ?? Number.MAX_SAFE_INTEGER);
+}
+
+function cycleSortTime(cycle: LinearCycleNode): number {
+  if (!cycle.startsAt) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+  const time = new Date(cycle.startsAt).getTime();
+  return Number.isFinite(time) ? time : Number.MAX_SAFE_INTEGER;
+}
+
+function isTerminalIssueState(state: string | undefined): boolean {
+  const normalized = normalizeState(state);
+  return normalized === "done" || normalized === "completed" || normalized === "canceled" || normalized === "cancelled" || normalized === "duplicate";
+}
+
+function selectWorkingCycleContext(context: Omit<WorkingContext, "selected" | "fetchedAt">): WorkingCycleContext {
+  if (context.activeCycle) {
+    return context.activeCycle;
+  }
+  if (context.upcomingCycle) {
+    return context.upcomingCycle;
+  }
+  return {
+    source: "team_backlog",
+    cycle: {
+      id: "team-backlog",
+      name: "Team Backlog",
+    },
+    issues: context.backlogIssues,
+  };
+}
+
+export function invalidateWorkingContextCache(): void {
+  workingContextCache = undefined;
+  workingContextInFlight = undefined;
+}
+
+async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
+  const data = await linearGraphql<{
+    team: {
+      activeCycles: { nodes: LinearCycleNode[] };
+      upcomingCycles: { nodes: LinearCycleNode[] };
+      issues: { nodes: LinearIssueNode[] };
+    } | null;
+  }>(`
+    query WorkingContext($teamId: String!) {
+      team(id: $teamId) {
+        activeCycles: cycles(first: 1, filter: { isActive: { eq: true } }) {
+          nodes {
+            id
+            name
+            number
+            startsAt
+            endsAt
+          }
+        }
+        upcomingCycles: cycles(first: 5, filter: { isActive: { eq: false } }) {
+          nodes {
+            id
+            name
+            number
+            startsAt
+            endsAt
+          }
+        }
+        issues(first: 100) {
+          nodes {
+            id
+            identifier
+            title
+            description
+            url
+            labels {
+              nodes {
+                name
+              }
+            }
+            state {
+              name
+            }
+            assignee {
+              name
+            }
+            cycle {
+              id
+              name
+              number
+              startsAt
+              endsAt
+            }
+          }
+        }
+      }
+    }
+  `, { teamId });
+  const issues = data.team?.issues.nodes ?? [];
+  const activeCycleNode = data.team?.activeCycles.nodes[0];
+  const upcomingCycleNode = selectUpcomingCycleNode(data.team?.upcomingCycles.nodes ?? [], issues, activeCycleNode?.id);
+  const activeCycle = buildCycleWorkSurface(
+    "linear_active",
+    activeCycleNode,
+    selectIssuesForCycle(issues, activeCycleNode?.id),
+  );
+  const upcomingCycle = buildCycleWorkSurface(
+    "linear_upcoming",
+    upcomingCycleNode,
+    selectIssuesForCycle(issues, upcomingCycleNode?.id),
+  );
+  const backlogIssues = selectBacklogIssues(issues, { onlyBacklogState: Boolean(activeCycleNode || upcomingCycleNode) });
+  const baseContext = {
+    activeCycle,
+    upcomingCycle,
+    backlogIssues,
+  };
+
+  return {
+    ...baseContext,
+    selected: selectWorkingCycleContext(baseContext),
+    fetchedAt: new Date().toISOString(),
+  };
+}
+
+export async function getWorkingContext(options: WorkingContextReadOptions = {}): Promise<WorkingContext> {
+  readRequiredEnv("LINEAR_API_KEY");
+  const teamId = await resolveTeamId();
+  const now = Date.now();
+  if (!options.refresh && workingContextCache?.teamId === teamId && workingContextCache.expiresAt > now) {
+    return workingContextCache.value;
+  }
+  if (!options.refresh && workingContextInFlight?.teamId === teamId) {
+    return workingContextInFlight.request;
+  }
+  const request = fetchWorkingContext(teamId)
+    .then((context) => {
+      workingContextCache = {
+        teamId,
+        expiresAt: Date.now() + WORKING_CONTEXT_CACHE_TTL_MS,
+        value: context,
+      };
+      return context;
+    })
+    .finally(() => {
+      if (workingContextInFlight?.request === request) {
+        workingContextInFlight = undefined;
+      }
+    });
+  workingContextInFlight = {
+    teamId,
+    request,
+  };
+  return request;
 }
 
 export async function getCurrentCycle(): Promise<Cycle> {
@@ -327,83 +587,9 @@ export async function listLabels(): Promise<LinearLabel[]> {
   })) ?? [];
 }
 
-export async function getWorkingCycleContext(): Promise<WorkingCycleContext> {
-  readRequiredEnv("LINEAR_API_KEY");
-  const teamId = await resolveTeamId();
-  const data = await linearGraphql<{
-    team: {
-      activeCycles: { nodes: LinearCycleNode[] };
-      upcomingCycles: { nodes: LinearCycleNode[] };
-      issues: { nodes: LinearIssueNode[] };
-    } | null;
-  }>(`
-    query WorkingCycleCandidates($teamId: String!) {
-      team(id: $teamId) {
-        activeCycles: cycles(first: 1, filter: { isActive: { eq: true } }) {
-          nodes {
-            id
-            name
-            number
-            startsAt
-            endsAt
-          }
-        }
-        upcomingCycles: cycles(first: 1, filter: { isActive: { eq: false } }) {
-          nodes {
-            id
-            name
-            number
-            startsAt
-            endsAt
-          }
-        }
-        issues(first: 100) {
-          nodes {
-            id
-            identifier
-            title
-            description
-            url
-            labels {
-              nodes {
-                name
-              }
-            }
-            state {
-              name
-            }
-            assignee {
-              name
-            }
-          }
-        }
-      }
-    }
-  `, { teamId });
-  const activeCycle = data.team?.activeCycles.nodes[0];
-  if (activeCycle) {
-    return {
-      source: "linear_active",
-      cycle: normalizeCycle(activeCycle),
-      issues: await listIssues(activeCycle.id),
-    };
-  }
-  const upcomingCycle = data.team?.upcomingCycles.nodes[0];
-  if (upcomingCycle) {
-    return {
-      source: "linear_upcoming",
-      cycle: normalizeCycle(upcomingCycle),
-      issues: await listIssues(upcomingCycle.id),
-    };
-  }
-  return {
-    source: "team_backlog",
-    cycle: {
-      id: "team-backlog",
-      name: "Team Backlog",
-    },
-    issues: data.team?.issues.nodes.map(normalizeIssue) ?? [],
-  };
+export async function getWorkingCycleContext(options: WorkingContextReadOptions = {}): Promise<WorkingCycleContext> {
+  const context = await getWorkingContext(options);
+  return context.selected;
 }
 
 export async function planCreateIssue(input: IssueInput): Promise<Plan> {

@@ -16,6 +16,43 @@ Still out of scope:
 
 Current-session work should start from Linear tasks, then use the session task list only as a temporary progress tracker.
 
+## Cycle-first Execution Guard
+
+POKit thinks in Backlog and executes in Cycle.
+
+Backlog-only work may define scope, inspect files, gather evidence, and create dry-run plans. Durable implementation starts only after the work is attached to a Linear cycle or an explicitly approved cycle bundle.
+
+Before code, docs, tests, or canonical memory files are changed, run or emulate:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-42 --cycle-id 169a76a8-2867-45f0-b380-3e35e504c9c7 --cycle-name "Cycle 2"
+```
+
+The guard intentionally does not ask for more user approvals. It only blocks implementation when traceability is missing.
+
+## Product Philosophy and Decision Rules
+
+POKit is built to keep scrum automation lightweight. The product should feel like a helpful operator around Linear, not like a gatekeeper that asks for permission on every small step.
+
+When the product has to choose between competing behaviors, use this order:
+
+1. Reduce approval noise.
+2. Let Linear backlog and cycle structure drive the work.
+3. Keep the experience easy to understand, easy to resume, and easy to keep local.
+
+Approval is intent-level, not mechanical-step-level. If the user approves a clear goal, POKit may carry out the local drafting, routing, summaries, and other necessary mechanical work that directly follows from that goal.
+
+Ask again only when the next action is destructive, externally visible, security-sensitive, ambiguous, or would change an already-approved product decision.
+
+This means:
+
+- local drafts and summaries stay inside the approved intent;
+- inferred routing and bookkeeping can proceed without repeated prompts;
+- external writes, public comments, policy changes, and deletions get their own approval boundary;
+- when approval scope and safety conflict, prefer preserving write safety without fragmenting the user into many tiny confirmations.
+
+The practical test is simple: if a step is only there to execute the approved goal, it belongs inside the intent. If the step changes outside state in a way the user would care about independently, it needs a separate ask.
+
 ## Distribution Model
 
 POKit is distributed as a GitHub repository, not as a hosted service or standalone CLI.
@@ -66,7 +103,7 @@ Every external write needs:
 3. Explicit user approval.
 4. An apply helper that refuses unsafe or incomplete plans.
 
-Approval should happen at the user's intent level. If the user approves a clear goal such as "move these three issues into Cycle 2 and prepare the run", POKit may perform directly required mechanical writes such as cycle assignment and label synchronization under that same approved plan.
+Approval should happen at the user's intent level. If the user approves a clear goal such as "move these three issues into Cycle 2 and prepare the run", POKit may perform the directly required mechanical writes such as cycle assignment and label synchronization under that same approved plan.
 
 Separate explicit approval is still required for:
 
@@ -101,6 +138,19 @@ When Todo is 0, In Progress is 0, approval pending is 0, and clarification is 0,
 - the next execution sentence.
 
 The same cycle completion message should not repeat unless the cycle state changes.
+
+## Completion Report Format
+
+When POKit finishes a work item, it should close with a short report instead of leaving the user to infer the next step.
+
+Use this order:
+
+1. 완료한 것
+2. 아직 안 한 것 / 승인 대기
+3. 검증 결과
+4. 다음에 사용자가 할 말 한 줄
+
+The final line should be an executable sentence the user can say next, such as `EVM-42 Done 처리하고 커밋해줘`.
 
 ## Next Backlog
 

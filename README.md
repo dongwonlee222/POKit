@@ -2,6 +2,14 @@
 
 POKit의 첫 번째 약속은 신뢰다.
 
+## POKit Philosophy
+
+POKit는 승인 관리 도구가 아니라, 가벼운 Linear 중심 자동화 도구다.
+
+- 사용자 승인 횟수는 가능한 한 줄인다.
+- 작업은 Linear backlog와 cycle 흐름을 기준으로 묶는다.
+- 외부 write는 intent-level 승인으로 한 번에 처리하되, 파괴적이거나 외부에 보이는 변경은 다시 확인한다.
+
 POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a separate CLI, SaaS, or chat UI. Clone or fork this repo, fill `.env`, open Codex CLI or Claude Code in the repo root, and work in natural language.
 
 Start with [docs/ONBOARDING.md](docs/ONBOARDING.md) when setting up a new workspace.

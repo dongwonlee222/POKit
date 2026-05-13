@@ -81,6 +81,18 @@ node --experimental-strip-types scripts/session-brief.ts --candidate 1
 
 Use these when the user asks for "cycle 자세히", "backlog 자세히", or a numbered candidate detail before approving the next run.
 
+Check cycle-first implementation readiness:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-42 --cycle-id 169a76a8-2867-45f0-b380-3e35e504c9c7 --cycle-name "Cycle 2"
+```
+
+This command is local. It blocks durable implementation when no Linear cycle or approved cycle bundle context is present. Planning and dry-run work may still proceed with:
+
+```bash
+node --experimental-strip-types scripts/cycle-guard.ts --mode planning
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

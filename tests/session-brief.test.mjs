@@ -113,3 +113,170 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(candidateDetail, /1\. EVM-21 Team optional · Todo · pokit:criteria/);
   assert.match(candidateDetail, /env detail/);
 });
+
+test("buildSessionBrief shows upcoming and backlog candidates when active cycle is operationally complete", async () => {
+  const { buildBacklogDetail, buildSessionBrief } = await loadBriefModule();
+
+  const context = {
+    activeCycle: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        { id: "issue-18", identifier: "EVM-18", title: "Clean check", description: "done", labels: ["pokit:criteria"], state: "Completed" },
+      ],
+    },
+    upcomingCycle: {
+      source: "linear_upcoming",
+      cycle: { id: "cycle-2", name: "Cycle 2", startsAt: "2026-05-13T00:00:00.000Z" },
+      issues: [
+        { id: "issue-32", identifier: "EVM-32", title: "Model tier", description: "docs", labels: ["pokit:criteria"], state: "Todo" },
+        { id: "issue-33", identifier: "EVM-33", title: "Resume brief", description: "compact", labels: ["pokit:criteria"], state: "Todo" },
+        { id: "issue-34", identifier: "EVM-34", title: "Session close", description: "script", labels: ["pokit:prd"], state: "Todo" },
+      ],
+    },
+    backlogIssues: [
+      { id: "issue-35", identifier: "EVM-35", title: "ICE-lite", description: "score", labels: ["pokit:criteria"], state: "Backlog" },
+      { id: "issue-36", identifier: "EVM-36", title: "History maintainer", description: "skill", labels: ["pokit:prd"], state: "Backlog" },
+    ],
+    selected: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        { id: "issue-18", identifier: "EVM-18", title: "Clean check", description: "done", labels: ["pokit:criteria"], state: "Completed" },
+      ],
+    },
+    fetchedAt: "2026-05-13T00:00:00.000Z",
+  };
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context,
+  });
+
+  assert.match(brief, /✅ Cycle 1 완료/);
+  assert.match(brief, /🧺 다음 후보 \(Cycle 2/);
+  assert.match(brief, /1\. EVM-32 Model tier · Todo · pokit:criteria/);
+  assert.match(brief, /2\. EVM-33 Resume brief · Todo · pokit:criteria/);
+  assert.match(brief, /3\. EVM-34 Session close · Todo · pokit:prd/);
+  assert.match(brief, /🗂️ 백로그/);
+  assert.match(brief, /- EVM-35 ICE-lite · Backlog · pokit:criteria/);
+  assert.doesNotMatch(brief, /새 후보 issue를 백로그에 담기/);
+
+  const backlogDetail = buildBacklogDetail({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context,
+  });
+  assert.match(backlogDetail, /실제 Backlog 이슈/);
+  assert.match(backlogDetail, /1\. EVM-35 ICE-lite · Backlog · pokit:criteria/);
+  assert.match(backlogDetail, /2\. EVM-36 History maintainer · Backlog · pokit:prd/);
+});
+
+test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-20", identifier: "EVM-20", title: "LLM-first", description: "docs", labels: ["pokit:criteria"], state: "Todo" },
+          { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        ],
+      },
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-2", name: "Cycle 2", startsAt: "2026-05-20T00:00:00.000Z" },
+        issues: [
+          { id: "issue-32", identifier: "EVM-32", title: "Model tier", description: "docs", labels: ["pokit:criteria"], state: "Todo" },
+        ],
+      },
+      backlogIssues: [
+        { id: "issue-35", identifier: "EVM-35", title: "ICE-lite", description: "score", labels: ["pokit:criteria"], state: "Backlog" },
+      ],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-20", identifier: "EVM-20", title: "LLM-first", description: "docs", labels: ["pokit:criteria"], state: "Todo" },
+          { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T00:00:00.000Z",
+    },
+  });
+
+  assert.match(brief, /📌 현재: Todo 1 · 진행 0 · 완료 1/);
+  assert.match(brief, /1\. EVM-20 LLM-first · Todo · pokit:criteria/);
+  assert.doesNotMatch(brief, /EVM-32 Model tier/);
+  assert.doesNotMatch(brief, /✅ Cycle 1 완료/);
+});
+
+test("buildSessionBrief uses review-oriented wording when upcoming cycle starts in the future", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        ],
+      },
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-2", name: "Cycle 2", startsAt: "2026-05-20T00:00:00.000Z" },
+        issues: [
+          { id: "issue-32", identifier: "EVM-32", title: "Model tier", description: "docs", labels: ["pokit:criteria"], state: "Todo" },
+        ],
+      },
+      backlogIssues: [],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T00:00:00.000Z",
+    },
+  });
+
+  assert.match(brief, /시작 예정/);
+  assert.match(brief, /👉 추천: 1번 검토/);
+  assert.match(brief, /💬 실행: “1번 검토하고 다음 cycle 준비해줘”/);
+});
+
+test("buildSessionBrief recommends adding new backlog work only when there are no upcoming or backlog candidates", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        ],
+      },
+      backlogIssues: [],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-19", identifier: "EVM-19", title: "Release", description: "done", labels: ["pokit:prd"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T00:00:00.000Z",
+    },
+  });
+
+  assert.match(brief, /👉 추천: 새 후보 issue를 백로그에 담기/);
+  assert.match(brief, /💬 실행: “백로그 후보 정리해서 POKit 돌려줘”/);
+});

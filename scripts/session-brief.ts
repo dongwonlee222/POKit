@@ -1,12 +1,12 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "./archive-guardrail.ts";
-import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
+import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 
 export type SessionBriefInput = {
   now?: Date;
-  context: WorkingCycleContext;
+  context: WorkingCycleContext | WorkingContext;
   rootDir?: string;
 };
 
@@ -14,37 +14,60 @@ type IssueCounts = {
   todo: number;
   inProgress: number;
   done: number;
+  review: number;
+};
+
+type ResolvedSessionContext = {
+  activeSurface?: WorkingCycleContext;
+  primarySurface: WorkingCycleContext;
+  backlogSurface?: WorkingCycleContext;
+  primaryCandidates: Issue[];
+  backlogCandidates: Issue[];
+  recentDone: Issue[];
+  currentCounts: IssueCounts;
+  warningReviewCount: number;
+  activeOperationallyComplete: boolean;
+  futureUpcoming: boolean;
 };
 
 export function buildSessionBrief(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
   const rootDir = input.rootDir ?? ".";
+  const resolved = resolveSessionContext(input.context, now);
+  const currentSurface = resolved.activeSurface ?? resolved.primarySurface;
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
-    context: input.context,
+    context: resolved.primarySurface,
   });
-  const counts = countIssues(input.context.issues);
-  const candidates = selectNextCandidates(input.context.issues);
-  const recentDone = selectRecentDone(input.context.issues);
-  const archiveGuardrail = buildArchiveGuardrail({ issues: input.context.issues });
-  const runSummaryPath = findLatestRunSummary(rootDir, input.context.cycle.name);
-  const retroPath = findRetro(rootDir, input.context.cycle.name);
-  const candidateIds = candidates.map((issue) => issue.identifier);
-  const candidateNumbers = candidates.map((_, index) => `${index + 1}번`);
+  const archiveGuardrail = buildArchiveGuardrail({ issues: currentSurface.issues });
+  const runSummaryPath = findLatestRunSummary(rootDir, currentSurface.cycle.name);
+  const retroPath = findRetro(rootDir, currentSurface.cycle.name);
+  const candidateNumbers = resolved.primaryCandidates.map((_, index) => `${index + 1}번`);
+  const recommendation = buildRecommendation({
+    activeOperationallyComplete: resolved.activeOperationallyComplete,
+    futureUpcoming: resolved.futureUpcoming,
+    candidateNumbers,
+    hasBacklogCandidates: resolved.backlogCandidates.length > 0,
+    primarySource: resolved.primarySurface.source,
+  });
+  const cycleLine = resolved.activeOperationallyComplete
+    ? `✅ ${currentSurface.cycle.name} 완료: ${formatCounts(resolved.currentCounts)}`
+    : `📌 현재: ${formatCounts(resolved.currentCounts)}`;
 
   return [
     "# POKit Brief",
     "",
-    `📅 ${formatKoreanDate(now)} · ${input.context.cycle.name}`,
+    `📅 ${formatKoreanDate(now)} · ${currentSurface.cycle.name}`,
     "",
-    `📌 현재: Todo ${counts.todo} · 진행 ${counts.inProgress} · 완료 ${counts.done}`,
-    `⚠️ 주의: 라벨 필요 ${dryRun.needsLabel.length} · 확인 필요 ${dryRun.needsClarification.length} · 승인 대기 ${dryRun.needsApproval.length}`,
+    cycleLine,
+    formatWarningLine(dryRun, resolved.warningReviewCount),
     "",
-    "🧺 다음 후보",
-    ...formatNumberedIssues(candidates),
+    buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming),
+    ...formatNumberedIssues(resolved.primaryCandidates),
+    ...formatBacklogSection(resolved.backlogCandidates),
     "",
-    `👉 추천: ${candidateIds.length ? `${candidateNumbers.join(", ")}을 다음 cycle에 담기` : "새 후보 issue를 백로그에 담기"}`,
-    `💬 실행: “${candidateIds.length ? `${candidateNumbers.join(", ")} 다음 cycle에 담고 POKit 돌려줘` : "백로그 후보 정리해서 POKit 돌려줘"}”`,
+    `👉 추천: ${recommendation.summary}`,
+    `💬 실행: “${recommendation.command}”`,
     "",
     "⚡ 빠른 명령",
     "1. “1번 자세히 보여줘”",
@@ -53,7 +76,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     "4. “backlog 자세히 보여줘”",
     "5. “승인 대기 자세히 보여줘”",
     "",
-    `✅ 최근 완료: ${recentDone.length ? recentDone.map((issue) => issue.identifier).join(", ") : "없음"}`,
+    `✅ 최근 완료: ${resolved.recentDone.length ? resolved.recentDone.map((issue) => issue.identifier).join(", ") : "없음"}`,
     ...(archiveGuardrail.briefLine ? [archiveGuardrail.briefLine] : []),
     `Run Summary: ${runSummaryPath ?? "없음"}`,
     `Retro: ${retroPath ?? "없음"}`,
@@ -63,11 +86,13 @@ export function buildSessionBrief(input: SessionBriefInput): string {
 
 export function buildCycleDetail(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
-  const issuesByState = groupCycleIssues(input.context.issues);
+  const resolved = resolveSessionContext(input.context, now);
+  const cycleSurface = resolved.activeSurface ?? resolved.primarySurface;
+  const issuesByState = groupCycleIssues(cycleSurface.issues);
   return [
     "# POKit Cycle Detail",
     "",
-    `📅 ${formatKoreanDate(now)} · ${input.context.cycle.name}`,
+    `📅 ${formatKoreanDate(now)} · ${cycleSurface.cycle.name}`,
     "",
     "Todo",
     ...formatNumberedIssues(issuesByState.todo),
@@ -83,14 +108,18 @@ export function buildCycleDetail(input: SessionBriefInput): string {
 
 export function buildBacklogDetail(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
+  const resolved = resolveSessionContext(input.context, now);
+  const backlogSurface = resolved.backlogSurface ?? resolved.primarySurface;
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
-    context: input.context,
+    context: backlogSurface,
   });
   return [
     "# POKit Backlog Detail",
     "",
-    `📅 ${formatKoreanDate(now)} · ${input.context.cycle.name}`,
+    `📅 ${formatKoreanDate(now)} · ${backlogSurface.cycle.name}`,
+    "",
+    ...(resolved.backlogSurface ? ["실제 Backlog 이슈", ...formatNumberedIssues(resolved.backlogSurface.issues), ""] : []),
     "",
     "생성 후보",
     ...formatGenerated(dryRun),
@@ -109,14 +138,15 @@ export function buildBacklogDetail(input: SessionBriefInput): string {
 
 export function buildApprovalDetail(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
+  const resolved = resolveSessionContext(input.context, now);
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
-    context: input.context,
+    context: resolved.primarySurface,
   });
   return [
     "# POKit Approval Detail",
     "",
-    `📅 ${formatKoreanDate(now)} · ${input.context.cycle.name}`,
+    `📅 ${formatKoreanDate(now)} · ${resolved.primarySurface.cycle.name}`,
     "",
     "승인 대기",
     ...formatNeedsApproval(dryRun),
@@ -125,7 +155,9 @@ export function buildApprovalDetail(input: SessionBriefInput): string {
 }
 
 export function buildCandidateDetail(input: SessionBriefInput, candidateNumber: number): string {
-  const candidates = selectNextCandidates(input.context.issues);
+  const now = input.now ?? new Date();
+  const resolved = resolveSessionContext(input.context, now);
+  const candidates = resolved.primaryCandidates;
   const issue = candidates[candidateNumber - 1];
   if (!issue) {
     return [
@@ -135,6 +167,13 @@ export function buildCandidateDetail(input: SessionBriefInput, candidateNumber: 
       "",
     ].join("\n");
   }
+  const recommendation = buildRecommendation({
+    activeOperationallyComplete: resolved.activeOperationallyComplete,
+    futureUpcoming: resolved.futureUpcoming,
+    candidateNumbers: [`${candidateNumber}번`],
+    hasBacklogCandidates: resolved.backlogCandidates.length > 0,
+    primarySource: resolved.primarySurface.source,
+  });
   return [
     "# POKit Candidate Detail",
     "",
@@ -143,13 +182,13 @@ export function buildCandidateDetail(input: SessionBriefInput, candidateNumber: 
     "Description",
     issue.description?.trim() || "- 없음",
     "",
-    `Next: “${candidateNumber}번 다음 cycle에 담고 돌려줘”`,
+    `Next: “${recommendation.command}”`,
     "",
   ].join("\n");
 }
 
 async function main(): Promise<void> {
-  const context = await getWorkingCycleContext();
+  const context = await getWorkingContext();
   const args = process.argv.slice(2);
   const candidateNumber = readCandidateArg(args);
   if (candidateNumber) {
@@ -177,15 +216,18 @@ function countIssues(issues: Issue[]): IssueCounts {
     todo: 0,
     inProgress: 0,
     done: 0,
+    review: 0,
   };
   for (const issue of issues) {
-    const state = normalizeState(issue.state);
-    if (state === "done" || state === "completed") {
+    const state = classifyIssueState(issue.state);
+    if (state === "done") {
       counts.done += 1;
-    } else if (state === "in progress" || state === "in review" || state === "started") {
+    } else if (state === "inProgress") {
       counts.inProgress += 1;
-    } else {
+    } else if (state === "todo") {
       counts.todo += 1;
+    } else {
+      counts.review += 1;
     }
   }
   return counts;
@@ -194,10 +236,9 @@ function countIssues(issues: Issue[]): IssueCounts {
 function selectNextCandidates(issues: Issue[]): Issue[] {
   return issues
     .filter((issue) => {
-      const state = normalizeState(issue.state);
-      return state !== "done" && state !== "completed" && state !== "canceled" && state !== "cancelled" && state !== "duplicate";
+      const state = classifyIssueState(issue.state);
+      return state === "todo";
     })
-    .filter((issue) => normalizeState(issue.state) !== "in progress" && normalizeState(issue.state) !== "in review")
     .sort(compareIssueIdentifier)
     .slice(0, 3);
 }
@@ -205,8 +246,7 @@ function selectNextCandidates(issues: Issue[]): Issue[] {
 function selectRecentDone(issues: Issue[]): Issue[] {
   return issues
     .filter((issue) => {
-      const state = normalizeState(issue.state);
-      return state === "done" || state === "completed";
+      return classifyIssueState(issue.state) === "done";
     })
     .sort((left, right) => compareIssueIdentifier(right, left))
     .slice(0, 2);
@@ -219,10 +259,10 @@ function groupCycleIssues(issues: Issue[]): { todo: Issue[]; inProgress: Issue[]
     done: [] as Issue[],
   };
   for (const issue of [...issues].sort(compareIssueIdentifier)) {
-    const state = normalizeState(issue.state);
-    if (state === "done" || state === "completed") {
+    const state = classifyIssueState(issue.state);
+    if (state === "done") {
       groups.done.push(issue);
-    } else if (state === "in progress" || state === "in review" || state === "started") {
+    } else if (state === "inProgress") {
       groups.inProgress.push(issue);
     } else {
       groups.todo.push(issue);
@@ -238,10 +278,48 @@ function formatNumberedIssues(issues: Issue[]): string[] {
   return issues.map((issue, index) => `${index + 1}. ${formatIssue(issue)}`);
 }
 
+function formatBulletedIssues(issues: Issue[]): string[] {
+  if (!issues.length) {
+    return ["- 없음"];
+  }
+  return issues.map((issue) => `- ${formatIssue(issue)}`);
+}
+
 function formatIssue(issue: Issue): string {
   const labels = issue.labels.length ? issue.labels.join(", ") : "no-label";
   const state = issue.state ?? "No state";
   return `${issue.identifier} ${issue.title} · ${state} · ${labels}`;
+}
+
+function formatCounts(counts: IssueCounts): string {
+  const parts = [`Todo ${counts.todo}`, `진행 ${counts.inProgress}`, `완료 ${counts.done}`];
+  if (counts.review > 0) {
+    parts.push(`검토 ${counts.review}`);
+  }
+  return parts.join(" · ");
+}
+
+function formatWarningLine(dryRun: SprintDryRunSummary, reviewCount: number): string {
+  const parts = [
+    `라벨 필요 ${dryRun.needsLabel.length}`,
+    `확인 필요 ${dryRun.needsClarification.length}`,
+    `승인 대기 ${dryRun.needsApproval.length}`,
+  ];
+  if (reviewCount > 0) {
+    parts.push(`상태 검토 ${reviewCount}`);
+  }
+  return `⚠️ 주의: ${parts.join(" · ")}`;
+}
+
+function formatBacklogSection(issues: Issue[]): string[] {
+  if (!issues.length) {
+    return [];
+  }
+  return [
+    "",
+    "🗂️ 백로그",
+    ...formatBulletedIssues(issues),
+  ];
 }
 
 function formatGenerated(dryRun: SprintDryRunSummary): string[] {
@@ -270,6 +348,167 @@ function formatNeedsApproval(dryRun: SprintDryRunSummary): string[] {
     return ["- 없음"];
   }
   return dryRun.needsApproval.map((plan, index) => `${index + 1}. ${plan.summary} · ${plan.idempotencyKey}`);
+}
+
+function resolveSessionContext(context: WorkingCycleContext | WorkingContext, now: Date): ResolvedSessionContext {
+  if (!isWorkingContext(context)) {
+    const currentCounts = countIssues(context.issues);
+    return {
+      primarySurface: context,
+      primaryCandidates: selectNextCandidates(context.issues),
+      backlogCandidates: [],
+      recentDone: selectRecentDone(context.issues),
+      currentCounts,
+      warningReviewCount: currentCounts.review,
+      activeOperationallyComplete: isOperationallyComplete(currentCounts),
+      futureUpcoming: false,
+    };
+  }
+
+  const activeSurface = context.activeCycle ? toWorkingCycleContext(context.activeCycle) : undefined;
+  const upcomingSurface = context.upcomingCycle ? toWorkingCycleContext(context.upcomingCycle) : undefined;
+  const backlogSurface = context.backlogIssues.length
+    ? {
+        source: "team_backlog" as const,
+        cycle: {
+          id: "team-backlog",
+          name: "Team Backlog",
+        },
+        issues: context.backlogIssues,
+      }
+    : undefined;
+
+  const currentSurface = activeSurface ?? toWorkingCycleContext(context.selected);
+  const currentCounts = countIssues(currentSurface.issues);
+  const activeOperationallyComplete = Boolean(activeSurface) && isOperationallyComplete(currentCounts);
+  const primarySurface = activeOperationallyComplete
+    ? upcomingSurface ?? backlogSurface ?? currentSurface
+    : currentSurface;
+
+  return {
+    activeSurface,
+    primarySurface,
+    backlogSurface,
+    primaryCandidates: selectNextCandidates(primarySurface.issues),
+    backlogCandidates:
+      activeOperationallyComplete && backlogSurface && primarySurface.source !== "team_backlog"
+        ? selectNextCandidates(backlogSurface.issues)
+        : [],
+    recentDone: selectRecentDone(currentSurface.issues),
+    currentCounts,
+    warningReviewCount: currentCounts.review,
+    activeOperationallyComplete,
+    futureUpcoming: Boolean(
+      activeOperationallyComplete &&
+        upcomingSurface &&
+        primarySurface.source === "linear_upcoming" &&
+        isFutureCycle(upcomingSurface, now),
+    ),
+  };
+}
+
+function isWorkingContext(context: WorkingCycleContext | WorkingContext): context is WorkingContext {
+  return "selected" in context && "backlogIssues" in context;
+}
+
+function toWorkingCycleContext(context: WorkingCycleContext): WorkingCycleContext;
+function toWorkingCycleContext(context: WorkingContext["selected"]): WorkingCycleContext;
+function toWorkingCycleContext(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"] | WorkingCycleContext): WorkingCycleContext {
+  if (!context) {
+    throw new Error("Working cycle context is required.");
+  }
+  return {
+    source: context.source,
+    cycle: context.cycle,
+    issues: context.issues,
+  };
+}
+
+function isOperationallyComplete(counts: IssueCounts): boolean {
+  return counts.todo === 0 && counts.inProgress === 0 && counts.review === 0;
+}
+
+function isFutureCycle(context: WorkingCycleContext, now: Date): boolean {
+  if (!context.cycle.startsAt) {
+    return false;
+  }
+  return new Date(context.cycle.startsAt).getTime() > now.getTime();
+}
+
+function buildCandidateHeading(context: WorkingCycleContext, futureUpcoming: boolean): string {
+  if (context.source !== "linear_upcoming") {
+    return "🧺 다음 후보";
+  }
+  const suffix = futureUpcoming
+    ? cycleStartsAtLabel(context.cycle.startsAt, true)
+    : cycleStartsAtLabel(context.cycle.startsAt, false);
+  return suffix ? `🧺 다음 후보 (${context.cycle.name}, ${suffix})` : `🧺 다음 후보 (${context.cycle.name})`;
+}
+
+function cycleStartsAtLabel(startsAt: string | undefined, future: boolean): string | null {
+  if (!startsAt) {
+    return null;
+  }
+  const label = formatDateOnly(startsAt);
+  return future ? `${label} 시작 예정` : `${label} 시작`;
+}
+
+function buildRecommendation(input: {
+  activeOperationallyComplete: boolean;
+  futureUpcoming: boolean;
+  candidateNumbers: string[];
+  hasBacklogCandidates: boolean;
+  primarySource: WorkingCycleContext["source"];
+}): { summary: string; command: string } {
+  const candidateLabel = input.candidateNumbers.join(", ");
+  if (input.candidateNumbers.length) {
+    if (input.futureUpcoming) {
+      return {
+        summary: `${candidateLabel} 검토`,
+        command: `${candidateLabel} 검토하고 다음 cycle 준비해줘`,
+      };
+    }
+    if (input.activeOperationallyComplete) {
+      return {
+        summary: `${candidateLabel} POKit 돌리기`,
+        command: `${candidateLabel} POKit 돌려줘`,
+      };
+    }
+    return {
+      summary: `${candidateLabel}을 다음 cycle에 담기`,
+      command: `${candidateLabel} 다음 cycle에 담고 POKit 돌려줘`,
+    };
+  }
+  if (!input.activeOperationallyComplete && input.primarySource === "linear_active") {
+    return {
+      summary: "현재 cycle 상태 먼저 검토",
+      command: "현재 cycle 상태 확인하고 POKit 이어서 돌려줘",
+    };
+  }
+  if (input.hasBacklogCandidates) {
+    return {
+      summary: "백로그 후보 먼저 검토",
+      command: "백로그 후보 검토하고 다음 cycle 준비해줘",
+    };
+  }
+  return {
+    summary: "새 후보 issue를 백로그에 담기",
+    command: "백로그 후보 정리해서 POKit 돌려줘",
+  };
+}
+
+function classifyIssueState(state: string | undefined): "done" | "inProgress" | "todo" | "review" {
+  const normalized = normalizeState(state);
+  if (normalized === "done" || normalized === "completed") {
+    return "done";
+  }
+  if (normalized === "in progress" || normalized === "in review" || normalized === "started") {
+    return "inProgress";
+  }
+  if (normalized === "todo" || normalized === "backlog" || normalized === "unstarted" || normalized === "open") {
+    return "todo";
+  }
+  return "review";
 }
 
 function readDetailArg(args: string[]): "cycle" | "backlog" | "approvals" | null {
@@ -326,6 +565,15 @@ function formatKoreanDate(date: Date): string {
     day: "2-digit",
     weekday: "long",
   }).format(date);
+}
+
+function formatDateOnly(value: string): string {
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(value));
 }
 
 function normalizeState(value: string | undefined): string {
