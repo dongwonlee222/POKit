@@ -19,7 +19,7 @@ profiles:
     memory_dir: memory/profiles/pokit
     artifacts_dir: artifacts/profiles/pokit
   evmodu:
-    linear_team_key: EVM
+    linear_team_key: EVMODU
     memory_dir: memory/profiles/evmodu
     artifacts_dir: artifacts/profiles/evmodu
 

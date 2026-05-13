@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.2.2 Hotfix - 2026-05-14
+
+This hotfix aligns the built-in Evmodu profile with the actual Linear team key created during product-cycle separation.
+
+### Fixed
+
+- Changed the default `evmodu` profile Linear team key from `EVM` to `EVMODU`.
+
+### Docs / Policy
+
+- Updated README and onboarding examples so Evmodu profile setup points at `EVMODU`.
+- Kept multi-profile documented as optional for users who run multiple product cycles.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Profile and Linear routing tests passed.
+
 ## v0.2.1 Hotfix - 2026-05-14
 
 This hotfix adds optional multi-profile routing so one POKit workspace can safely serve multiple product cycles without changing the default single-team setup.

@@ -65,3 +65,30 @@ test("getActiveProfile reads team and storage paths from pokit.config.yaml", asy
   assert.equal(profileArtifactPath("sprints", "Cycle-1"), "artifacts/profiles/pokit/sprints/Cycle-1");
   assert.equal(profileMemoryPath("resume-brief.md"), "memory/profiles/pokit/resume-brief.md");
 });
+
+test("getActiveProfile routes evmodu profile to the EVMODU team key", async () => {
+  const tempDir = join(tmpdir(), `pokit-profile-evmodu-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  await writeFile(join(tempDir, "pokit.config.yaml"), [
+    "profiles:",
+    "  evmodu:",
+    "    linear_team_key: EVMODU",
+    "    memory_dir: memory/profiles/evmodu",
+    "    artifacts_dir: artifacts/profiles/evmodu",
+    "",
+  ].join("\n"));
+  process.chdir(tempDir);
+  process.env.POKIT_PROFILE = "evmodu";
+  delete process.env.LINEAR_TEAM_ID;
+  delete process.env.LINEAR_TEAM_KEY;
+  const { getActiveProfile } = await loadProfileModule();
+
+  assert.deepEqual(getActiveProfile(), {
+    name: "evmodu",
+    configured: true,
+    linearTeamId: undefined,
+    linearTeamKey: "EVMODU",
+    memoryDir: "memory/profiles/evmodu",
+    artifactsDir: "artifacts/profiles/evmodu",
+  });
+});

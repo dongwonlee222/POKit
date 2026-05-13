@@ -102,7 +102,7 @@ POKIT_PROFILE=evmodu
 # or
 LINEAR_TEAM_ID=...
 # or
-LINEAR_TEAM_KEY=EVM
+LINEAR_TEAM_KEY=EVMODU
 ```
 
 Use profiles only when one Linear account runs multiple product cycles with POKit. Profile storage stays under `memory/profiles/[name]` and `artifacts/profiles/[name]` so resume briefs and generated artifacts do not mix.
