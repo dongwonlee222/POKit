@@ -36,6 +36,8 @@ export function auditReleaseMarkdown(files: ReleaseMarkdownFile[], options: Rele
   const releaseChecklist = byPath.get("docs/RELEASE_CHECKLIST.md");
   const operatingModel = byPath.get("docs/OPERATING_MODEL.md");
   const design = byPath.get("docs/DESIGN.md");
+  const versioning = byPath.get("docs/VERSIONING.md");
+  const changelog = byPath.get("CHANGELOG.md");
 
   if (agents && Buffer.byteLength(agents, "utf8") > maxAgentsBytes) {
     violations.push({
@@ -66,6 +68,22 @@ export function auditReleaseMarkdown(files: ReleaseMarkdownFile[], options: Rele
       path: "docs/DESIGN.md",
       ruleId: "missing-design-reference-role",
       message: "DESIGN must identify itself as a design reference, not current policy source.",
+    });
+  }
+
+  if (versioning && !/Document Versioning/i.test(versioning)) {
+    violations.push({
+      path: "docs/VERSIONING.md",
+      ruleId: "missing-doc-versioning-policy",
+      message: "VERSIONING must define document versioning through release/CHANGELOG policy.",
+    });
+  }
+
+  if (changelog && !new RegExp(`## ${escapeRegExp(options.targetVersion)}[\\s\\S]*### Docs / Policy`, "m").test(changelog)) {
+    violations.push({
+      path: "CHANGELOG.md",
+      ruleId: "missing-changelog-docs-section",
+      message: `CHANGELOG must include a Docs / Policy section for ${options.targetVersion}.`,
     });
   }
 
@@ -107,6 +125,10 @@ export function renderReleaseMarkdownAudit(result: ReleaseMarkdownAuditResult): 
 async function listTrackedFiles(cwd: string): Promise<string[]> {
   const { stdout } = await execFileAsync("git", ["ls-files"], { cwd });
   return stdout.split(/\r?\n/).filter(Boolean);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

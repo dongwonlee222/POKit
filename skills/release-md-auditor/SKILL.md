@@ -19,6 +19,7 @@ If it fails, fix only release-facing Markdown role problems:
 - unclear canonical policy/source-of-truth language
 - overly large `AGENTS.md`
 - missing historical/draft role markers
+- missing `Docs / Policy` changelog section for release-facing Markdown changes
 
 Then re-run:
 
@@ -35,3 +36,4 @@ Show a user-readable release approval preview before GitHub push, tag, or releas
 - Do not push, tag, or create a GitHub release from this skill.
 - Do not rewrite product intent in `docs/PRD.md`.
 - Do not move historical plans into current policy docs. Add role markers instead.
+- Do not add per-file Markdown version fields unless the user explicitly asks for that heavier policy.

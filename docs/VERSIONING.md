@@ -57,6 +57,16 @@ If a `VERSION` file exists, release preparation must verify that:
 
 Actual `CHANGELOG.md` edits require user approval when they are part of a release or public distribution flow.
 
+## Document Versioning
+
+Markdown documents are versioned through releases and `CHANGELOG.md`, not per-file version fields.
+
+- Do not add individual `version:` frontmatter to every Markdown file by default.
+- Record release-facing documentation changes under `CHANGELOG.md` in a `Docs / Policy` section.
+- Keep canonical roles clear: policy in `docs/OPERATING_MODEL.md`, release policy in `docs/VERSIONING.md`, release checks in `docs/RELEASE_CHECKLIST.md`, and historical design rationale in `docs/DESIGN.md`.
+- Before public release, run the release Markdown audit to catch stale version names, missing document role markers, and missing changelog documentation notes.
+- Generated artifacts and local memory are not public release documentation and should not receive public document version entries.
+
 ## Quick Choice
 
 - normal compatible feature: next minor version

@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.2.0 - 2026-05-13
+
+### Added
+
+- Added Cycle close draft generation with changelog candidates and completion celebration support.
+- Added prioritizer and history-maintainer skills.
+- Added release Markdown audit gate before public release.
+
+### Changed
+
+- Improved completion reports so they show the next practical user decision and approval preview.
+- Clarified human approval boundaries so users approve external impact and product judgment, not mechanical substeps.
+
+### Docs / Policy
+
+- Documented release-centered Markdown versioning in `docs/VERSIONING.md`.
+- Added document role markers for operating policy and design reference docs.
+- Updated release checklist target to `v0.2.0`.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 78/78.
+
 ## v0.1.1 Hotfix - 2026-05-13
 
 This hotfix removes private dogfood Linear state from the public template and adds a release safety gate.

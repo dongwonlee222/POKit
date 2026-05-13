@@ -52,6 +52,26 @@ test("auditReleaseMarkdown requires canonical role markers in current docs", asy
   ]);
 });
 
+test("auditReleaseMarkdown requires docs policy and changelog docs section for releases", async () => {
+  const { auditReleaseMarkdown } = await loadAuditModule();
+
+  const result = auditReleaseMarkdown([
+    {
+      path: "docs/VERSIONING.md",
+      content: "# POKit Versioning\n\n## CHANGELOG Structure\n\nRelease notes.",
+    },
+    {
+      path: "CHANGELOG.md",
+      content: "# Changelog\n\n## v0.2.0 - 2026-05-13\n\n- Added scripts.",
+    },
+  ], { targetVersion: "v0.2.0" });
+
+  assert.deepEqual(result.violations.map((violation) => violation.ruleId), [
+    "missing-doc-versioning-policy",
+    "missing-changelog-docs-section",
+  ]);
+});
+
 test("scanTrackedReleaseMarkdown passes for repository release docs", async () => {
   const { scanTrackedReleaseMarkdown } = await loadAuditModule();
 
