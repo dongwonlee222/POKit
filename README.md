@@ -36,6 +36,7 @@
 - issue 하나가 아니라 cycle 흐름을 기준으로 여러 작업을 묶어 진행합니다.
 - 긴 대화나 다음 세션에서도 스프린트/cycle 맥락을 잃지 않도록 이어하기 브리프(resume brief)와 완료 보고를 남깁니다.
 - 사용자가 자리를 비운 시간에도 이어서 처리할 수 있도록 작업 상태와 다음 액션을 남깁니다.
+- 로컬 맥락 저장은 자동화하고, Linear/GitHub처럼 외부에 보이는 상태 변경은 사용자가 통제합니다.
 - 사용자가 매번 사소한 실행을 승인하지 않아도 되게, 승인 지점을 줄입니다.
 - 그래도 외부에 보이는 변경, 파괴적 변경, 공개 릴리즈는 실행 전에 다시 확인합니다.
 - 산출물은 먼저 로컬 초안으로 만들고, Linear/GitHub 반영은 승인 후에만 진행합니다.
@@ -81,6 +82,7 @@ flowchart LR
 
 - [docs/ONBOARDING.md](docs/ONBOARDING.md): 설치와 첫 실행 절차.
 - [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md): 정책, 승인, cycle 규칙, 문서 역할의 기준 문서.
+- [docs/ROADMAP.md](docs/ROADMAP.md): 목표, initiative, 후보 cycle, Linear 반영 전 roadmap 기준 문서.
 - [workflows/hooks.yaml](workflows/hooks.yaml): 워크플로우 훅 이름의 기준 파일.
 - [docs/DESIGN.md](docs/DESIGN.md): 설계 배경. 세부 내용이 달라지면 위 기준 문서를 우선합니다.
 
@@ -194,6 +196,8 @@ API key가 chat, log, screenshot, commit에 노출되면 계속 진행하기 전
 포킷은 cycle 안에서 산출물과 승인 계획을 만듭니다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 바꾸지 않습니다. 상세 정책은 [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md)에 있습니다.
 
 - AI가 만든 모든 산출물은 출처 맥락(source context)과 판단 근거(rationale)를 가진 초안입니다.
+- 다음 세션용 요약, 로컬 산출물, 이어하기 브리프는 가능한 한 자동으로 남깁니다.
+- Linear/GitHub 상태 변경, Done 처리, 댓글, 릴리즈는 사용자가 승인한 뒤 진행합니다.
 - 실행 요약(Run Summary)은 generated, needs-label, needs-clarification, needs-approval, failed 항목을 분리하고, AI가 하지 않은 일을 먼저 보여줍니다.
 - 상태 브리프(State Brief)는 매 세션 표시되며 읽기 전용입니다.
 - 액션 넛지(Action Nudge)는 cycle 상태가 바뀐 경우에만 세션당 최대 한 번 표시됩니다.

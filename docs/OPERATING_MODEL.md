@@ -25,6 +25,7 @@ Keep Markdown light by assigning each document one job:
 - `README.md`: short product promise, quickstart, and links to canonical docs.
 - `docs/ONBOARDING.md`: step-by-step setup and first-run procedure.
 - `docs/OPERATING_MODEL.md`: canonical policy source for approvals, cycle execution, completion, artifact handling, and documentation ownership.
+- `docs/ROADMAP.md`: roadmap compass for goals, initiatives, candidate cycles, and Linear sync policy before work is promoted into Linear.
 - `workflows/hooks.yaml`: canonical workflow hook list.
 - `docs/DESIGN.md`: design background and historical rationale. If it conflicts with `OPERATING_MODEL.md` or `workflows/hooks.yaml`, the newer canonical files win.
 - `examples/`: sanitized reusable samples.
@@ -59,6 +60,37 @@ If the target cycle is complete, include `--target-cycle-complete`; the guard mu
 ## Product Philosophy and Decision Rules
 
 POKit is built to keep scrum automation lightweight. The product should feel like a helpful operator around Linear, not like a gatekeeper that asks for permission on every small step.
+
+POKit is not a complex management system. It is a lightweight workspace where people and LLMs run scrum together.
+
+The automation boundary is intentional:
+
+- AI should keep moving local work forward.
+- Local handoff, summaries, artifacts, and resume briefs may be written automatically when they follow the approved intent.
+- Externally visible state changes stay under user control.
+- Linear/GitHub writes, Done transitions, public comments, releases, and destructive actions require explicit approval.
+
+This trade-off can leave local handoff and Linear state briefly out of sync, and it means a final sync step may require approval. POKit accepts that cost because hidden Linear/GitHub changes would damage trust more than a small approval boundary.
+
+Default session close behavior:
+
+```yaml
+session_close:
+  write_resume_brief: auto
+  write_local_summary: auto
+  linear_updates: approval_required
+  github_updates: approval_required
+```
+
+Backlog items should pass the POKit identity fit check:
+
+1. Does it help people and LLMs run scrum together?
+2. Does it help the user understand faster or decide with less friction?
+3. Does it fit the backlog -> cycle -> execution -> retro flow?
+4. Can it stay lightweight on top of Linear and the GitHub repo?
+5. Does it avoid becoming a new heavy management tool?
+6. Are external state changes still controlled by execution preflight and approval?
+7. Does it automate local context while preserving approval boundaries for external state?
 
 When the product has to choose between competing behaviors, use this order:
 
