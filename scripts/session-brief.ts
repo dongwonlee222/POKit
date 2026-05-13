@@ -51,7 +51,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     hasBacklogCandidates: resolved.backlogCandidates.length > 0,
     primarySource: resolved.primarySurface.source,
   });
-  const cycleLine = resolved.activeOperationallyComplete
+  const cycleLine = isOperationallyComplete(resolved.currentCounts)
     ? `✅ ${currentSurface.cycle.name} 완료: ${formatCounts(resolved.currentCounts)}`
     : `📌 현재: ${formatCounts(resolved.currentCounts)}`;
 
@@ -382,13 +382,12 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
 
   const activeCounts = activeSurface ? countIssues(activeSurface.issues) : undefined;
   const activeOperationallyComplete = Boolean(activeCounts && isOperationallyComplete(activeCounts));
-  const displayCompletedUpcoming = Boolean(
+  const displayUpcoming = Boolean(
     activeOperationallyComplete &&
       upcomingSurface &&
-      upcomingSurface.issues.length > 0 &&
-      isOperationallyComplete(countIssues(upcomingSurface.issues)),
+      upcomingSurface.issues.length > 0,
   );
-  const currentSurface = displayCompletedUpcoming
+  const currentSurface = displayUpcoming
     ? upcomingSurface!
     : activeSurface ?? toWorkingCycleContext(context.selected);
   const currentCounts = countIssues(currentSurface.issues);

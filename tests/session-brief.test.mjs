@@ -155,7 +155,8 @@ test("buildSessionBrief shows upcoming and backlog candidates when active cycle 
     context,
   });
 
-  assert.match(brief, /✅ Cycle 1 완료/);
+  assert.match(brief, /📅 .* · Cycle 2/);
+  assert.match(brief, /📌 현재: Todo 3 · 진행 0 · 완료 0/);
   assert.match(brief, /🧺 다음 후보 \(Cycle 2/);
   assert.match(brief, /1\. EVM-32 Model tier · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-33 Resume brief · Todo · pokit:criteria/);
