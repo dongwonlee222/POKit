@@ -45,6 +45,45 @@ test("buildSessionCloseReport renders grouped Cycle-level completion report", as
   assert.doesNotMatch(report, /커밋해줘|Done 처리해줘|테스트 돌려줘/);
 });
 
+test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is already complete", async () => {
+  const { buildSessionCloseReport } = await loadSessionCloseModule();
+
+  const report = buildSessionCloseReport({
+    now: new Date("2026-05-13T12:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-2", name: "Cycle 2" },
+        issues: [
+          { id: "issue-32", identifier: "EVM-32", title: "model-tier policy 문서화", description: "done", labels: ["pokit:criteria"], state: "Done" },
+          { id: "issue-33", identifier: "EVM-33", title: "resume-brief compact contract 강화", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      backlogIssues: [],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T03:00:00.000Z",
+    },
+  });
+
+  assert.match(report, /📅 .* · Cycle 2/);
+  assert.match(report, /EVM-32 model-tier policy 문서화 · Done/);
+  assert.match(report, /Cycle 2 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
+  assert.doesNotMatch(report, /EVM-1 old work/);
+});
+
 test("buildResumeBrief keeps compact contract and Cycle-level next action", async () => {
   const { buildResumeBrief, validateResumeBriefContract } = await loadSessionCloseModule();
 

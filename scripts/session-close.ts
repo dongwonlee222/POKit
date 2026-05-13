@@ -48,7 +48,7 @@ const REQUIRED_RESUME_SECTIONS = [
 export function buildSessionCloseReport(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
   const verification = input.verification ?? [];
-  const nextAction = buildCycleNextAction(resolved.surface);
+  const nextAction = buildCycleNextAction(resolved.surface, resolved.pending.length);
   const nextActionCheck = validateNextAction(nextAction);
   const pendingLines = resolved.pending.length
     ? resolved.pending.map((issue) => `- ${formatIssueStatus(issue)} · ${resolved.surface.cycle.name} 남은 Todo 묶음 · 다음: ${nextAction}`)
@@ -81,7 +81,7 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
 export function buildResumeBrief(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
   const verification = input.verification ?? [];
-  const nextAction = buildCycleNextAction(resolved.surface);
+  const nextAction = buildCycleNextAction(resolved.surface, resolved.pending.length);
   const pending = resolved.pending.map((issue) => issue.identifier).join(", ") || "없음";
   const blocked = verification.filter((item) => item.status === "failed");
   const blockedLine = blocked.length
@@ -225,6 +225,9 @@ function selectCloseSurface(context: WorkingCycleContext | WorkingContext): Work
   if (!("selected" in context)) {
     return context;
   }
+  if (context.activeCycle && isSurfaceComplete(context.activeCycle) && context.upcomingCycle) {
+    return toWorkingCycleContext(context.upcomingCycle);
+  }
   if (context.upcomingCycle?.issues.some((issue) => classifyIssueState(issue.state) !== "done")) {
     return toWorkingCycleContext(context.upcomingCycle);
   }
@@ -232,6 +235,10 @@ function selectCloseSurface(context: WorkingCycleContext | WorkingContext): Work
     return toWorkingCycleContext(context.activeCycle);
   }
   return toWorkingCycleContext(context.selected);
+}
+
+function isSurfaceComplete(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"]): boolean {
+  return Boolean(context && context.issues.length > 0 && context.issues.every((issue) => classifyIssueState(issue.state) === "done"));
 }
 
 function toWorkingCycleContext(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"] | WorkingCycleContext): WorkingCycleContext {
@@ -245,8 +252,11 @@ function toWorkingCycleContext(context: WorkingContext["activeCycle"] | WorkingC
   };
 }
 
-function buildCycleNextAction(context: WorkingCycleContext): string {
+function buildCycleNextAction(context: WorkingCycleContext, pendingCount: number): string {
   const cycleName = context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
+  if (pendingCount === 0) {
+    return `${cycleName} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`;
+  }
   if (cycleName === "Cycle 2") {
     return DEFAULT_NEXT_ACTION;
   }
