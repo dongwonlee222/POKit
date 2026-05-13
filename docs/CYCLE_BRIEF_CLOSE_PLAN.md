@@ -108,7 +108,7 @@ Backlog
 - EVM-38 changelog 후보 자동 추출
 - EVM-39 history write conflict warning 구현
 
-실행: "1번, 2번, 3번 POKit 돌려줘"
+실행: "Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘"
 ```
 
 ### Cycle Completion
@@ -352,7 +352,7 @@ Before:
 Cycle 1만 봄
 Todo 0 · 진행 0 · 완료 27
 다음 후보 없음
-추천: 새 후보 issue를 백로그에 담기
+추천: 새 후보를 Backlog에 정리
 ```
 
 After:
@@ -361,7 +361,7 @@ After:
 Cycle 1 complete 표시
 Cycle 2 후보 EVM-32~34 표시
 Backlog EVM-35~39 표시
-추천: 실제 후보 실행
+추천: Cycle 전체 후보 실행
 ```
 
 Success criteria:

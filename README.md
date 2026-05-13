@@ -54,10 +54,10 @@ POKit 시작해줘
 
 5. If your Linear workspace has no active cycle issues yet, create one safe sample issue from [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues), add `pokit:prd` or `pokit:criteria`, and put it in the current cycle.
 
-6. Follow the brief's execution sentence, for example:
+6. Follow the brief's Cycle-level execution sentence, for example:
 
 ```text
-1번, 2번, 3번 다음 cycle에 담고 POKit 돌려줘
+Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 ```
 
 Expected local outputs after a run:
@@ -74,10 +74,10 @@ POKit should start with a compact brief:
 1. EVM-20 LLM-first Quickstart · Todo · pokit:criteria
 2. EVM-21 Team optional · Todo · pokit:criteria
 3. EVM-25 Session brief · Todo · pokit:criteria
-💬 실행: “1번, 2번, 3번 다음 cycle에 담고 POKit 돌려줘”
+💬 실행: “Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
 ⚡ 빠른 명령
 1. “1번 자세히 보여줘”
-2. “1, 2, 3번 다음 cycle에 담고 돌려줘”
+2. “Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
 3. “cycle 자세히 보여줘”
 4. “backlog 자세히 보여줘”
 5. “승인 대기 자세히 보여줘”
@@ -103,12 +103,12 @@ pokit:criteria
 POKit 시작해줘
 ```
 
-4. Pick the numbered bundle from the Brief or ask for detail:
+4. Run the current Cycle as a bundle, or ask for detail before running:
 
 ```text
 1번 자세히 보여줘
 backlog 자세히 보여줘
-1, 2, 3번 다음 cycle에 담고 돌려줘
+Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 ```
 
 5. Review generated local artifacts before sharing or committing them.
@@ -189,9 +189,10 @@ Without a Linear API key, users can still read the repo docs, skills, templates,
 
 POKit chooses the working context in this order:
 
-1. Active Linear cycle.
-2. Upcoming Linear cycle when no cycle is active.
-3. Team backlog when no cycles exist.
+1. Active Linear cycle with open work.
+2. Upcoming Linear cycle with open work.
+3. Completed cycle only as a close summary surface.
+4. Team backlog when no cycle work exists.
 
 This keeps first-time personal workspaces usable before a formal cycle starts.
 

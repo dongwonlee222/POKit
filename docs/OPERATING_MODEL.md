@@ -202,7 +202,7 @@ Every external write needs:
 3. Explicit user approval.
 4. An apply helper that refuses unsafe or incomplete plans.
 
-Approval should happen at the user's intent level. If the user approves a clear goal such as "move these three issues into Cycle 2 and prepare the run", POKit may perform the directly required mechanical writes such as cycle assignment and label synchronization under that same approved plan.
+Approval should happen at the user's intent level. If the user approves a clear goal such as "prepare the next Cycle bundle and run it", POKit may perform the directly required cycle assignment and label synchronization under that same approved plan, as long as the target cycle is not operationally complete.
 
 When the approved intent is to complete a specific Cycle task, POKit treats local edits, verification, commit, and Linear Done transition as one coherent task-completion flow. The user should not have to separately approve "commit this task" or "mark this task Done" after already asking to complete the Cycle task.
 
@@ -263,11 +263,11 @@ For unfinished or approval-pending work, include enough task content to act with
 - why it is pending
 - next action
 
-The final line should be an executable sentence the user can say next, such as `Cycle 2의 EVM-42 Cycle-first guard hook을 완료까지 진행해줘`.
+The final line should be an executable sentence the user can say next, such as `Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`.
 
 Use emoji as section markers only. They should make status easier to scan, not make the report decorative.
 
-The final line must point at the next Cycle outcome, not a mechanical substep. If the user did not explicitly select one issue, prefer `Cycle 2 남은 Todo를 우선순위대로 묶어서 완료까지 진행해줘`. Use issue-specific wording only when the user selected that issue or numbered candidate.
+The final line must point at the next Cycle outcome, not a mechanical substep. If the user did not explicitly select one issue, prefer `Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`. Use issue-specific wording only when the user selected that issue or numbered candidate.
 
 ## Next Backlog
 

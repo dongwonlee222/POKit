@@ -1,8 +1,8 @@
 # Changelog
 
-## v0.1.0 Candidate - 2026-05-12
+## v0.1.0 Candidate - 2026-05-13
 
-POKit v0.1.0 is the Day 2 dogfood release candidate.
+POKit v0.1.0 is the Day 2/3 dogfood release candidate.
 
 ### Included
 
@@ -17,6 +17,10 @@ POKit v0.1.0 is the Day 2 dogfood release candidate.
 - Run Summary with `AI가 하지 않은 것` first.
 - Local PRD and acceptance criteria draft generation with `content_hash` frontmatter.
 - Completed/canceled Linear issue skipping.
+- Working-context selection that skips completed upcoming cycles when a later cycle has open Todo work.
+- Completed-cycle immutability guard: new Todo work moves to the next cycle unless the user explicitly reopens the completed cycle.
+- Cycle-first completion reports and compact resume brief generation.
+- Cycle-level next-action wording so users are not asked to approve mechanical substeps.
 - Label preflight dry-run helper.
 - Cycle retro draft helper.
 - Onboarding checklist, README quickstart, first-run smoke test, skill guidance, and example Linear issues.
@@ -31,11 +35,12 @@ POKit v0.1.0 is the Day 2 dogfood release candidate.
 - Automatic cron.
 - Standalone CLI product or global installer.
 - Silent Linear/GitHub writes.
+- Automatic GitHub push, tag, or release publication.
 
 ### Release Gate
 
 - Clean check recorded in `docs/RELEASE_CHECKLIST.md`.
-- Test suite passed: 31/31.
+- Test suite passed: 54/54.
 - GitHub tag `v0.1.0` is not created yet.
 - GitHub release is not created yet.
 - Tag/release creation requires separate user approval.

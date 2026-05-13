@@ -50,6 +50,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     candidateNumbers,
     hasBacklogCandidates: resolved.backlogCandidates.length > 0,
     primarySource: resolved.primarySurface.source,
+    cycleName: resolved.primarySurface.cycle.name,
   });
   const cycleLine = isOperationallyComplete(resolved.currentCounts)
     ? `✅ ${currentSurface.cycle.name} 완료: ${formatCounts(resolved.currentCounts)}`
@@ -72,7 +73,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     "",
     "⚡ 빠른 명령",
     "1. “1번 자세히 보여줘”",
-    "2. “1, 2, 3번 다음 cycle에 담고 돌려줘”",
+    `2. “${recommendation.command}”`,
     "3. “cycle 자세히 보여줘”",
     "4. “backlog 자세히 보여줘”",
     "5. “승인 대기 자세히 보여줘”",
@@ -174,6 +175,7 @@ export function buildCandidateDetail(input: SessionBriefInput, candidateNumber: 
     candidateNumbers: [`${candidateNumber}번`],
     hasBacklogCandidates: resolved.backlogCandidates.length > 0,
     primarySource: resolved.primarySurface.source,
+    cycleName: resolved.primarySurface.cycle.name,
   });
   return [
     "# POKit Candidate Detail",
@@ -470,24 +472,18 @@ function buildRecommendation(input: {
   candidateNumbers: string[];
   hasBacklogCandidates: boolean;
   primarySource: WorkingCycleContext["source"];
+  cycleName: string;
 }): { summary: string; command: string } {
-  const candidateLabel = input.candidateNumbers.join(", ");
   if (input.candidateNumbers.length) {
     if (input.futureUpcoming) {
       return {
-        summary: `${candidateLabel} 검토`,
-        command: `${candidateLabel} 검토하고 다음 cycle 준비해줘`,
-      };
-    }
-    if (input.activeOperationallyComplete) {
-      return {
-        summary: `${candidateLabel} POKit 돌리기`,
-        command: `${candidateLabel} POKit 돌려줘`,
+        summary: `${input.cycleName} 남은 Todo 전체 검토`,
+        command: `${input.cycleName} 남은 Todo 전체를 검토하고 다음 Cycle 준비해줘`,
       };
     }
     return {
-      summary: `${candidateLabel}을 다음 cycle에 담기`,
-      command: `${candidateLabel} 다음 cycle에 담고 POKit 돌려줘`,
+      summary: `${input.cycleName} 남은 Todo 전체 진행`,
+      command: `${input.cycleName} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`,
     };
   }
   if (!input.activeOperationallyComplete && input.primarySource === "linear_active") {
@@ -498,13 +494,13 @@ function buildRecommendation(input: {
   }
   if (input.hasBacklogCandidates) {
     return {
-      summary: "백로그 후보 먼저 검토",
-      command: "백로그 후보 검토하고 다음 cycle 준비해줘",
+      summary: "Backlog 후보를 다음 Cycle 후보로 묶기",
+      command: "Backlog 후보를 다음 Cycle 후보로 묶어줘",
     };
   }
   return {
-    summary: "새 후보 issue를 백로그에 담기",
-    command: "백로그 후보 정리해서 POKit 돌려줘",
+    summary: "새 후보를 Backlog에 정리",
+    command: "새 후보를 Backlog에 정리하고 다음 Cycle 후보를 묶어줘",
   };
 }
 

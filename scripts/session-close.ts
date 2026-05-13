@@ -37,7 +37,6 @@ type ResolvedCloseContext = {
   pending: Issue[];
 };
 
-const DEFAULT_NEXT_ACTION = "Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘";
 const REQUIRED_RESUME_SECTIONS = [
   "## 어디서 멈췄나",
   "## 다음에 무엇을 하나",
@@ -256,9 +255,6 @@ function buildCycleNextAction(context: WorkingCycleContext, pendingCount: number
   const cycleName = context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
   if (pendingCount === 0) {
     return `${cycleName} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`;
-  }
-  if (cycleName === "Cycle 2") {
-    return DEFAULT_NEXT_ACTION;
   }
   return `${cycleName} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`;
 }

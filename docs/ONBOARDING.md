@@ -25,10 +25,11 @@ POKit 시작해줘. Brief의 다음 후보를 기준으로 Cycle bundle을 만�
   - one recommended bundle;
   - an execution sentence you can approve or edit.
 - [ ] Use numbered commands when you want to move fast:
+- [ ] Use Cycle-level commands when you want POKit to proceed:
 
 ```text
 1번 자세히 보여줘
-1, 2, 3번 다음 cycle에 담고 돌려줘
+Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 cycle 자세히 보여줘
 backlog 자세히 보여줘
 승인 대기 자세히 보여줘

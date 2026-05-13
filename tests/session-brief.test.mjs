@@ -40,10 +40,11 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(brief, /1\. EVM-20 LLM-first · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-21 Team optional · Todo · pokit:criteria/);
   assert.match(brief, /3\. EVM-26 No label · Todo · no-label/);
-  assert.match(brief, /👉 추천: 1번, 2번, 3번을 다음 cycle에 담기/);
-  assert.match(brief, /💬 실행: “1번, 2번, 3번 다음 cycle에 담고 POKit 돌려줘”/);
+  assert.match(brief, /👉 추천: Cycle 1 남은 Todo 전체 진행/);
+  assert.match(brief, /💬 실행: “Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
   assert.match(brief, /⚡ 빠른 명령/);
   assert.match(brief, /“1번 자세히 보여줘”/);
+  assert.match(brief, /“Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
   assert.match(brief, /“backlog 자세히 보여줘”/);
   assert.match(brief, /✅ 최근 완료: EVM-19, EVM-18/);
   assert.match(brief, /Run Summary: artifacts\/sprints\/Cycle-1\/2026-05-12-run-summary\.md/);
@@ -161,6 +162,8 @@ test("buildSessionBrief shows upcoming and backlog candidates when active cycle 
   assert.match(brief, /1\. EVM-32 Model tier · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-33 Resume brief · Todo · pokit:criteria/);
   assert.match(brief, /3\. EVM-34 Session close · Todo · pokit:prd/);
+  assert.match(brief, /👉 추천: Cycle 2 남은 Todo 전체 진행/);
+  assert.match(brief, /💬 실행: “Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
   assert.match(brief, /🗂️ 백로그/);
   assert.match(brief, /- EVM-35 ICE-lite · Backlog · pokit:criteria/);
   assert.doesNotMatch(brief, /새 후보 issue를 백로그에 담기/);
@@ -327,8 +330,8 @@ test("buildSessionBrief uses review-oriented wording when upcoming cycle starts 
   });
 
   assert.match(brief, /시작 예정/);
-  assert.match(brief, /👉 추천: 1번 검토/);
-  assert.match(brief, /💬 실행: “1번 검토하고 다음 cycle 준비해줘”/);
+  assert.match(brief, /👉 추천: Cycle 2 남은 Todo 전체 검토/);
+  assert.match(brief, /💬 실행: “Cycle 2 남은 Todo 전체를 검토하고 다음 Cycle 준비해줘”/);
 });
 
 test("buildSessionBrief recommends adding new backlog work only when there are no upcoming or backlog candidates", async () => {
@@ -356,6 +359,6 @@ test("buildSessionBrief recommends adding new backlog work only when there are n
     },
   });
 
-  assert.match(brief, /👉 추천: 새 후보 issue를 백로그에 담기/);
-  assert.match(brief, /💬 실행: “백로그 후보 정리해서 POKit 돌려줘”/);
+  assert.match(brief, /👉 추천: 새 후보를 Backlog에 정리/);
+  assert.match(brief, /💬 실행: “새 후보를 Backlog에 정리하고 다음 Cycle 후보를 묶어줘”/);
 });
