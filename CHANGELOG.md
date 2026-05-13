@@ -23,7 +23,7 @@
 
 - Release Markdown audit passed.
 - Public safety scan passed.
-- Test suite passed: 78/78.
+- Test suite passed: 80/80.
 
 ## v0.1.1 Hotfix - 2026-05-13
 
