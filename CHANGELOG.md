@@ -45,6 +45,5 @@ POKit v0.1.0 is the Day 2/3 dogfood release candidate.
 
 - Clean check recorded in `docs/RELEASE_CHECKLIST.md`.
 - Test suite passed: 64/64.
-- GitHub tag `v0.1.0` is not created yet.
-- GitHub release is not created yet.
-- Tag/release creation requires separate user approval.
+- GitHub tag/release publication is tracked by the repository tag and GitHub release record.
+- Tag/release creation requires explicit user approval before the public write.

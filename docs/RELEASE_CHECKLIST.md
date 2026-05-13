@@ -23,7 +23,7 @@ Checked on 2026-05-13.
 
 ## Release Gate
 
-- [ ] User approves `v0.1.0` tag creation.
-- [ ] User approves GitHub release creation, if needed.
-- [ ] If this is Hotfix work, `sourceCycle`, `targetVersion`, `resumeCycle`, and release scope are recorded before deploy.
-- [ ] Linear/GitHub writes remain dry-run or explicitly approved.
+- [x] User approved `v0.1.0` tag creation in the final deploy request.
+- [x] User approved GitHub release creation in the final deploy request.
+- [x] Hotfix metadata recorded before deploy: `sourceCycle`, `targetVersion`, `resumeCycle`, and release scope.
+- [x] Linear/GitHub writes remain dry-run or explicitly approved.
