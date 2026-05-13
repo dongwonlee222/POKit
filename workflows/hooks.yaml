@@ -39,6 +39,16 @@ hooks:
     - update_context_map
     - update_resume_brief
 
+  after_cycle_complete:
+    - verify_todo_zero
+    - verify_in_progress_zero
+    - verify_approval_pending_zero
+    - verify_clarification_zero
+    - show_completion_celebration_once
+    - include_run_summary_link
+    - include_retro_link
+    - suggest_next_cycle_action
+
   on_error:
     - collect_error
     - write_failure_summary

@@ -62,6 +62,14 @@ node --experimental-strip-types scripts/retro-summary.ts
 
 This command reads Linear cycle state and local artifacts, then writes `artifacts/sprints/[cycle]/retro.md`. It does not write to Linear or GitHub.
 
+Write a local cycle close draft:
+
+```bash
+node --experimental-strip-types scripts/cycle-close.ts
+```
+
+This command reads Linear cycle state and local artifacts, then writes `artifacts/sprints/[cycle]/cycle-close.md`. It separates completed work, carry-over candidates, approval pending items, changelog candidates, and decision-log candidates. It does not write to Linear or GitHub.
+
 Print the compact session start brief:
 
 ```bash

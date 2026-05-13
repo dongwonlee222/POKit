@@ -45,6 +45,29 @@ test("buildSessionCloseReport renders grouped Cycle-level completion report", as
   assert.doesNotMatch(report, /커밋해줘|Done 처리해줘|테스트 돌려줘/);
 });
 
+test("buildSessionCloseReport surfaces history write conflict warnings as Needs Approval", async () => {
+  const { buildSessionCloseReport } = await loadSessionCloseModule();
+
+  const report = buildSessionCloseReport({
+    now: new Date("2026-05-13T12:00:00+09:00"),
+    context: cycle2Context,
+    historyWrites: [
+      {
+        status: "needs_approval",
+        path: "memory/resume-brief.md",
+        reason: "content hash changed; refusing stale resume-brief overwrite",
+        currentHash: "current-hash",
+        expectedHash: "expected-hash",
+      },
+    ],
+  });
+
+  assert.match(report, /⏳ 아직 안 한 것 \/ 승인 대기/);
+  assert.match(report, /Needs Approval · memory\/resume-brief\.md · content hash changed; refusing stale resume-brief overwrite/);
+  assert.match(report, /🧪 검증 결과/);
+  assert.match(report, /history write conflict warning · failed · memory\/resume-brief\.md overwrite blocked/);
+});
+
 test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is already complete", async () => {
   const { buildSessionCloseReport } = await loadSessionCloseModule();
 

@@ -15,6 +15,7 @@ export type SessionCloseInput = {
   context: WorkingCycleContext | WorkingContext;
   completed?: string[];
   verification?: VerificationResult[];
+  historyWrites?: ResumeBriefWriteResult[];
 };
 
 export type ResumeBriefWriteResult =
@@ -47,14 +48,19 @@ const REQUIRED_RESUME_SECTIONS = [
 export function buildSessionCloseReport(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
   const verification = input.verification ?? [];
+  const historyConflicts = (input.historyWrites ?? []).filter((item) => item.status === "needs_approval");
   const nextAction = buildCycleNextAction(resolved.surface, resolved.pending.length);
   const nextActionCheck = validateNextAction(nextAction);
   const pendingLines = resolved.pending.length
     ? resolved.pending.map((issue) => `- ${formatIssueStatus(issue)} · ${resolved.surface.cycle.name} 남은 Todo 묶음 · 다음: ${nextAction}`)
     : ["- 없음"];
+  const approvalLines = historyConflicts.map((item) => `- Needs Approval · ${item.path} · ${item.reason}`);
   const verificationLines = verification.length
     ? verification.map((item) => `- ${item.command} · ${item.status} · ${item.summary}`)
     : ["- 별도 입력 없음 · skipped · session-close는 검증을 실행하지 않고, 호출자가 실행한 검증 결과를 여기에 넣습니다."];
+  const conflictVerificationLines = historyConflicts.map(
+    (item) => `- history write conflict warning · failed · ${item.path} overwrite blocked`,
+  );
 
   return [
     "# POKit 완료보고",
@@ -66,9 +72,11 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
     "",
     "⏳ 아직 안 한 것 / 승인 대기",
     ...pendingLines,
+    ...approvalLines,
     "",
     "🧪 검증 결과",
     ...verificationLines,
+    ...conflictVerificationLines,
     ...(nextActionCheck.valid ? [] : [`- next-action 경고 · failed · ${nextActionCheck.reason}`]),
     "",
     "👉 다음에 사용자가 할 말 한 줄",
