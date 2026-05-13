@@ -14,6 +14,7 @@ Checked on 2026-05-13.
 - [x] Secret pattern scan found no committed Linear API key, GitHub token, Supabase password, or private key.
 - [x] LLM-first README and onboarding flow checked.
 - [x] Cycle-first next-action wording checked.
+- [x] Brief user scenario checked: no numbered quick-command prompts remain in the default brief.
 - [x] Completed-cycle immutability guard checked.
 - [x] Test suite passed: 54/54.
 

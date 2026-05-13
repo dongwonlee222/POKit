@@ -19,13 +19,13 @@ Claude Code:
 Codex:
 
 ```text
-POKit 시작해줘. Brief의 다음 후보를 기준으로 task list를 만들고, 하나씩 완료한 뒤 Linear Done 처리해줘.
+POKit 시작해줘. Brief의 현재 Cycle 묶음을 기준으로 완료 조건까지 진행하고, 완료된 Cycle 이슈를 Linear Done 처리해줘.
 ```
 
 Both runtimes should follow the same operating loop:
 
 1. Show `POKit Brief`.
-2. Pick the next task bundle from the brief.
+2. Pick the current Cycle bundle from the brief.
 3. Use POKit skills for routing and artifact work.
 4. Use scripts only as helpers or smoke tests.
 5. Verify tests and repo state.
@@ -41,7 +41,7 @@ Use these conditions for substantial POKit runs:
 - External Linear/GitHub writes are dry-run first and explicitly approved.
 - Tests pass.
 - Generated artifacts are local unless intentionally documented as examples.
-- Completed tasks are marked Done in Linear.
+- Completed Cycle issues are marked Done in Linear.
 - The final response names the latest commit and remaining tasks.
 
 ## References

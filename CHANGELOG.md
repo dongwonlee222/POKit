@@ -21,6 +21,7 @@ POKit v0.1.0 is the Day 2/3 dogfood release candidate.
 - Completed-cycle immutability guard: new Todo work moves to the next cycle unless the user explicitly reopens the completed cycle.
 - Cycle-first completion reports and compact resume brief generation.
 - Cycle-level next-action wording so users are not asked to approve mechanical substeps.
+- Brief output now shows one Cycle-level execution sentence and no numbered quick-command prompts.
 - Label preflight dry-run helper.
 - Cycle retro draft helper.
 - Onboarding checklist, README quickstart, first-run smoke test, skill guidance, and example Linear issues.

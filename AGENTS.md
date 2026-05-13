@@ -32,7 +32,7 @@ node --experimental-strip-types scripts/session-brief.ts --detail approvals
 node --experimental-strip-types scripts/session-brief.ts --candidate 1
 ```
 
-If the user says "1번 자세히", "1, 2, 3번 돌려줘", or similar, map the numbers to the current brief candidates before creating or applying any plan.
+If the user explicitly asks for a numbered detail such as "1번 자세히", map the number to the current brief candidates before answering. Do not suggest numbered or issue-only execution as the next action unless the user explicitly selects that issue.
 
 For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 

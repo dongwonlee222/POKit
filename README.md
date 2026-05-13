@@ -75,12 +75,6 @@ POKit should start with a compact brief:
 2. EVM-21 Team optional · Todo · pokit:criteria
 3. EVM-25 Session brief · Todo · pokit:criteria
 💬 실행: “Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
-⚡ 빠른 명령
-1. “1번 자세히 보여줘”
-2. “Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
-3. “cycle 자세히 보여줘”
-4. “backlog 자세히 보여줘”
-5. “승인 대기 자세히 보여줘”
 ```
 
 Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
@@ -103,12 +97,11 @@ pokit:criteria
 POKit 시작해줘
 ```
 
-4. Run the current Cycle as a bundle, or ask for detail before running:
+4. Run the current Cycle as a bundle. Ask for detail only when the definition is unclear:
 
 ```text
-1번 자세히 보여줘
-backlog 자세히 보여줘
 Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
+backlog 자세히 보여줘
 ```
 
 5. Review generated local artifacts before sharing or committing them.

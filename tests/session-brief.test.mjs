@@ -42,10 +42,10 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(brief, /3\. EVM-26 No label · Todo · no-label/);
   assert.match(brief, /👉 추천: Cycle 1 남은 Todo 전체 진행/);
   assert.match(brief, /💬 실행: “Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
-  assert.match(brief, /⚡ 빠른 명령/);
-  assert.match(brief, /“1번 자세히 보여줘”/);
+  assert.doesNotMatch(brief, /⚡ 빠른 명령/);
+  assert.doesNotMatch(brief, /“1번 자세히 보여줘”/);
   assert.match(brief, /“Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
-  assert.match(brief, /“backlog 자세히 보여줘”/);
+  assert.doesNotMatch(brief, /“backlog 자세히 보여줘”/);
   assert.match(brief, /✅ 최근 완료: EVM-19, EVM-18/);
   assert.match(brief, /Run Summary: artifacts\/sprints\/Cycle-1\/2026-05-12-run-summary\.md/);
   assert.match(brief, /Retro: artifacts\/sprints\/Cycle-1\/retro\.md/);

@@ -54,7 +54,7 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
     : ["- 없음"];
   const verificationLines = verification.length
     ? verification.map((item) => `- ${item.command} · ${item.status} · ${item.summary}`)
-    : ["- 미실행 · skipped · 종료 리포트에 검증 결과를 추가해야 합니다."];
+    : ["- 별도 입력 없음 · skipped · session-close는 검증을 실행하지 않고, 호출자가 실행한 검증 결과를 여기에 넣습니다."];
 
   return [
     "# POKit 완료보고",
