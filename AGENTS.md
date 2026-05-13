@@ -44,10 +44,13 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 
 When a POKit work item is finished, use the completion report format:
 
-1. 완료한 것
-2. 아직 안 한 것 / 승인 대기
-3. 검증 결과
-4. 다음에 사용자가 할 말 한 줄
+1. ✅ 완료한 것
+2. ⏳ 아직 안 한 것 / 승인 대기
+3. 🧪 검증 결과
+4. 👉 다음에 사용자가 할 말 한 줄
+
+For unfinished or approval-pending items, include the task ID, title, current status, and why it is still pending so the user does not have to remember what each number means.
+Use emoji as section markers only; keep the report short and readable.
 
 Never write to Linear or GitHub without:
 1. A dry-run plan.

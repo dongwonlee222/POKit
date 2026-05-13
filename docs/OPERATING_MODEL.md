@@ -145,12 +145,22 @@ When POKit finishes a work item, it should close with a short report instead of 
 
 Use this order:
 
-1. 완료한 것
-2. 아직 안 한 것 / 승인 대기
-3. 검증 결과
-4. 다음에 사용자가 할 말 한 줄
+1. ✅ 완료한 것
+2. ⏳ 아직 안 한 것 / 승인 대기
+3. 🧪 검증 결과
+4. 👉 다음에 사용자가 할 말 한 줄
 
-The final line should be an executable sentence the user can say next, such as `EVM-42 Done 처리하고 커밋해줘`.
+For unfinished or approval-pending work, include enough task content to act without looking elsewhere:
+
+- issue ID
+- title
+- current status
+- why it is pending
+- next action
+
+The final line should be an executable sentence the user can say next, such as `EVM-42(Cycle-first guard hook) Done 처리하고 커밋해줘`.
+
+Use emoji as section markers only. They should make status easier to scan, not make the report decorative.
 
 ## Next Backlog
 
