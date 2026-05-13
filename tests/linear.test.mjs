@@ -785,6 +785,73 @@ test("applyAssignIssueToCycle updates cycle only with approval and idempotency k
   assert.equal(issue.identifier, "EVM-5");
 });
 
+test("planCreateHotfixCycle creates versioned cycle dry-run metadata", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { planCreateHotfixCycle } = await loadLinearModule();
+
+  const plan = await planCreateHotfixCycle({
+    name: "Hotfix v0.1.0",
+    startsAt: "2026-05-13T00:00:00.000Z",
+    endsAt: "2026-05-14T00:00:00.000Z",
+    sourceCycle: "Cycle 2",
+    targetVersion: "v0.1.0",
+    resumeCycle: "Cycle 3",
+    releaseScope: "GitHub push/tag/release",
+  });
+
+  assert.equal(plan.idempotencyKey, "linear:create_cycle:Hotfix v0.1.0:v0.1.0");
+  assert.equal(plan.writes[0].type, "create_cycle");
+  assert.equal(plan.writes[0].target, "linear_team");
+  assert.match(plan.writes[0].payload.description, /sourceCycle: Cycle 2/);
+  assert.match(plan.writes[0].payload.description, /targetVersion: v0.1.0/);
+  assert.match(plan.writes[0].payload.description, /resumeCycle: Cycle 3/);
+  assert.match(plan.writes[0].payload.description, /releaseScope: GitHub push\/tag\/release/);
+});
+
+test("applyCreateCycle creates a Linear cycle only with approval and idempotency key", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        cycleCreate: {
+          success: true,
+          cycle: {
+            id: "cycle-hotfix",
+            name: "Hotfix v0.1.0",
+            number: 99,
+            startsAt: "2026-05-13T00:00:00.000Z",
+            endsAt: "2026-05-14T00:00:00.000Z",
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyCreateCycle, planCreateHotfixCycle } = await loadLinearModule();
+  const plan = await planCreateHotfixCycle({
+    name: "Hotfix v0.1.0",
+    startsAt: "2026-05-13T00:00:00.000Z",
+    endsAt: "2026-05-14T00:00:00.000Z",
+    sourceCycle: "Cycle 2",
+    targetVersion: "v0.1.0",
+    resumeCycle: "Cycle 3",
+    releaseScope: "GitHub push/tag/release",
+  });
+
+  const cycle = await applyCreateCycle(plan, { approved: true });
+
+  assert.match(requestBody.query, /mutation CreateCycle/);
+  assert.equal(requestBody.variables.input.teamId, "team-123");
+  assert.equal(requestBody.variables.input.name, "Hotfix v0.1.0");
+  assert.equal(requestBody.variables.input.startsAt, "2026-05-13T00:00:00.000Z");
+  assert.equal(requestBody.variables.input.endsAt, "2026-05-14T00:00:00.000Z");
+  assert.match(requestBody.variables.input.description, /POKit idempotency key: linear:create_cycle:Hotfix v0.1.0:v0.1.0/);
+  assert.equal(cycle.id, "cycle-hotfix");
+});
+
 test("planMissingLabels creates dry-run plan for labels not present in Linear", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";

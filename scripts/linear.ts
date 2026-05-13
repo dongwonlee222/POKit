@@ -5,7 +5,7 @@ export type Plan = {
   idempotencyKey: string;
   summary: string;
   writes: Array<{
-    type: "create_issue" | "create_label" | "comment_issue" | "update_issue";
+    type: "create_issue" | "create_label" | "comment_issue" | "update_issue" | "create_cycle";
     target: string;
     payload: unknown;
   }>;
@@ -19,6 +19,23 @@ export type IssueInput = {
 };
 
 type CreateIssuePayload = IssueInput;
+export type CycleInput = {
+  name: string;
+  startsAt: string;
+  endsAt: string;
+  description?: string;
+  teamId?: string;
+};
+export type HotfixCycleInput = {
+  name: string;
+  startsAt: string;
+  endsAt: string;
+  sourceCycle: string;
+  targetVersion: string;
+  resumeCycle: string;
+  releaseScope: string;
+};
+type CreateCyclePayload = CycleInput;
 type AssignIssueToCyclePayload = {
   issueId: string;
   issueIdentifier: string;
@@ -749,6 +766,99 @@ export async function applyAssignIssueToCycle(plan: Plan, options: ApplyOptions 
     throw new Error("Linear issueUpdate returned success=false.");
   }
   return normalizeIssue(data.issueUpdate.issue);
+}
+
+export async function planCreateCycle(input: CycleInput): Promise<Plan> {
+  return {
+    idempotencyKey: `linear:create_cycle:${input.name}`,
+    summary: `Create Linear cycle: ${input.name}`,
+    writes: [
+      {
+        type: "create_cycle",
+        target: "linear_team",
+        payload: input,
+      },
+    ],
+  };
+}
+
+export async function planCreateHotfixCycle(input: HotfixCycleInput): Promise<Plan> {
+  return {
+    idempotencyKey: `linear:create_cycle:${input.name}:${input.targetVersion}`,
+    summary: `Create Linear hotfix cycle: ${input.name}`,
+    writes: [
+      {
+        type: "create_cycle",
+        target: "linear_team",
+        payload: {
+          name: input.name,
+          startsAt: input.startsAt,
+          endsAt: input.endsAt,
+          description: [
+            "POKit Hotfix Cycle",
+            "",
+            `sourceCycle: ${input.sourceCycle}`,
+            `targetVersion: ${input.targetVersion}`,
+            `resumeCycle: ${input.resumeCycle}`,
+            "releaseKind: hotfix",
+            `releaseScope: ${input.releaseScope}`,
+          ].join("\n"),
+        },
+      },
+    ],
+  };
+}
+
+export async function applyCreateCycle(plan: Plan, options: ApplyOptions = {}): Promise<Cycle> {
+  if (!options.approved) {
+    throw new Error("Refusing external write without explicit approval.");
+  }
+  if (!plan.idempotencyKey) {
+    throw new Error("Refusing external write without idempotency key.");
+  }
+  if (plan.writes.length !== 1 || plan.writes[0].type !== "create_cycle") {
+    throw new Error("Refusing create cycle apply for unsupported plan shape.");
+  }
+  const teamId = await resolveTeamId();
+  const payload = plan.writes[0].payload as CreateCyclePayload;
+  if (!payload.name || !payload.startsAt || !payload.endsAt) {
+    throw new Error("Refusing create cycle apply without name, startsAt, and endsAt.");
+  }
+  const description = [
+    payload.description,
+    `\n\nPOKit idempotency key: ${plan.idempotencyKey}`,
+  ].filter(Boolean).join("");
+  const data = await linearGraphql<{
+    cycleCreate: {
+      success: boolean;
+      cycle: LinearCycleNode;
+    };
+  }>(`
+    mutation CreateCycle($input: CycleCreateInput!) {
+      cycleCreate(input: $input) {
+        success
+        cycle {
+          id
+          name
+          number
+          startsAt
+          endsAt
+        }
+      }
+    }
+  `, {
+    input: {
+      teamId: payload.teamId ?? teamId,
+      name: payload.name,
+      description,
+      startsAt: payload.startsAt,
+      endsAt: payload.endsAt,
+    },
+  });
+  if (!data.cycleCreate.success) {
+    throw new Error("Linear cycleCreate returned success=false.");
+  }
+  return normalizeCycle(data.cycleCreate.cycle);
 }
 
 export async function planMissingLabels(labels: string[]): Promise<Plan> {

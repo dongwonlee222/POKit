@@ -123,6 +123,12 @@ Check Hotfix release metadata before public deploy work:
 node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue EVM-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3"
 ```
 
+Print the Hotfix Cycle creation and issue move dry-run:
+
+```bash
+node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3" --issue EVM-44 --issue-id EVM-44
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

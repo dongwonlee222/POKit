@@ -149,6 +149,14 @@ Before GitHub push, tag, release, package publish, or public docs deploy, run or
 node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue EVM-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3"
 ```
 
+To prepare Linear tracking for a deployment omission, print the Hotfix Cycle dry-run first:
+
+```bash
+node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3" --issue EVM-44 --issue-id EVM-44
+```
+
+The dry-run creates no Linear records. Apply the resulting `cycleCreate` plan only after user approval, then move the issue to the created Hotfix Cycle.
+
 ## Model Tier Policy
 
 Use stronger models where judgment matters, and cheaper models where the contract is already narrow.

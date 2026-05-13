@@ -17,7 +17,8 @@ Checked on 2026-05-13.
 - [x] Brief user scenario checked: no numbered quick-command prompts remain in the default brief.
 - [x] Completed-cycle immutability guard checked.
 - [x] Release/Hotfix policy checked: normal deployment stays in the Cycle completion condition; deployment omission or urgent redeploy uses a versioned Hotfix Cycle with source/resume Cycle metadata.
-- [x] Test suite passed: 56/56.
+- [x] Hotfix Cycle dry-run checked for EVM-44 deployment omission tracking.
+- [x] Test suite passed: 60/60.
 
 ## Release Gate
 
