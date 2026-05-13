@@ -81,6 +81,18 @@ node --experimental-strip-types scripts/session-brief.ts --candidate 1
 
 Use these when the user asks for "cycle 자세히", "backlog 자세히", or a numbered candidate detail before approving the next run.
 
+Print the POKit completion report:
+
+```bash
+node --experimental-strip-types scripts/session-close.ts
+```
+
+This command prints the Cycle-first completion report format. To refresh the compact next-session handoff with hash protection:
+
+```bash
+node --experimental-strip-types scripts/session-close.ts --write-resume-brief
+```
+
 Check cycle-first implementation readiness:
 
 ```bash

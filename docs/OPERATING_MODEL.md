@@ -86,7 +86,20 @@ The Cycle Steward prefers:
 - Intent-level approval over mechanical approval.
 - Simple wording over process-heavy explanation.
 
-Individual issue wording is allowed only when the user explicitly selects an issue or numbered candidate.
+The default execution unit is the whole current Cycle. Individual issue wording is allowed only when the user explicitly selects an issue or numbered candidate.
+
+All new durable work must follow the same funnel:
+
+1. Capture the idea as a Linear Backlog item.
+2. Group it into the current Cycle bundle.
+3. Run implementation only after the Cycle guard passes.
+4. Complete the Cycle flow through verification, commit, and Linear Done.
+
+Chat-only intent may produce analysis or a dry-run plan, but not durable project changes.
+
+If definition is insufficient, stop and ask for the missing scope, policy, or acceptance criteria before implementing. Do not ask for mechanical substeps when the Cycle definition is already clear.
+
+Completion reports must show one next action only. The one action should move the whole current Cycle forward.
 
 Forbidden next-action patterns:
 
@@ -95,6 +108,37 @@ Forbidden next-action patterns:
 - `테스트 돌려줘`
 - `EVM-43만 진행해줘` unless the user explicitly selected `EVM-43`
 - any instruction that turns the user into a mechanical approval manager
+
+## Model Tier Policy
+
+Use stronger models where judgment matters, and cheaper models where the contract is already narrow.
+
+- Main agent: use the strongest available model for product judgment, ambiguity resolution, final integration, test interpretation, and user-facing completion claims.
+- `gpt-5.4`: use for bounded implementation that touches API shape, state classification, user-facing scripts, or non-trivial tests.
+- `gpt-5.4-mini`: use for first-pass documentation edits, fixture updates, and narrow mechanical cleanup when the policy contract is already clear.
+- Subagents must own disjoint files or responsibilities. The main agent remains accountable for integration, verification, and Linear/GitHub safety.
+- Lower-tier models must not make final Done decisions, final safety claims, or policy changes without main-agent review.
+
+The optimization goal is simple: spend expensive reasoning on choices and verification, not on repeatable edits.
+
+## Resume Brief Contract
+
+`memory/resume-brief.md` is the compact handoff for the next POKit session. It should stay small enough to read before any other memory file.
+
+Required sections:
+
+1. `## 어디서 멈췄나`
+2. `## 다음에 무엇을 하나`
+3. `## 차단된 것`
+4. `## 참조`
+
+Rules:
+
+- Keep it near 1-2KB.
+- Use one Cycle-level next action, not a mechanical substep.
+- Mention pending issue IDs only as context inside the Cycle bundle.
+- Link to commands or canonical docs instead of copying long policy text.
+- Refuse stale overwrites when the file content hash changed; mark the write as `Needs Approval`.
 
 ## Distribution Model
 
