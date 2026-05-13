@@ -66,6 +66,7 @@ When a POKit work item is finished, use the completion report format:
 For unfinished or approval-pending items, include the task ID, title, current status, and why it is still pending so the user does not have to remember what each number means.
 Use emoji as section markers only; keep the report short and readable.
 The next sentence must continue or complete the current Cycle as a whole, not ask for a mechanical substep. Use Cycle-level wording unless the user explicitly picked one issue.
+After changing files, always close the report with the user's practical next decision: what is already done locally, what remains outside the repo, what approval or action is needed next, and the exact sentence they can say. Do not leave the user needing to ask "what now?".
 
 Never write to Linear or GitHub without:
 1. A dry-run plan.

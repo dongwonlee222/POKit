@@ -61,6 +61,8 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
   const conflictVerificationLines = historyConflicts.map(
     (item) => `- history write conflict warning · failed · ${item.path} overwrite blocked`,
   );
+  const practicalDecisionLines = buildPracticalNextDecisionLines(resolved, nextAction);
+  const approvalPreviewLines = buildApprovalPreviewLines(historyConflicts);
 
   return [
     "# POKit 완료보고",
@@ -78,6 +80,10 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
     ...verificationLines,
     ...conflictVerificationLines,
     ...(nextActionCheck.valid ? [] : [`- next-action 경고 · failed · ${nextActionCheck.reason}`]),
+    "",
+    "🧭 다음 실제 결정",
+    ...practicalDecisionLines,
+    ...(approvalPreviewLines.length ? ["", "🔎 승인 미리보기", ...approvalPreviewLines] : []),
     "",
     "👉 다음에 사용자가 할 말 한 줄",
     nextAction,
@@ -276,6 +282,30 @@ function formatIssueList(issues: Issue[]): string[] {
 
 function formatIssueStatus(issue: Issue): string {
   return `${issue.identifier} ${issue.title} · ${issue.state ?? "No state"}`;
+}
+
+function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAction: string): string[] {
+  const completed = resolved.completed.map((issue) => issue.identifier).join(", ") || "없음";
+  const pending = resolved.pending.map((issue) => issue.identifier).join(", ") || "없음";
+  const action = resolved.pending.length
+    ? `${resolved.surface.cycle.name} 남은 Todo 전체를 계속 진행할지 결정`
+    : `${resolved.surface.cycle.name} 완료 상태를 확인하고 다음 Cycle 후보를 준비할지 결정`;
+  return [
+    `- 로컬에서 끝난 것: ${completed}`,
+    `- repo 밖에 남은 것: ${pending}`,
+    `- 필요한 승인/행동: ${action}`,
+    `- 사용자가 말할 문장: "${nextAction}"`,
+  ];
+}
+
+function buildApprovalPreviewLines(historyConflicts: Array<Extract<ResumeBriefWriteResult, { status: "needs_approval" }>>): string[] {
+  return historyConflicts.flatMap((item) => [
+    `- 승인하면 바뀌는 것: ${item.path} 재생성 또는 수동 병합`,
+    `- 승인 판단 근거: ${item.reason}`,
+    `- 현재 hash: ${item.currentHash}`,
+    `- 예상 hash: ${item.expectedHash}`,
+    `- 승인 문장: "${item.path} 충돌을 확인했고, 재생성 또는 병합을 승인해"`,
+  ]);
 }
 
 function classifyIssueState(state: string | undefined): "done" | "inProgress" | "todo" | "review" {

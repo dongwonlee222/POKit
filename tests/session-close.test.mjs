@@ -41,6 +41,10 @@ test("buildSessionCloseReport renders grouped Cycle-level completion report", as
   assert.match(report, /🧪 검증 결과/);
   assert.match(report, /node --test · passed · 9 tests passed/);
   assert.match(report, /👉 다음에 사용자가 할 말 한 줄/);
+  assert.match(report, /🧭 다음 실제 결정/);
+  assert.match(report, /로컬에서 끝난 것: EVM-41/);
+  assert.match(report, /repo 밖에 남은 것: EVM-32, EVM-33, EVM-34/);
+  assert.match(report, /필요한 승인\/행동: Cycle 2 남은 Todo 전체를 계속 진행할지 결정/);
   assert.match(report, /Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
   assert.doesNotMatch(report, /커밋해줘|Done 처리해줘|테스트 돌려줘/);
 });
@@ -66,6 +70,10 @@ test("buildSessionCloseReport surfaces history write conflict warnings as Needs 
   assert.match(report, /Needs Approval · memory\/resume-brief\.md · content hash changed; refusing stale resume-brief overwrite/);
   assert.match(report, /🧪 검증 결과/);
   assert.match(report, /history write conflict warning · failed · memory\/resume-brief\.md overwrite blocked/);
+  assert.match(report, /🔎 승인 미리보기/);
+  assert.match(report, /승인하면 바뀌는 것: memory\/resume-brief\.md 재생성 또는 수동 병합/);
+  assert.match(report, /승인 판단 근거: content hash changed; refusing stale resume-brief overwrite/);
+  assert.match(report, /승인 문장: "memory\/resume-brief\.md 충돌을 확인했고, 재생성 또는 병합을 승인해"/);
 });
 
 test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is already complete", async () => {
