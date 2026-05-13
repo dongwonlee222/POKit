@@ -1,72 +1,123 @@
-# POKit
+# 포킷(POKit)
 
-POKit의 첫 번째 약속은 신뢰다.
+포킷은 Linear를 쓰는 개인 PO/PM, 1인 메이커, 작은 제품팀을 위한 AI 스크럼 운영 서비스입니다.
 
-## POKit Philosophy
+AI 에이전트가 스크럼 마스터처럼 백로그를 정리하고, 스프린트/cycle을 돌리고, 여러 작업을 묶어서 진행하고, 끝난 뒤에는 결과와 회고까지 남깁니다. 사용자는 매번 작업을 쪼개고 확인하느라 시간을 쓰는 대신, 중요한 제품 판단과 승인에 집중할 수 있습니다.
 
-POKit는 승인 관리 도구가 아니라, 가벼운 Linear 중심 자동화 도구다.
+포킷은 새 프로젝트 관리 도구가 아닙니다. 이미 쓰고 있는 Linear 백로그와 cycle 위에서 동작하는 AI 스크럼 마스터 레이어입니다.
 
-- 사용자 승인 횟수는 가능한 한 줄인다.
-- 작업은 Linear backlog와 cycle 흐름을 기준으로 묶는다.
-- 외부 write는 intent-level 승인으로 한 번에 처리하되, 파괴적이거나 외부에 보이는 변경은 다시 확인한다.
+## 누구를 위한 서비스인가
 
-POKit is a GitHub-distributed AI scrum workspace for PO/PM work. It is not a separate CLI, SaaS, or chat UI. Clone or fork this repo, fill `.env`, open Codex CLI or Claude Code in the repo root, and work in natural language.
+- 혼자 제품을 만들거나 운영하면서 백로그, 스프린트/cycle, 회고 흐름을 꾸준히 유지하고 싶은 사람.
+- Linear로 백로그와 스프린트/cycle을 운영하는 개인 PO/PM.
+- 여러 작업을 한 번에 맡기고, 업무 시간과 업무 이후 시간에도 AI가 계속 진행해 주길 원하는 사람.
+- 작은 팀에서 Linear와 GitHub를 이미 쓰고 있고, AI 에이전트를 작업 파트너로 붙여보고 싶은 팀.
+- Codex나 Claude 같은 AI 에이전트에게 일을 맡기되, Linear/GitHub 변경은 안전하게 통제하고 싶은 사용자.
 
-Start with [docs/ONBOARDING.md](docs/ONBOARDING.md) when setting up a new workspace.
+## 무엇을 해주는가
 
-## Docs Map
+포킷은 Linear issue와 cycle을 읽고, AI 에이전트가 스크럼을 굴리는 데 필요한 기능을 제공합니다.
 
-- [docs/ONBOARDING.md](docs/ONBOARDING.md): setup and first-run procedure.
-- [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md): source of truth for policies, approvals, cycle rules, and doc ownership.
-- [workflows/hooks.yaml](workflows/hooks.yaml): source of truth for workflow hook names.
-- [docs/DESIGN.md](docs/DESIGN.md): design background; defer to the files above when details drift.
+- 세션 브리핑: 현재 cycle의 Todo, 진행 중, 완료 상태와 다음 실행 문장을 보여줍니다.
+- 스크럼 맥락 유지: 이전 세션의 결정, 남은 일, 승인 대기, 다음 액션을 이어서 볼 수 있게 남깁니다.
+- 백로그 구체화: 아이디어를 실행 가능한 issue 후보, 작업 정의, 우선순위로 나눕니다.
+- 스프린트/Cycle 계획: 이번 cycle에 묶어 진행할 일, 남은 일, 다음 후보를 정리합니다.
+- 여러 작업 묶음 실행: 사용자가 한 번 승인한 범위 안에서 관련 작업을 이어서 처리합니다.
+- 작업 기준 생성: 무엇을 만들지, 어디까지 할지, 완료 기준은 무엇인지 초안으로 만듭니다.
+- 실행 결과 보고: AI가 한 일, 못 한 일, 확인이 필요한 일, 승인 대기 중인 일을 분리해 보여줍니다.
+- 회고와 다음 cycle 준비: 끝난 cycle의 결과, 남은 일, 배운 점, 다음 cycle 후보를 남깁니다.
+- 외부 변경 안전장치: Linear/GitHub에 보이는 변경은 실행 전 확인과 중복 실행 방지 키(idempotency key)를 거칩니다.
 
-## Who This Is For
+## 무엇이 다른가
 
-Use POKit when you want a lightweight AI workspace that sits on top of your Linear backlog:
+- AI 에이전트가 스크럼 마스터처럼 백로그, 스프린트/cycle, 회고 흐름을 이어갑니다.
+- issue 하나가 아니라 cycle 흐름을 기준으로 여러 작업을 묶어 진행합니다.
+- 긴 대화나 다음 세션에서도 스프린트/cycle 맥락을 잃지 않도록 이어하기 브리프(resume brief)와 완료 보고를 남깁니다.
+- 사용자가 자리를 비운 시간에도 이어서 처리할 수 있도록 작업 상태와 다음 액션을 남깁니다.
+- 사용자가 매번 사소한 실행을 승인하지 않아도 되게, 승인 지점을 줄입니다.
+- 그래도 외부에 보이는 변경, 파괴적 변경, 공개 릴리즈는 실행 전에 다시 확인합니다.
+- 산출물은 먼저 로컬 초안으로 만들고, Linear/GitHub 반영은 승인 후에만 진행합니다.
 
-- PO/PMs who want PRD, acceptance criteria, run summary, and retro drafts from Linear issues.
-- Small teams that already use Linear cycles and GitHub.
-- People who prefer telling Codex or Claude what to do in natural language instead of operating a separate CLI product.
+## 핵심 플로우
 
-POKit is a repo template. Your team owns the fork, `.env`, generated artifacts, and Linear workspace.
+```mermaid
+flowchart TD
+  A["Linear 백로그<br/>아이디어와 할 일"] --> B["백로그 구체화<br/>issue 후보 · 작업 정의 · 우선순위"]
+  B --> C["스프린트/Cycle 계획<br/>이번 cycle 묶음 선택"]
+  C --> D["포킷 시작<br/>현재 상태 브리프"]
+  D --> E["여러 작업 묶음 실행<br/>AI 에이전트가 이어서 처리"]
+  E --> F["산출물 생성<br/>작업 기준 · 완료 기준 · 실행 요약"]
+  F --> G["실행 전 확인<br/>외부 변경 · 중복 실행 방지 키"]
+  G --> H{"사용자 승인"}
+  H -->|승인| I["Linear/GitHub 반영<br/>상태 변경 · 댓글 · 릴리즈"]
+  H -->|보류| J["로컬 초안 유지<br/>수정 · 재검토"]
+  I --> K["Cycle 종료<br/>완료 보고 · 회고 · 다음 후보"]
+  J --> K
+```
 
-## 5 Minute Quickstart
+## 아키텍처
 
-1. Clone or fork this repo, then open the repo root in Codex CLI or Claude Code.
-2. Create a local `.env` from `.env.example`:
+포킷은 SaaS나 별도 CLI 제품이 아니라, GitHub repo로 배포되는 AI 스크럼 작업공간입니다. 사용자는 Codex나 Claude에게 자연어로 요청하고, 포킷은 Linear의 백로그와 cycle을 읽어 스프린트 운영 흐름을 만듭니다.
+
+```mermaid
+flowchart LR
+  U["사용자<br/>PO/PM · 작은 제품팀"] --> A["AI 에이전트<br/>Codex · Claude"]
+  A --> R["포킷(POKit)<br/>AI 스크럼 작업공간"]
+  R --> L["Linear<br/>백로그 · Issue · Cycle"]
+  R --> G["GitHub<br/>문서 · 규칙 · 테스트"]
+  R --> O["로컬 산출물<br/>백로그 정의 · 완료 기준 · 실행 요약 · 회고"]
+  R --> S["안전 게이트<br/>실행 전 확인 · 테스트 · 공개 스캔"]
+  S --> L
+  S --> G
+```
+
+외부에 보이는 변경은 안전 게이트를 지나며, 초안과 요약은 먼저 로컬 산출물로 남습니다.
+
+새 작업공간을 설정할 때는 [docs/ONBOARDING.md](docs/ONBOARDING.md)부터 보면 됩니다.
+
+## 문서 지도
+
+- [docs/ONBOARDING.md](docs/ONBOARDING.md): 설치와 첫 실행 절차.
+- [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md): 정책, 승인, cycle 규칙, 문서 역할의 기준 문서.
+- [workflows/hooks.yaml](workflows/hooks.yaml): 워크플로우 훅 이름의 기준 파일.
+- [docs/DESIGN.md](docs/DESIGN.md): 설계 배경. 세부 내용이 달라지면 위 기준 문서를 우선합니다.
+
+## 5분 시작하기
+
+1. 이 repo를 clone 또는 fork한 뒤, repo root를 Codex CLI나 Claude Code에서 엽니다.
+2. `.env.example`로 로컬 `.env`를 만듭니다.
 
 ```bash
 cp .env.example .env
 ```
 
-3. Add a Linear API key to `.env`:
+3. `.env`에 Linear API key를 넣습니다.
 
 ```bash
 LINEAR_API_KEY=lin_api_...
 ```
 
-4. In Codex or Claude, say:
+4. Codex나 Claude에서 이렇게 말합니다.
 
 ```text
-POKit 시작해줘
+포킷 시작해줘
 ```
 
-5. If your Linear workspace has no active cycle issues yet, create one safe sample issue from [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues), add `pokit:prd` or `pokit:criteria`, and put it in the current cycle.
+5. Linear 작업공간에 진행 중인 cycle issue가 없다면 [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues)의 안전한 샘플 issue를 하나 만들고, `pokit:prd` 또는 `pokit:criteria` label을 붙인 뒤 현재 cycle에 넣습니다.
 
-6. Follow the brief's Cycle-level execution sentence, for example:
+6. 브리프가 보여주는 Cycle 단위 실행 문장을 따라갑니다.
 
 ```text
 Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 ```
 
-Expected local outputs after a run:
+실행 후 예상 로컬 산출물:
 
 - `artifacts/sprints/[cycle]/[date]-run-summary.md`
 - `artifacts/prds/[issue-id].md`
 - `artifacts/criteria/[issue-id].md`
 
-POKit should start with a compact brief:
+포킷은 간단한 브리프로 시작해야 합니다.
 
 ```text
 📌 현재: Todo 3 · 진행 1 · 완료 1
@@ -77,40 +128,40 @@ POKit should start with a compact brief:
 💬 실행: “Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
 ```
 
-Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
+Linear 반영은 조용히 실행되지 않습니다. label, issue, comment, cycle, status 변경은 먼저 실행 전 확인으로 보여주고, 명시적으로 승인받은 뒤 진행합니다.
 
-Approval is by purpose, not by tiny mechanical step. For example, if you approve "put POKIT-32 through POKIT-34 into the current cycle and prepare the run", POKit may apply the directly required cycle assignment and label sync under that same approved plan. Destructive actions, Done transitions, releases, GitHub pushes, decision-log confirmation, and cycle-close confirmation still need their own explicit approval.
+승인은 작은 기계적 단계가 아니라 목적 단위로 받습니다. 예를 들어 “POKIT-32부터 POKIT-34까지 현재 cycle에 넣고 실행 준비해줘”를 승인하면, 포킷은 그 계획에 직접 필요한 cycle assignment와 label sync를 함께 처리할 수 있습니다. 다만 파괴적 작업, Done 전환, release, GitHub push, decision log 확정, cycle 종료 확정은 별도 명시 승인이 필요합니다.
 
-## How To Use POKit Day To Day
+## 평소 사용법
 
-1. Put candidate work into Linear.
-2. Label each issue with one POKit routing label:
+1. 후보 작업을 Linear에 넣습니다.
+2. 각 issue에 포킷 라우팅 label을 하나 붙입니다.
 
 ```text
 pokit:prd
 pokit:criteria
 ```
 
-3. Open Codex or Claude in the repo root and say:
+3. repo root에서 Codex나 Claude를 열고 이렇게 말합니다.
 
 ```text
-POKit 시작해줘
+포킷 시작해줘
 ```
 
-4. Run the current Cycle as a bundle. Ask for detail only when the definition is unclear:
+4. 현재 cycle을 묶음으로 진행합니다. 정의가 불명확할 때만 자세히 물어봅니다.
 
 ```text
 Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 backlog 자세히 보여줘
 ```
 
-5. Review generated local artifacts before sharing or committing them.
-6. Approve Linear/GitHub writes only after reading the dry-run plan and idempotency key.
-7. At the end of a cycle, run or ask for a retro/close summary before planning the next cycle.
+5. 생성된 로컬 산출물은 공유하거나 commit하기 전에 확인합니다.
+6. Linear/GitHub 반영은 실행 전 확인과 중복 실행 방지 키를 읽은 뒤 승인합니다.
+7. cycle이 끝나면 다음 cycle을 계획하기 전에 회고/종료 요약을 요청합니다.
 
-## Helper Commands
+## 보조 명령어
 
-Node commands are helper checks. The primary workflow is: user asks in natural language, the LLM reads skills/docs, then uses scripts only when needed.
+Node 명령어는 보조 점검용입니다. 기본 흐름은 사용자가 자연어로 요청하고, LLM이 skill/docs를 읽은 뒤 필요한 경우에만 script를 사용하는 방식입니다.
 
 ```bash
 node --experimental-strip-types scripts/session-brief.ts
@@ -125,78 +176,78 @@ node --experimental-strip-types scripts/retro-summary.ts
 node --experimental-strip-types scripts/public-safety-scan.ts
 ```
 
-For longer work, use the POKit goal loop:
+긴 작업은 포킷 goal loop를 사용합니다.
 
-- Claude Code: set `/goal` with a clear completion condition.
-- Codex: ask POKit to use the Brief, task list, skills, tests, and Linear Done updates as the goal loop.
+- Claude Code: 명확한 완료 조건으로 `/goal`을 설정합니다.
+- Codex: 브리프, 작업 목록, skill, 테스트, Linear Done update를 goal loop로 사용해 달라고 요청합니다.
 
-See [docs/GOAL_LOOP.md](docs/GOAL_LOOP.md).
+[docs/GOAL_LOOP.md](docs/GOAL_LOOP.md)를 참고하세요.
 
-Generated artifacts are local by default and should stay out of public GitHub repos. The public POKit template keeps reusable, sanitized samples under `examples/`. See [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md#artifact-policy) for the canonical artifact policy.
+생성 산출물은 기본적으로 로컬 전용이며 공개 GitHub 저장소에 올리지 않는 것이 원칙입니다. 공개 포킷 템플릿은 재사용 가능한 민감정보 제거 예시만 `examples/` 아래에 둡니다. 기준 정책은 [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md#artifact-policy)를 참고하세요.
 
-If an API key appears in chat, logs, screenshots, or commits, rotate it before continuing. See `SECURITY.md`.
+API key가 chat, log, screenshot, commit에 노출되면 계속 진행하기 전에 교체하세요. 자세한 내용은 `SECURITY.md`를 참고하세요.
 
-## Core Contract
+## 핵심 약속
 
-POKit은 cycle 안에서 산출물과 승인 계획을 만든다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 절대 바꾸지 않는다. Detailed policy lives in [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md).
+포킷은 cycle 안에서 산출물과 승인 계획을 만듭니다. Linear/GitHub 같은 외부 시스템의 상태는 사용자의 명시적 승인 없이는 바꾸지 않습니다. 상세 정책은 [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md)에 있습니다.
 
-- All AI-generated artifacts are drafts with source context and rationale.
-- Run Summary lists generated, needs-label, needs-clarification, needs-approval, and failed items separately, with "what AI did not do" shown first.
-- State Brief renders every session and is read-only.
-- Action Nudge appears at most once per session and only when cycle state changed.
-- Do not commit real work context from `artifacts/`, `.modu-harness/`, `.env`, or generated run summaries. Publish only sanitized examples under `examples/`.
-- Cycle completion should feel explicit: when a cycle is operationally complete, POKit should show one short celebration message with emoji, completion count, Run Summary, Retro, and the next execution sentence.
+- AI가 만든 모든 산출물은 출처 맥락(source context)과 판단 근거(rationale)를 가진 초안입니다.
+- 실행 요약(Run Summary)은 generated, needs-label, needs-clarification, needs-approval, failed 항목을 분리하고, AI가 하지 않은 일을 먼저 보여줍니다.
+- 상태 브리프(State Brief)는 매 세션 표시되며 읽기 전용입니다.
+- 액션 넛지(Action Nudge)는 cycle 상태가 바뀐 경우에만 세션당 최대 한 번 표시됩니다.
+- `artifacts/`, `.modu-harness/`, `.env`, 생성된 run summary의 실제 작업 맥락은 commit하지 않습니다. 공개 예시는 민감정보 제거 샘플만 `examples/` 아래에 둡니다.
+- cycle 완료는 명확해야 합니다. cycle이 운영상 완료되면 포킷은 짧은 축하 메시지, 완료 수, 실행 요약, 회고, 다음 실행 문장을 보여줘야 합니다.
 
-## Linear Workflow
+## Linear 흐름
 
-Use Linear as the source of truth and POKit as the daily AI run layer.
+Linear는 실제 backlog와 cycle 상태를 관리하는 기준 시스템으로 두고, 포킷은 매일 AI가 스크럼을 실행하는 운영 레이어로 사용합니다.
 
-- Linear Cycle: weekly sprint container, usually starting every Monday.
-- POKit Run: daily read-only check that routes issues, drafts artifacts, and writes a Run Summary.
-- Linear writes: always represented as a dry-run approval plan first.
+- Linear Cycle: 보통 월요일에 시작하는 주간 스프린트 단위.
+- 포킷 Run: issue를 라우팅하고, 산출물 초안을 만들고, 실행 요약을 남기는 일일 점검.
+- Linear 반영: 항상 실행 전 확인 계획으로 먼저 보여줍니다.
 
-POKit uses `LINEAR_API_KEY` and optional `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY` to:
+포킷은 `LINEAR_API_KEY`와 선택 값인 `LINEAR_TEAM_ID` 또는 `LINEAR_TEAM_KEY`로 아래 작업을 수행합니다.
 
-- read teams, cycles, issues, and labels;
-- generate local PRD/criteria drafts from the current cycle;
-- prepare dry-run write plans for issue, label, cycle, or comment updates;
-- apply approved Linear writes only after explicit user approval.
+- team, cycle, issue, label 읽기.
+- 현재 cycle에서 로컬 PRD/완료 기준 초안 생성.
+- issue, label, cycle, comment update를 위한 실행 전 확인 계획 준비.
+- 명시적으로 승인된 Linear 반영만 적용.
 
-### Completed Issue Archive Guardrail
+### 완료 Issue 보관 안전장치
 
-Linear Free workspaces have a 250 issue limit. POKit treats 200 completed issues as the soft limit:
+Linear Free 작업공간에는 issue 250개 제한이 있습니다. 포킷은 완료 issue 200개를 사전 경고 기준으로 봅니다.
 
-- below 200 completed issues: no archive nudge;
-- at 200 or more completed issues: the session Brief shows an archive recommendation;
-- archive candidates are written to local `artifacts/archive/linear-completed-YYYY-MM.jsonl` and `.md` plans first;
-- POKit never archives, deletes, or mutates Linear issues without explicit approval.
+- 완료 issue가 200개 미만이면 보관 안내를 표시하지 않습니다.
+- 200개 이상이면 세션 브리프에 보관 추천을 표시합니다.
+- 보관 후보는 먼저 로컬 `artifacts/archive/linear-completed-YYYY-MM.jsonl`와 `.md` plan으로 기록합니다.
+- 포킷은 명시적 승인 없이 Linear issue를 보관, 삭제, 변경하지 않습니다.
 
-To inspect the local archive dry-run contract:
+로컬 보관 실행 전 확인 계약을 확인하려면:
 
 ```bash
 node --experimental-strip-types scripts/archive-guardrail.ts
 ```
 
-If the API key can access exactly one Linear team, POKit selects it automatically. If multiple teams are available, POKit asks for `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY`.
+API key가 정확히 하나의 Linear team에 접근할 수 있으면 포킷이 자동 선택합니다. 여러 team에 접근할 수 있으면 `LINEAR_TEAM_ID` 또는 `LINEAR_TEAM_KEY`를 요청합니다.
 
-Without a Linear API key, users can still read the repo docs, skills, templates, and examples, but POKit cannot automatically inspect or update their Linear workspace.
+Linear API key가 없어도 repo docs, skills, templates, examples는 읽을 수 있습니다. 다만 포킷이 Linear 작업공간을 자동으로 확인하거나 업데이트할 수는 없습니다.
 
-POKit chooses the working context in this order:
+포킷은 아래 순서로 작업 맥락을 선택합니다.
 
-1. Active Linear cycle with open work.
-2. Upcoming Linear cycle with open work.
-3. Completed cycle only as a close summary surface.
-4. Team backlog when no cycle work exists.
+1. 열려 있는 작업이 있는 현재 Linear cycle.
+2. 열려 있는 작업이 있는 다음 Linear cycle.
+3. 종료 요약 대상으로만 사용하는 완료된 cycle.
+4. cycle 작업이 없을 때 team backlog.
 
-This keeps first-time personal workspaces usable before a formal cycle starts.
+이 순서 덕분에 정식 cycle이 시작되기 전의 개인 작업공간도 바로 사용할 수 있습니다.
 
-See `docs/OPERATING_MODEL.md` for the working agreement between Linear, daily POKit runs, session task lists, and GitHub commits.
+Linear, 일일 포킷 Run, 세션 작업 목록, GitHub commit 사이의 작업 규칙은 `docs/OPERATING_MODEL.md`를 참고하세요.
 
-## Day 2 Dry Run
+## 2일차 실행 시뮬레이션
 
-Use `examples/day2-dry-run/linear-cycle-fixture.yaml` to inspect the walking skeleton without calling Linear or GitHub.
+Linear나 GitHub를 호출하지 않고 기본 실행 흐름을 확인하려면 `examples/day2-dry-run/linear-cycle-fixture.yaml`을 사용합니다.
 
-Example outputs:
+예상 예시 산출물:
 
 - `examples/dogfood/prds/POKIT-18.md`
 - `examples/dogfood/criteria/POKIT-22.md`
