@@ -38,7 +38,7 @@ The default posture is: do the obvious safe work, show concise evidence, and ask
 
 ## Current Problem
 
-The current POKit brief only follows Linear's active cycle. On 2026-05-13, Linear still reports Cycle 1 as active, so `scripts/session-brief.ts` shows:
+The current POKit brief only follows Linear's active cycle. On 2026-05-13, Linear still reports Cycle N-1 as active, so `scripts/session-brief.ts` shows:
 
 - Todo 0
 - In Progress 0
@@ -48,8 +48,8 @@ The current POKit brief only follows Linear's active cycle. On 2026-05-13, Linea
 
 That output is misleading because actual Linear state also contains:
 
-- Cycle 2 Todo issues: EVM-32, EVM-33, EVM-34
-- Backlog issues: EVM-35 through EVM-39
+- Cycle N Todo issues: POKIT-32, POKIT-33, POKIT-34
+- Backlog issues: POKIT-35 through POKIT-39
 
 The root issue is that POKit treats "Linear active cycle" as "POKit working target." These should be related, but not identical. A Linear cycle is a calendar container; POKit's working target should be the next useful scrum work surface.
 
@@ -94,21 +94,21 @@ When the active cycle is operationally complete:
 Expected shape:
 
 ```text
-Cycle 1 complete: Todo 0 · 진행 0 · 완료 27
+Cycle N-1 complete: Todo 0 · 진행 0 · 완료 27
 
-다음 후보 (Cycle 2, 2026-05-14 시작)
-1. EVM-32 model-tier policy 문서화 · Todo · pokit:criteria
-2. EVM-33 resume-brief compact contract 강화 · Todo · pokit:criteria
-3. EVM-34 session-close 종료 리포트 스크립트 구현 · Todo · pokit:prd
+다음 후보 (Cycle N, 2026-05-14 시작)
+1. POKIT-32 model-tier policy 문서화 · Todo · pokit:criteria
+2. POKIT-33 resume-brief compact contract 강화 · Todo · pokit:criteria
+3. POKIT-34 session-close 종료 리포트 스크립트 구현 · Todo · pokit:prd
 
 Backlog
-- EVM-35 prioritizer ICE-lite 시범 구현
-- EVM-36 history-maintainer skill 추가
-- EVM-37 cycle-close 사이클 종료 초안 생성
-- EVM-38 changelog 후보 자동 추출
-- EVM-39 history write conflict warning 구현
+- POKIT-35 prioritizer ICE-lite 시범 구현
+- POKIT-36 history-maintainer skill 추가
+- POKIT-37 cycle-close 사이클 종료 초안 생성
+- POKIT-38 changelog 후보 자동 추출
+- POKIT-39 history write conflict warning 구현
 
-실행: "Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘"
+실행: "Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘"
 ```
 
 ### Cycle Completion
@@ -349,7 +349,7 @@ Add cases:
 Before:
 
 ```text
-Cycle 1만 봄
+Cycle N-1만 봄
 Todo 0 · 진행 0 · 완료 27
 다음 후보 없음
 추천: 새 후보를 Backlog에 정리
@@ -358,9 +358,9 @@ Todo 0 · 진행 0 · 완료 27
 After:
 
 ```text
-Cycle 1 complete 표시
-Cycle 2 후보 EVM-32~34 표시
-Backlog EVM-35~39 표시
+Cycle N-1 complete 표시
+Cycle N 후보 POKIT-32~34 표시
+Backlog POKIT-35~39 표시
 추천: Cycle 전체 후보 실행
 ```
 

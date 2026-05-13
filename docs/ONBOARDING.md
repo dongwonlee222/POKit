@@ -27,7 +27,7 @@ POKit 시작해줘. Brief의 다음 후보를 기준으로 Cycle bundle을 만�
 - [ ] Use the single Cycle-level command when you want POKit to proceed:
 
 ```text
-Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
+Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 ```
 
 - [ ] Ask for detail only when the definition is unclear:

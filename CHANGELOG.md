@@ -1,8 +1,26 @@
 # Changelog
 
-## v0.1.0 Candidate - 2026-05-13
+## v0.1.1 Hotfix - 2026-05-13
 
-POKit v0.1.0 is the Day 2/3 dogfood release candidate.
+This hotfix removes private dogfood Linear state from the public template and adds a release safety gate.
+
+### Fixed
+
+- Replaced live `memory/resume-brief.md` state with a public-safe starter placeholder.
+- Sanitized dogfood examples so public samples no longer contain private Linear workspace URLs or cycle IDs.
+- Removed private Linear cycle IDs and concrete dogfood defaults from script examples.
+- Changed Hotfix and Cycle maintenance helpers so public CLI defaults no longer embed a private workspace's cycle data.
+- Added `scripts/public-safety-scan.ts` and test coverage to block private Linear workspace slugs, private cycle IDs, and live tracked memory state before public release.
+- Documented the public release safety scan in README, AGENTS, script docs, and the operating model.
+
+### Verification
+
+- Public safety scan passed.
+- Test suite passed: 67/67.
+
+## v0.1.0 - 2026-05-13
+
+POKit v0.1.0 is the Day 2/3 dogfood release.
 
 ### Included
 
@@ -23,7 +41,7 @@ POKit v0.1.0 is the Day 2/3 dogfood release candidate.
 - Cycle-level next-action wording so users are not asked to approve mechanical substeps.
 - Brief output now shows one Cycle-level execution sentence and no numbered quick-command prompts.
 - Release/Hotfix Cycle policy and guard metadata for deployment omissions and urgent redeploys.
-- Hotfix Cycle creation helper and EVM-44 move dry-run for deployment omission tracking.
+- Hotfix Cycle creation helper and issue move dry-run for deployment omission tracking.
 - Cycle maintenance helper for Linear cycle completion dry-runs when POKit operational completion drifts from Linear date state.
 - Label preflight dry-run helper.
 - Cycle retro draft helper.

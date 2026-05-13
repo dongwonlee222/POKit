@@ -1,6 +1,6 @@
 ---
-linear_issue_id: EVM-5
-cycle_id: b51858e6-ac13-477c-84d7-8ca290db6653
+linear_issue_id: POKIT-5
+cycle_id: <example-cycle-id>
 artifact_type: acceptance_criteria
 status: draft
 skill_used: acceptance-criteria-author
@@ -35,6 +35,6 @@ Acceptance notes:
 
 ## Source Context
 
-- Linear issue: EVM-5
-- Linear URL: https://linear.app/evmodu/issue/EVM-5/pokit-dry-run-runner-품질-확인
+- Linear issue: POKIT-5
+- Linear URL: https://linear.app/example/issue/POKIT-5/pokit-dry-run-runner-품질-확인
 - Labels: pokit:criteria

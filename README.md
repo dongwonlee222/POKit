@@ -57,7 +57,7 @@ POKit 시작해줘
 6. Follow the brief's Cycle-level execution sentence, for example:
 
 ```text
-Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
+Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 ```
 
 Expected local outputs after a run:
@@ -71,15 +71,15 @@ POKit should start with a compact brief:
 ```text
 📌 현재: Todo 3 · 진행 1 · 완료 1
 🧺 다음 후보
-1. EVM-20 LLM-first Quickstart · Todo · pokit:criteria
-2. EVM-21 Team optional · Todo · pokit:criteria
-3. EVM-25 Session brief · Todo · pokit:criteria
-💬 실행: “Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
+1. POKIT-20 LLM-first Quickstart · Todo · pokit:criteria
+2. POKIT-21 Team optional · Todo · pokit:criteria
+3. POKIT-25 Session brief · Todo · pokit:criteria
+💬 실행: “Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
 ```
 
 Linear writes are never applied silently; any label, issue, comment, cycle, or status write must be shown as a dry-run plan and explicitly approved first.
 
-Approval is by purpose, not by tiny mechanical step. For example, if you approve "put EVM-32 through EVM-34 into Cycle 2 and prepare the run", POKit may apply the directly required cycle assignment and label sync under that same approved plan. Destructive actions, Done transitions, releases, GitHub pushes, decision-log confirmation, and cycle-close confirmation still need their own explicit approval.
+Approval is by purpose, not by tiny mechanical step. For example, if you approve "put POKIT-32 through POKIT-34 into the current cycle and prepare the run", POKit may apply the directly required cycle assignment and label sync under that same approved plan. Destructive actions, Done transitions, releases, GitHub pushes, decision-log confirmation, and cycle-close confirmation still need their own explicit approval.
 
 ## How To Use POKit Day To Day
 
@@ -100,7 +100,7 @@ POKit 시작해줘
 4. Run the current Cycle as a bundle. Ask for detail only when the definition is unclear:
 
 ```text
-Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
+Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
 backlog 자세히 보여줘
 ```
 
@@ -122,6 +122,7 @@ node --experimental-strip-types scripts/label-preflight.ts
 node --experimental-strip-types scripts/sprint-runner.ts
 node --experimental-strip-types scripts/sprint-runner.ts --write-artifacts
 node --experimental-strip-types scripts/retro-summary.ts
+node --experimental-strip-types scripts/public-safety-scan.ts
 ```
 
 For longer work, use the POKit goal loop:

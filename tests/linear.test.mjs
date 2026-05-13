@@ -51,7 +51,7 @@ test("getCurrentCycle reads the active Linear cycle without mutating", async () 
             nodes: [
               {
                 id: "cycle-123",
-                name: "Cycle 20",
+                name: "Cycle N0",
                 number: 20,
                 startsAt: "2026-05-11",
                 endsAt: "2026-05-17",
@@ -71,7 +71,7 @@ test("getCurrentCycle reads the active Linear cycle without mutating", async () 
   assert.doesNotMatch(requestBody.query, /mutation/);
   assert.deepEqual(cycle, {
     id: "cycle-123",
-    name: "Cycle 20",
+    name: "Cycle N0",
     number: 20,
     startsAt: "2026-05-11",
     endsAt: "2026-05-17",
@@ -118,7 +118,7 @@ test("getCurrentCycle auto-selects the only available Linear team", async () => 
 
 test("getCurrentCycle resolves LINEAR_TEAM_KEY when team id is omitted", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
-  process.env.LINEAR_TEAM_KEY = "EVM";
+  process.env.LINEAR_TEAM_KEY = "EX";
   delete process.env.LINEAR_TEAM_ID;
   const tempDir = join(tmpdir(), `pokit-linear-team-key-${Date.now()}`);
   await mkdir(tempDir, { recursive: true });
@@ -133,7 +133,7 @@ test("getCurrentCycle resolves LINEAR_TEAM_KEY when team id is omitted", async (
           teams: {
             nodes: [
               { id: "team-pok", key: "POK", name: "POKit" },
-              { id: "team-evm", key: "EVM", name: "Evmodu" },
+              { id: "team-example", key: "EX", name: "Example Team" },
             ],
           },
         },
@@ -143,7 +143,7 @@ test("getCurrentCycle resolves LINEAR_TEAM_KEY when team id is omitted", async (
       data: {
         team: {
           cycles: {
-            nodes: [{ id: "cycle-evm", name: "Cycle EVM" }],
+            nodes: [{ id: "cycle-example", name: "Cycle Example" }],
           },
         },
       },
@@ -153,8 +153,8 @@ test("getCurrentCycle resolves LINEAR_TEAM_KEY when team id is omitted", async (
 
   const cycle = await getCurrentCycle();
 
-  assert.equal(requestBodies[1].variables.teamId, "team-evm");
-  assert.equal(cycle.id, "cycle-evm");
+  assert.equal(requestBodies[1].variables.teamId, "team-example");
+  assert.equal(cycle.id, "cycle-example");
 });
 
 test("getCurrentCycle explains team selection when multiple teams exist", async () => {
@@ -370,14 +370,14 @@ test("getWorkingContext skips completed upcoming cycles when a later upcoming cy
           nodes: [
             {
               id: "cycle-2",
-              name: "Cycle 2",
+              name: "Cycle N",
               number: 2,
               startsAt: "2026-05-19",
               endsAt: "2026-05-25",
             },
             {
               id: "cycle-3",
-              name: "Cycle 3",
+              name: "Cycle N+1",
               number: 3,
               startsAt: "2026-05-26",
               endsAt: "2026-06-01",
@@ -791,21 +791,21 @@ test("planCreateHotfixCycle creates versioned cycle dry-run metadata", async () 
   const { planCreateHotfixCycle } = await loadLinearModule();
 
   const plan = await planCreateHotfixCycle({
-    name: "Hotfix v0.1.0",
+    name: "Hotfix vX.Y.Z",
     startsAt: "2026-05-13T00:00:00.000Z",
     endsAt: "2026-05-14T00:00:00.000Z",
-    sourceCycle: "Cycle 2",
-    targetVersion: "v0.1.0",
-    resumeCycle: "Cycle 3",
+    sourceCycle: "Cycle N",
+    targetVersion: "vX.Y.Z",
+    resumeCycle: "Cycle N+1",
     releaseScope: "GitHub push/tag/release",
   });
 
-  assert.equal(plan.idempotencyKey, "linear:create_cycle:Hotfix v0.1.0:v0.1.0");
+  assert.equal(plan.idempotencyKey, "linear:create_cycle:Hotfix vX.Y.Z:vX.Y.Z");
   assert.equal(plan.writes[0].type, "create_cycle");
   assert.equal(plan.writes[0].target, "linear_team");
-  assert.match(plan.writes[0].payload.description, /sourceCycle: Cycle 2/);
-  assert.match(plan.writes[0].payload.description, /targetVersion: v0.1.0/);
-  assert.match(plan.writes[0].payload.description, /resumeCycle: Cycle 3/);
+  assert.match(plan.writes[0].payload.description, /sourceCycle: Cycle N/);
+  assert.match(plan.writes[0].payload.description, /targetVersion: vX.Y.Z/);
+  assert.match(plan.writes[0].payload.description, /resumeCycle: Cycle N\+1/);
   assert.match(plan.writes[0].payload.description, /releaseScope: GitHub push\/tag\/release/);
 });
 
@@ -821,7 +821,7 @@ test("applyCreateCycle creates a Linear cycle only with approval and idempotency
           success: true,
           cycle: {
             id: "cycle-hotfix",
-            name: "Hotfix v0.1.0",
+            name: "Hotfix vX.Y.Z",
             number: 99,
             startsAt: "2026-05-13T00:00:00.000Z",
             endsAt: "2026-05-14T00:00:00.000Z",
@@ -832,12 +832,12 @@ test("applyCreateCycle creates a Linear cycle only with approval and idempotency
   };
   const { applyCreateCycle, planCreateHotfixCycle } = await loadLinearModule();
   const plan = await planCreateHotfixCycle({
-    name: "Hotfix v0.1.0",
+    name: "Hotfix vX.Y.Z",
     startsAt: "2026-05-13T00:00:00.000Z",
     endsAt: "2026-05-14T00:00:00.000Z",
-    sourceCycle: "Cycle 2",
-    targetVersion: "v0.1.0",
-    resumeCycle: "Cycle 3",
+    sourceCycle: "Cycle N",
+    targetVersion: "vX.Y.Z",
+    resumeCycle: "Cycle N+1",
     releaseScope: "GitHub push/tag/release",
   });
 
@@ -845,10 +845,10 @@ test("applyCreateCycle creates a Linear cycle only with approval and idempotency
 
   assert.match(requestBody.query, /mutation CreateCycle/);
   assert.equal(requestBody.variables.input.teamId, "team-123");
-  assert.equal(requestBody.variables.input.name, "Hotfix v0.1.0");
+  assert.equal(requestBody.variables.input.name, "Hotfix vX.Y.Z");
   assert.equal(requestBody.variables.input.startsAt, "2026-05-13T00:00:00.000Z");
   assert.equal(requestBody.variables.input.endsAt, "2026-05-14T00:00:00.000Z");
-  assert.match(requestBody.variables.input.description, /POKit idempotency key: linear:create_cycle:Hotfix v0.1.0:v0.1.0/);
+  assert.match(requestBody.variables.input.description, /POKit idempotency key: linear:create_cycle:Hotfix vX.Y.Z:vX.Y.Z/);
   assert.equal(cycle.id, "cycle-hotfix");
 });
 

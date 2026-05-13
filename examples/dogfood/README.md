@@ -1,6 +1,6 @@
 # POKit Dogfood Examples
 
-This directory contains dogfood outputs generated while validating POKit against a real Linear workspace.
+This directory contains sanitized dogfood outputs generated while validating POKit against a Linear workspace.
 
 These files are examples only. The public POKit template should not keep a user's live generated artifacts under `artifacts/`.
 

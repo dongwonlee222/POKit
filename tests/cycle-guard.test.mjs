@@ -33,13 +33,13 @@ test("evaluateCycleGuard allows implementation when a cycle issue context exists
   const result = evaluateCycleGuard({
     mode: "implementation",
     issueIdentifier: "EVM-42",
-    cycleId: "169a76a8-2867-45f0-b380-3e35e504c9c7",
-    cycleName: "Cycle 2",
+    cycleId: "00000000-0000-4000-8000-000000000042",
+    cycleName: "Cycle N",
   });
 
   assert.equal(result.allowed, true);
   assert.match(result.message, /EVM-42/);
-  assert.match(result.message, /Cycle 2/);
+  assert.match(result.message, /Cycle N/);
 });
 
 test("evaluateCycleGuard allows implementation with an approved cycle bundle", async () => {
@@ -48,7 +48,7 @@ test("evaluateCycleGuard allows implementation with an approved cycle bundle", a
   const bundlePath = join(dir, "bundle.json");
   writeFileSync(bundlePath, JSON.stringify({
     approved: true,
-    cycle: { id: "cycle-2", name: "Cycle 2" },
+    cycle: { id: "cycle-2", name: "Cycle N" },
     issues: ["EVM-42"],
   }));
 
@@ -59,7 +59,7 @@ test("evaluateCycleGuard allows implementation with an approved cycle bundle", a
 
   assert.equal(result.allowed, true);
   assert.match(result.message, /approved cycle bundle/);
-  assert.match(result.message, /Cycle 2/);
+  assert.match(result.message, /Cycle N/);
 });
 
 test("evaluateCycleGuard blocks assigning new work to an operationally complete cycle", async () => {
@@ -69,7 +69,7 @@ test("evaluateCycleGuard blocks assigning new work to an operationally complete 
     mode: "implementation",
     issueIdentifier: "EVM-35",
     cycleId: "cycle-2",
-    cycleName: "Cycle 2",
+    cycleName: "Cycle N",
     targetCycleComplete: true,
     operation: "cycle_assignment",
   });
@@ -86,7 +86,7 @@ test("evaluateCycleGuard allows reopening a complete cycle only when explicit", 
     mode: "implementation",
     issueIdentifier: "EVM-35",
     cycleId: "cycle-2",
-    cycleName: "Cycle 2",
+    cycleName: "Cycle N",
     targetCycleComplete: true,
     operation: "cycle_assignment",
     reopenCompletedCycle: true,
@@ -102,11 +102,11 @@ test("evaluateCycleGuard blocks hotfix release work without version and cycle me
   const result = evaluateCycleGuard({
     mode: "implementation",
     operation: "external_release",
-    issueIdentifier: "EVM-44",
+    issueIdentifier: "POKIT-44",
     cycleId: "hotfix-cycle",
-    cycleName: "Hotfix v0.1.0",
+    cycleName: "Hotfix vX.Y.Z",
     releaseKind: "hotfix",
-    sourceCycle: "Cycle 2",
+    sourceCycle: "Cycle N",
   });
 
   assert.equal(result.allowed, false);
@@ -121,18 +121,18 @@ test("evaluateCycleGuard allows hotfix release work with version and cycle metad
   const result = evaluateCycleGuard({
     mode: "implementation",
     operation: "external_release",
-    issueIdentifier: "EVM-44",
+    issueIdentifier: "POKIT-44",
     cycleId: "hotfix-cycle",
-    cycleName: "Hotfix v0.1.0",
+    cycleName: "Hotfix vX.Y.Z",
     releaseKind: "hotfix",
-    sourceCycle: "Cycle 2",
-    targetVersion: "v0.1.0",
-    resumeCycle: "Cycle 3",
+    sourceCycle: "Cycle N",
+    targetVersion: "vX.Y.Z",
+    resumeCycle: "Cycle N+1",
   });
 
   assert.equal(result.allowed, true);
   assert.match(result.message, /Hotfix release guard passed/);
-  assert.match(result.message, /Cycle 2/);
-  assert.match(result.message, /v0.1.0/);
-  assert.match(result.message, /Cycle 3/);
+  assert.match(result.message, /Cycle N/);
+  assert.match(result.message, /vX.Y.Z/);
+  assert.match(result.message, /Cycle N\+1/);
 });

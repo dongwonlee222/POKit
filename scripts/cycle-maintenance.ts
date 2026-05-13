@@ -58,16 +58,28 @@ function readArg(args: string[], flag: string, fallback?: string): string {
   return index >= 0 ? args[index + 1] : fallback ?? "";
 }
 
+function requireArg(args: string[], flag: string): string {
+  const value = readArg(args, flag);
+  if (!value) {
+    throw new Error(`Missing required ${flag}`);
+  }
+  return value;
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
   const completedAt = readArg(args, "--completed-at", new Date().toISOString());
-  const cycle1Id = readArg(args, "--cycle-1-id", "b51858e6-ac13-477c-84d7-8ca290db6653");
-  const cycle2Id = readArg(args, "--cycle-2-id", "169a76a8-2867-45f0-b380-3e35e504c9c7");
+  const previousCycleId = requireArg(args, "--previous-cycle-id");
+  const completedCycleId = requireArg(args, "--completed-cycle-id");
+  const previousCycleName = readArg(args, "--previous-cycle-name", "Previous Cycle");
+  const completedCycleName = readArg(args, "--completed-cycle-name", "Completed Cycle");
+  const previousReason = readArg(args, "--previous-reason", "Operationally complete; stale Linear current cycle.");
+  const completedReason = readArg(args, "--completed-reason", "Operationally complete; release or handoff tracked separately.");
   const plans = await buildCycleMaintenancePlans({
     completedAt,
     cycles: [
-      { cycleId: cycle1Id, cycleName: "Cycle 1", reason: "27/27 issues Done; stale Linear current cycle." },
-      { cycleId: cycle2Id, cycleName: "Cycle 2", reason: "6/6 issues Done; deployment omission moved to Hotfix v0.1.0." },
+      { cycleId: previousCycleId, cycleName: previousCycleName, reason: previousReason },
+      { cycleId: completedCycleId, cycleName: completedCycleName, reason: completedReason },
     ],
   });
   console.log(renderCycleMaintenanceMarkdown(plans));

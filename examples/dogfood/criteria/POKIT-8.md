@@ -1,6 +1,6 @@
 ---
-linear_issue_id: EVM-8
-cycle_id: b51858e6-ac13-477c-84d7-8ca290db6653
+linear_issue_id: POKIT-8
+cycle_id: <example-cycle-id>
 artifact_type: acceptance_criteria
 status: draft
 skill_used: acceptance-criteria-author
@@ -34,6 +34,6 @@ Acceptance notes:
 
 ## Source Context
 
-- Linear issue: EVM-8
-- Linear URL: https://linear.app/evmodu/issue/EVM-8/linear-label-preflight-dry-run-plan-구현
+- Linear issue: POKIT-8
+- Linear URL: https://linear.app/example/issue/POKIT-8/linear-label-preflight-dry-run-plan-구현
 - Labels: pokit:criteria

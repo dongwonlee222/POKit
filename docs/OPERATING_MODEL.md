@@ -39,7 +39,7 @@ Backlog-only work may define scope, inspect files, gather evidence, and create d
 Before code, docs, tests, or canonical memory files are changed, run or emulate:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-42 --cycle-id 169a76a8-2867-45f0-b380-3e35e504c9c7 --cycle-name "Cycle 2"
+node --experimental-strip-types scripts/cycle-guard.ts --issue POKIT-42 --cycle-id <cycle-id> --cycle-name "Cycle N"
 ```
 
 The guard intentionally does not ask for more user approvals. It only blocks implementation when traceability is missing.
@@ -49,7 +49,7 @@ Completed cycles are immutable by default. Once a cycle is operationally complet
 Before assigning issues to a cycle, run or emulate:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <target-cycle-id> --cycle-name "Cycle 3"
+node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue POKIT-35 --cycle-id <target-cycle-id> --cycle-name "Cycle N"
 ```
 
 If the target cycle is complete, include `--target-cycle-complete`; the guard must block unless the user explicitly said to reopen the completed cycle and `--reopen-completed-cycle` is present.
@@ -118,7 +118,7 @@ Forbidden next-action patterns:
 - `커밋해줘`
 - `Done 처리해줘`
 - `테스트 돌려줘`
-- `EVM-43만 진행해줘` unless the user explicitly selected `EVM-43`
+- `POKIT-43만 진행해줘` unless the user explicitly selected `POKIT-43`
 - any instruction that turns the user into a mechanical approval manager
 
 ## Release And Hotfix Cycles
@@ -146,13 +146,13 @@ Hotfix is not a bucket for planned Cycle work. It is a short, versioned interrup
 Before GitHub push, tag, release, package publish, or public docs deploy, run or emulate the release guard:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue EVM-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3"
+node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue POKIT-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix vX.Y.Z" --source-cycle "Cycle N" --target-version vX.Y.Z --resume-cycle "Cycle N+1"
 ```
 
 To prepare Linear tracking for a deployment omission, print the Hotfix Cycle dry-run first:
 
 ```bash
-node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3" --issue EVM-44 --issue-id EVM-44
+node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix vX.Y.Z" --source-cycle "Cycle N" --target-version vX.Y.Z --resume-cycle "Cycle N+1" --issue POKIT-44 --issue-id <linear-issue-id>
 ```
 
 The dry-run creates no Linear records. Apply the resulting `cycleCreate` plan only after user approval, then move the issue to the created Hotfix Cycle.
@@ -197,6 +197,18 @@ POKit is distributed as a GitHub repository, not as a hosted service or standalo
 - Linear workspace: official backlog, cycle placement, status, priority, and discussion history.
 
 New users should fork or clone the repo, create a local `.env`, connect Linear, and operate through Codex or Claude in the repo root.
+
+## Public Release Safety
+
+Before pushing, tagging, or publishing a public release, run:
+
+```bash
+node --experimental-strip-types scripts/public-safety-scan.ts
+```
+
+The public repository must not contain private Linear workspace slugs, private Linear cycle IDs, or live `memory/` state. Public examples should use placeholder identifiers such as `POKIT-123`, `<cycle-id>`, `Cycle N`, and `Hotfix vX.Y.Z`.
+
+Tracked `memory/` files are starter placeholders only. Real resume briefs, current-cycle pointers, decision logs, generated artifacts, and local run summaries belong in a team's private fork or local workspace, not in the public upstream release.
 
 ## Roles
 
@@ -307,7 +319,7 @@ For unfinished or approval-pending work, include enough task content to act with
 - why it is pending
 - next action
 
-The final line should be an executable sentence the user can say next, such as `Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`.
+The final line should be an executable sentence the user can say next, such as `Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`.
 
 Use emoji as section markers only. They should make status easier to scan, not make the report decorative.
 

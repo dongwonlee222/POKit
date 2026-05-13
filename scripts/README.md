@@ -96,7 +96,7 @@ node --experimental-strip-types scripts/session-close.ts --write-resume-brief
 Check cycle-first implementation readiness:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --issue EVM-42 --cycle-id 169a76a8-2867-45f0-b380-3e35e504c9c7 --cycle-name "Cycle 2"
+node --experimental-strip-types scripts/cycle-guard.ts --issue POKIT-42 --cycle-id <cycle-id> --cycle-name "Cycle N"
 ```
 
 This command is local. It blocks durable implementation when no Linear cycle or approved cycle bundle context is present. Planning and dry-run work may still proceed with:
@@ -108,31 +108,37 @@ node --experimental-strip-types scripts/cycle-guard.ts --mode planning
 Check cycle assignment safety before moving work into a cycle:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <target-cycle-id> --cycle-name "Cycle 3"
+node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue POKIT-35 --cycle-id <target-cycle-id> --cycle-name "Cycle N"
 ```
 
 If the target cycle is already complete, the guard blocks by default:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue EVM-35 --cycle-id <cycle-id> --cycle-name "Cycle 2" --target-cycle-complete
+node --experimental-strip-types scripts/cycle-guard.ts --operation cycle_assignment --issue POKIT-35 --cycle-id <cycle-id> --cycle-name "Cycle N" --target-cycle-complete
 ```
 
 Check Hotfix release metadata before public deploy work:
 
 ```bash
-node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue EVM-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3"
+node --experimental-strip-types scripts/cycle-guard.ts --operation external_release --release-kind hotfix --issue POKIT-44 --cycle-id <hotfix-cycle-id> --cycle-name "Hotfix vX.Y.Z" --source-cycle "Cycle N" --target-version vX.Y.Z --resume-cycle "Cycle N+1"
 ```
 
 Print the Hotfix Cycle creation and issue move dry-run:
 
 ```bash
-node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix v0.1.0" --source-cycle "Cycle 2" --target-version v0.1.0 --resume-cycle "Cycle 3" --issue EVM-44 --issue-id EVM-44
+node --experimental-strip-types scripts/hotfix-cycle-plan.ts --name "Hotfix vX.Y.Z" --source-cycle "Cycle N" --target-version vX.Y.Z --resume-cycle "Cycle N+1" --issue POKIT-44 --issue-id <linear-issue-id>
 ```
 
 Print the Cycle maintenance completion dry-run:
 
 ```bash
-node --experimental-strip-types scripts/cycle-maintenance.ts --completed-at 2026-05-13T15:00:00.000Z
+node --experimental-strip-types scripts/cycle-maintenance.ts --previous-cycle-id <cycle-id> --completed-cycle-id <cycle-id> --completed-at 2026-05-13T15:00:00.000Z
+```
+
+Run the public safety scan before pushing or tagging a public release:
+
+```bash
+node --experimental-strip-types scripts/public-safety-scan.ts
 ```
 
 Print the completed issue archive dry-run contract:

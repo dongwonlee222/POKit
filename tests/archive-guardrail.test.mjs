@@ -13,7 +13,7 @@ function makeDoneIssue(number) {
     description: `Archived task body ${number}`,
     labels: ["pokit:criteria"],
     state: "Done",
-    url: `https://linear.app/evmodu/issue/EVM-${number}`,
+    url: `https://linear.app/example/issue/EVM-${number}`,
   };
 }
 

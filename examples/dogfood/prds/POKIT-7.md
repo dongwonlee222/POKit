@@ -1,6 +1,6 @@
 ---
-linear_issue_id: EVM-7
-cycle_id: b51858e6-ac13-477c-84d7-8ca290db6653
+linear_issue_id: POKIT-7
+cycle_id: <example-cycle-id>
 artifact_type: prd
 status: draft
 skill_used: prd-author
@@ -46,6 +46,6 @@ Scope:
 
 ## Source Context
 
-- Linear issue: EVM-7
-- Linear URL: https://linear.app/evmodu/issue/EVM-7/prdcriteria-artifact-draft-생성-runner-구현
+- Linear issue: POKIT-7
+- Linear URL: https://linear.app/example/issue/POKIT-7/prdcriteria-artifact-draft-생성-runner-구현
 - Labels: pokit:prd

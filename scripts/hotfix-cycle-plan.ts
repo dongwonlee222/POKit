@@ -64,18 +64,26 @@ function readArg(args: string[], flag: string, fallback?: string): string {
   return index >= 0 ? args[index + 1] : fallback ?? "";
 }
 
+function requireArg(args: string[], flag: string): string {
+  const value = readArg(args, flag);
+  if (!value) {
+    throw new Error(`Missing required ${flag}`);
+  }
+  return value;
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
   const plans = await buildHotfixCyclePlans({
-    hotfixCycleName: readArg(args, "--name", "Hotfix v0.1.0"),
+    hotfixCycleName: requireArg(args, "--name"),
     startsAt: readArg(args, "--starts-at", new Date().toISOString()),
     endsAt: readArg(args, "--ends-at", new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()),
-    sourceCycle: readArg(args, "--source-cycle", "Cycle 2"),
-    targetVersion: readArg(args, "--target-version", "v0.1.0"),
-    resumeCycle: readArg(args, "--resume-cycle", "Cycle 3"),
+    sourceCycle: requireArg(args, "--source-cycle"),
+    targetVersion: requireArg(args, "--target-version"),
+    resumeCycle: requireArg(args, "--resume-cycle"),
     releaseScope: readArg(args, "--release-scope", "GitHub push/tag/release"),
-    issueId: readArg(args, "--issue-id", "EVM-44"),
-    issueIdentifier: readArg(args, "--issue", "EVM-44"),
+    issueId: requireArg(args, "--issue-id"),
+    issueIdentifier: requireArg(args, "--issue"),
     createdCycleId: readArg(args, "--created-cycle-id") || undefined,
   });
   console.log(renderHotfixCyclePlanMarkdown(plans));

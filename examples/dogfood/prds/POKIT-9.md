@@ -1,6 +1,6 @@
 ---
-linear_issue_id: EVM-9
-cycle_id: b51858e6-ac13-477c-84d7-8ca290db6653
+linear_issue_id: POKIT-9
+cycle_id: <example-cycle-id>
 artifact_type: prd
 status: draft
 skill_used: prd-author
@@ -44,6 +44,6 @@ Acceptance notes:
 
 ## Source Context
 
-- Linear issue: EVM-9
-- Linear URL: https://linear.app/evmodu/issue/EVM-9/cycle-종료-회고-summary-초안-생성
+- Linear issue: POKIT-9
+- Linear URL: https://linear.app/example/issue/POKIT-9/cycle-종료-회고-summary-초안-생성
 - Labels: pokit:prd
