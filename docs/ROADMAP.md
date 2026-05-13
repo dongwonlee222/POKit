@@ -97,11 +97,13 @@ flowchart LR
 5. MoSCoW + WSJF-lite 우선순위 프레임
 6. Scrum Context Memory / Resume Brief 강화
 7. 세션 종료 동기화 카드: 로컬 상태와 Linear 상태 차이 표시
+8. 세션 전환 넛지: 큰 작업 단위가 닫히거나 대화가 길어졌을 때 새 세션 시작을 추천
 
 기대 효과:
 
 - 사용자가 현재 상태, 필요한 결정, 다음 액션을 더 빨리 이해한다.
 - 포킷이 블릿, 번호, 이모지, 표, Mermaid, ASCII 카드로 더 쉽게 설명한다.
+- 작업 단위가 닫혔을 때 새 세션 첫 문장을 함께 보여줘 맥락 품질을 지킨다.
 - 외부 write는 계속 실행 전 확인과 승인으로 통제된다.
 
 ## Cycle 5: PO Signal Watch -> Backlog & Share
@@ -191,11 +193,13 @@ Metric Insight는 분석 대시보드가 아니다. 핵심 지표를 제품 판�
 6. Done 후보 감지
 7. 로컬 상태와 Linear 상태 차이 감지
 8. 묶음 동기화 실행 전 확인
+9. 세션 전환 threshold와 resume brief freshness check
 
 기대 효과:
 
 - 포킷이 업무 시간 중과 이후에도 스크럼 맥락을 이어간다.
 - 외부 동기화 결정을 묶어서 승인 마찰을 줄인다.
+- 대화가 길어지거나 큰 작업이 끝났을 때 세션 전환 타이밍을 놓치지 않는다.
 - 숨은 외부 변경은 기본적으로 불가능하게 유지한다.
 
 ## Cycle 9: Team / Collaboration Readiness
