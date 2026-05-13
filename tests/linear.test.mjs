@@ -157,6 +157,56 @@ test("getCurrentCycle resolves LINEAR_TEAM_KEY when team id is omitted", async (
   assert.equal(cycle.id, "cycle-example");
 });
 
+test("getCurrentCycle resolves Linear team from selected POKit profile", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.POKIT_PROFILE = "pokit";
+  delete process.env.LINEAR_TEAM_ID;
+  delete process.env.LINEAR_TEAM_KEY;
+  const tempDir = join(tmpdir(), `pokit-linear-profile-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  await writeFile(join(tempDir, "pokit.config.yaml"), [
+    "profiles:",
+    "  pokit:",
+    "    linear_team_key: POKIT",
+    "    memory_dir: memory/profiles/pokit",
+    "    artifacts_dir: artifacts/profiles/pokit",
+    "",
+  ].join("\n"));
+  process.chdir(tempDir);
+  const requestBodies = [];
+  globalThis.fetch = async (_url, init) => {
+    const requestBody = JSON.parse(init.body);
+    requestBodies.push(requestBody);
+    if (requestBody.query.includes("query Teams")) {
+      return new Response(JSON.stringify({
+        data: {
+          teams: {
+            nodes: [
+              { id: "team-evm", key: "EVM", name: "Evmodu" },
+              { id: "team-pokit", key: "POKIT", name: "POKit" },
+            ],
+          },
+        },
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        team: {
+          cycles: {
+            nodes: [{ id: "cycle-pokit", name: "POKit Cycle" }],
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { getCurrentCycle } = await loadLinearModule();
+
+  const cycle = await getCurrentCycle();
+
+  assert.equal(requestBodies[1].variables.teamId, "team-pokit");
+  assert.equal(cycle.id, "cycle-pokit");
+});
+
 test("getCurrentCycle explains team selection when multiple teams exist", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   delete process.env.LINEAR_TEAM_ID;
@@ -178,7 +228,7 @@ test("getCurrentCycle explains team selection when multiple teams exist", async 
 
   await assert.rejects(
     () => getCurrentCycle(),
-    /Set LINEAR_TEAM_ID or LINEAR_TEAM_KEY.*One \(ONE, team-1\).*Two \(TWO, team-2\)/
+    /Set LINEAR_TEAM_ID, LINEAR_TEAM_KEY, or POKIT_PROFILE.*One \(ONE, team-1\).*Two \(TWO, team-2\)/
   );
 });
 

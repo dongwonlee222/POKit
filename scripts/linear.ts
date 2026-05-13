@@ -1,5 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { getActiveProfile, loadDotEnvOnce } from "./profile.ts";
 
 export type Plan = {
   idempotencyKey: string;
@@ -121,7 +120,6 @@ export type WorkingContextReadOptions = {
 
 const LINEAR_GRAPHQL_ENDPOINT = "https://api.linear.app/graphql";
 const WORKING_CONTEXT_CACHE_TTL_MS = 30_000;
-let dotEnvLoaded = false;
 let workingContextCache:
   | {
       teamId: string;
@@ -171,55 +169,34 @@ function readRequiredEnv(name: "LINEAR_API_KEY"): string {
   return value;
 }
 
-function loadDotEnvOnce(): void {
-  if (dotEnvLoaded) {
-    return;
-  }
-  dotEnvLoaded = true;
-  const envPath = join(process.cwd(), ".env");
-  if (!existsSync(envPath)) {
-    return;
-  }
-  const contents = readFileSync(envPath, "utf8");
-  for (const line of contents.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) {
-      continue;
-    }
-    const equalsIndex = trimmed.indexOf("=");
-    if (equalsIndex === -1) {
-      continue;
-    }
-    const key = trimmed.slice(0, equalsIndex).trim();
-    const rawValue = trimmed.slice(equalsIndex + 1).trim();
-    if (!key || process.env[key] !== undefined) {
-      continue;
-    }
-    process.env[key] = rawValue.replace(/^["']|["']$/g, "");
-  }
-}
-
 async function resolveTeamId(): Promise<string> {
   loadDotEnvOnce();
-  if (process.env.LINEAR_TEAM_ID) {
-    return process.env.LINEAR_TEAM_ID;
+  const profile = getActiveProfile();
+  if (profile.linearTeamId) {
+    return profile.linearTeamId;
   }
   const teams = await listTeams();
-  if (process.env.LINEAR_TEAM_KEY) {
-    const team = teams.find((candidate) => candidate.key.toLowerCase() === process.env.LINEAR_TEAM_KEY?.toLowerCase());
+  if (profile.linearTeamKey) {
+    const team = teams.find((candidate) => candidate.key.toLowerCase() === profile.linearTeamKey?.toLowerCase());
     if (team) {
       return team.id;
     }
-    throw new Error(`No Linear team matched LINEAR_TEAM_KEY=${process.env.LINEAR_TEAM_KEY}. Available teams: ${formatTeamOptions(teams)}.`);
+    throw new Error(`No Linear team matched ${formatTeamSelection(profile)}. Available teams: ${formatTeamOptions(teams)}.`);
   }
   if (teams.length === 1) {
     return teams[0].id;
   }
-  throw new Error(`LINEAR_TEAM_ID is optional only when one team is available. Set LINEAR_TEAM_ID or LINEAR_TEAM_KEY. Available teams: ${formatTeamOptions(teams)}.`);
+  throw new Error(`LINEAR_TEAM_ID is optional only when one team is available. Set LINEAR_TEAM_ID, LINEAR_TEAM_KEY, or POKIT_PROFILE. Available teams: ${formatTeamOptions(teams)}.`);
 }
 
 function formatTeamOptions(teams: Team[]): string {
   return teams.map((team) => `${team.name} (${team.key}, ${team.id})`).join("; ") || "none";
+}
+
+function formatTeamSelection(profile: ReturnType<typeof getActiveProfile>): string {
+  return profile.configured
+    ? `POKIT_PROFILE=${profile.name} linear_team_key=${profile.linearTeamKey}`
+    : `LINEAR_TEAM_KEY=${profile.linearTeamKey}`;
 }
 
 function normalizeState(value: string | undefined): string {

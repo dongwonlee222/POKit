@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.1 Hotfix - 2026-05-14
+
+This hotfix adds optional multi-profile routing so one POKit workspace can safely serve multiple product cycles without changing the default single-team setup.
+
+### Fixed
+
+- Added `POKIT_PROFILE` support for profile-specific Linear team selection.
+- Routed generated run summaries, PRDs, criteria, retros, cycle close drafts, archive plans, and resume briefs through profile-specific `memory` and `artifacts` paths.
+- Kept the default behavior unchanged for single-team users who do not set `POKIT_PROFILE`.
+
+### Docs / Policy
+
+- Documented multi-profile as an optional feature, not a requirement for existing users.
+- Clarified that single-team users do not need extra Linear teams.
+- Added profile examples for POKit and Evmodu product-cycle separation.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 83/83.
+
 ## v0.2.0 - 2026-05-13
 
 ### Added

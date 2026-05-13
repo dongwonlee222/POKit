@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "./archive-guardrail.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
+import { getActiveProfile, profileArtifactPath } from "./profile.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 
 export type SessionBriefInput = {
@@ -36,6 +37,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
   const rootDir = input.rootDir ?? ".";
   const resolved = resolveSessionContext(input.context, now);
   const currentSurface = resolved.displaySurface;
+  const profile = getActiveProfile();
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
     context: resolved.primarySurface,
@@ -60,6 +62,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     "# POKit Brief",
     "",
     `📅 ${formatKoreanDate(now)} · ${currentSurface.cycle.name}`,
+    `Profile: ${profile.name}${profile.linearTeamKey ? ` · Team Key: ${profile.linearTeamKey}` : ""}`,
     "",
     cycleLine,
     formatWarningLine(dryRun, resolved.warningReviewCount),
@@ -544,16 +547,16 @@ function issueNumber(identifier: string): number {
 }
 
 function findLatestRunSummary(rootDir: string, cycleName: string): string | null {
-  const dir = join(rootDir, "artifacts", "sprints", safePathSegment(cycleName));
+  const dir = join(rootDir, profileArtifactPath("sprints", safePathSegment(cycleName)));
   if (!existsSync(dir)) {
     return null;
   }
   const filename = readdirSync(dir).filter((name) => name.endsWith("-run-summary.md")).sort().at(-1);
-  return filename ? join("artifacts", "sprints", safePathSegment(cycleName), filename) : null;
+  return filename ? profileArtifactPath("sprints", safePathSegment(cycleName), filename) : null;
 }
 
 function findRetro(rootDir: string, cycleName: string): string | null {
-  const path = join("artifacts", "sprints", safePathSegment(cycleName), "retro.md");
+  const path = profileArtifactPath("sprints", safePathSegment(cycleName), "retro.md");
   return existsSync(join(rootDir, path)) ? path : null;
 }
 

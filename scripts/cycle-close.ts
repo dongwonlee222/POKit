@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
 import { discoverMarkdownArtifacts, safePathSegment } from "./lib/history-collector.ts";
+import { profileArtifactPath } from "./profile.ts";
 import type { ResumeBriefWriteResult } from "./session-close.ts";
 
 export type CycleCloseInput = {
@@ -30,15 +31,15 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
   const rootDir = input.rootDir ?? ".";
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const cycleSegment = safePathSegment(input.context.cycle.name || input.context.cycle.id);
-  const sprintDir = `artifacts/sprints/${cycleSegment}`;
+  const sprintDir = profileArtifactPath("sprints", cycleSegment);
   const runSummaryPath = `${sprintDir}/run-summary.md`;
   const retroPath = `${sprintDir}/retro.md`;
   const completedIssues = input.context.issues.filter(isCompletedIssue).sort(compareIssueIdentifier);
   const carryOverIssues = input.context.issues.filter((issue) => !isCompletedIssue(issue)).sort(compareIssueIdentifier);
   const approvalPending = (input.historyWrites ?? []).filter((item) => item.status === "needs_approval");
   const artifacts = discoverMarkdownArtifacts(rootDir, [
-    "artifacts/prds",
-    "artifacts/criteria",
+    profileArtifactPath("prds"),
+    profileArtifactPath("criteria"),
     sprintDir,
   ]);
   const changelog = extractChangelogCandidates(completedIssues);
@@ -112,7 +113,7 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
 export function writeCycleCloseDraft(input: CycleCloseInput): string {
   const rootDir = input.rootDir ?? ".";
   const cycleSegment = safePathSegment(input.context.cycle.name || input.context.cycle.id);
-  const outputDir = join(rootDir, "artifacts", "sprints", cycleSegment);
+  const outputDir = join(rootDir, profileArtifactPath("sprints", cycleSegment));
   mkdirSync(outputDir, { recursive: true });
   const outputPath = join(outputDir, "cycle-close.md");
   writeFileSync(outputPath, buildCycleCloseDraft(input), "utf8");

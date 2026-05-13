@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
+import { profileArtifactPath } from "./profile.ts";
 
 type ArtifactType = "prd" | "criteria";
 
@@ -123,7 +124,7 @@ export function buildSprintDryRunSummary(input: BuildInput): SprintDryRunSummary
       generated.push({
         issue,
         artifactType: "prd",
-        path: `artifacts/prds/${issue.identifier}.md`,
+        path: profileArtifactPath("prds", `${issue.identifier}.md`),
       });
       continue;
     }
@@ -131,7 +132,7 @@ export function buildSprintDryRunSummary(input: BuildInput): SprintDryRunSummary
       generated.push({
         issue,
         artifactType: "criteria",
-        path: `artifacts/criteria/${issue.identifier}.md`,
+        path: profileArtifactPath("criteria", `${issue.identifier}.md`),
       });
       continue;
     }
@@ -161,7 +162,7 @@ export async function runSprintDryRun(): Promise<SprintDryRunSummary> {
 export function writeSprintDryRunSummary(summary: SprintDryRunSummary): string {
   const cycleId = safePathSegment(summary.context.cycle.name || summary.context.cycle.id);
   const date = summary.generatedAt.slice(0, 10);
-  const outputDir = join("artifacts", "sprints", cycleId);
+  const outputDir = profileArtifactPath("sprints", cycleId);
   mkdirSync(outputDir, { recursive: true });
   const outputPath = join(outputDir, `${date}-run-summary.md`);
   writeFileSync(outputPath, summary.markdown, "utf8");

@@ -212,7 +212,7 @@ Linear는 실제 backlog와 cycle 상태를 관리하는 기준 시스템으로 
 - 포킷 Run: issue를 라우팅하고, 산출물 초안을 만들고, 실행 요약을 남기는 일일 점검.
 - Linear 반영: 항상 실행 전 확인 계획으로 먼저 보여줍니다.
 
-포킷은 `LINEAR_API_KEY`와 선택 값인 `LINEAR_TEAM_ID` 또는 `LINEAR_TEAM_KEY`로 아래 작업을 수행합니다.
+포킷은 `LINEAR_API_KEY`와 선택 값인 `POKIT_PROFILE`, `LINEAR_TEAM_ID`, `LINEAR_TEAM_KEY`로 아래 작업을 수행합니다.
 
 - team, cycle, issue, label 읽기.
 - 현재 cycle에서 로컬 PRD/완료 기준 초안 생성.
@@ -234,7 +234,17 @@ Linear Free 작업공간에는 issue 250개 제한이 있습니다. 포킷은 �
 node --experimental-strip-types scripts/archive-guardrail.ts
 ```
 
-API key가 정확히 하나의 Linear team에 접근할 수 있으면 포킷이 자동 선택합니다. 여러 team에 접근할 수 있으면 `LINEAR_TEAM_ID` 또는 `LINEAR_TEAM_KEY`를 요청합니다.
+API key가 정확히 하나의 Linear team에 접근할 수 있으면 포킷이 자동 선택합니다. 여러 team에 접근할 수 있으면 `POKIT_PROFILE`, `LINEAR_TEAM_ID`, 또는 `LINEAR_TEAM_KEY`를 요청합니다.
+
+### 선택 기능: Multi-profile 운영
+
+대부분의 사용자는 Linear team 하나와 기본 `memory/`, `artifacts/` 경로만으로 충분합니다. Multi-profile은 같은 Linear 계정에서 여러 제품 cycle을 동시에 돌릴 때만 쓰는 선택 기능입니다.
+
+- `POKIT_PROFILE=pokit`: POKit 자체 개발. 기본 team key는 `POKIT`, 로컬 상태는 `memory/profiles/pokit`, `artifacts/profiles/pokit`.
+- `POKIT_PROFILE=evmodu`: 모두의충전 운영/제품 업무. 기본 team key는 `EVM`, 로컬 상태는 `memory/profiles/evmodu`, `artifacts/profiles/evmodu`.
+- profile이 없으면 기존처럼 `memory/`, `artifacts/`, `LINEAR_TEAM_ID`, `LINEAR_TEAM_KEY`를 사용합니다. 기존 사용자에게 추가 team 생성은 필요하지 않습니다.
+
+한 작업공간에서 제품별 이슈가 섞인 경우에는 제품별 Linear team 분리를 검토할 수 있습니다. Linear 팀 생성, 팀 이름/key 변경, 이슈 이동은 항상 dry-run 계획과 사용자 승인 후에만 실행합니다.
 
 Linear API key가 없어도 repo docs, skills, templates, examples는 읽을 수 있습니다. 다만 포킷이 Linear 작업공간을 자동으로 확인하거나 업데이트할 수는 없습니다.
 

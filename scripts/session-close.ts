@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
+import { profileMemoryPath } from "./profile.ts";
 
 export type VerificationResult = {
   command: string;
@@ -202,7 +203,7 @@ async function main(): Promise<void> {
   const report = buildSessionCloseReport({ context });
   console.log(report);
   if (args.includes("--write-resume-brief")) {
-    const path = join(process.cwd(), "memory", "resume-brief.md");
+    const path = join(process.cwd(), profileMemoryPath("resume-brief.md"));
     const expectedHash = readExpectedHash(args) ?? (existsSync(path) ? hashContent(readFileSync(path, "utf8")) : undefined);
     const result = await writeResumeBrief({
       path,

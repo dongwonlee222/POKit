@@ -8,9 +8,11 @@ External write hooks must satisfy `before_external_write` in `workflows/hooks.ya
 
 ## Linear Read-Only Helpers
 
-`scripts/linear.ts` reads `LINEAR_API_KEY` and optional `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY` from the environment or local `.env`.
+`scripts/linear.ts` reads `LINEAR_API_KEY` and optional `POKIT_PROFILE`, `LINEAR_TEAM_ID`, or `LINEAR_TEAM_KEY` from the environment or local `.env`.
 
-If one Linear team is available, POKit selects it automatically. If multiple teams are available, set `LINEAR_TEAM_ID` or `LINEAR_TEAM_KEY`.
+If one Linear team is available, POKit selects it automatically. If multiple teams are available, set `POKIT_PROFILE`, `LINEAR_TEAM_ID`, or `LINEAR_TEAM_KEY`.
+
+Profiles are optional and defined in `pokit.config.yaml`. Single-team users do not need extra Linear teams. For multi-product work, `POKIT_PROFILE=pokit` routes Linear reads to the POKit team and local writes to `memory/profiles/pokit` and `artifacts/profiles/pokit`; `POKIT_PROFILE=evmodu` does the same for 모두의충전.
 
 If you do not know your team id yet, list accessible teams first:
 

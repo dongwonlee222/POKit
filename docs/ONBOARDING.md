@@ -93,13 +93,19 @@ LINEAR_API_KEY=lin_api_...
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(await m.listTeams()))"
 ```
 
-- [ ] Copy either the intended team id or key into `.env`:
+- [ ] Copy either the intended profile, team id, or team key into `.env`. For a single Linear team, skip `POKIT_PROFILE` and use the default setup:
 
 ```bash
+POKIT_PROFILE=pokit
+# or
+POKIT_PROFILE=evmodu
+# or
 LINEAR_TEAM_ID=...
 # or
 LINEAR_TEAM_KEY=EVM
 ```
+
+Use profiles only when one Linear account runs multiple product cycles with POKit. Profile storage stays under `memory/profiles/[name]` and `artifacts/profiles/[name]` so resume briefs and generated artifacts do not mix.
 
 ## 4. Label Preflight
 

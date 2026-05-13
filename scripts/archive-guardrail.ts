@@ -1,4 +1,5 @@
 import { getWorkingCycleContext, type Issue } from "./linear.ts";
+import { profileArtifactPath } from "./profile.ts";
 
 export const COMPLETED_ISSUE_SOFT_LIMIT = 200;
 export const COMPLETED_ISSUE_KEEP_COUNT = 150;
@@ -47,8 +48,8 @@ export function buildArchivePlan(input: ArchiveGuardrailInput & { generatedAt?: 
   const generatedAt = input.generatedAt ?? new Date();
   const candidates = selectArchiveCandidates(input.issues);
   const month = formatArchiveMonth(generatedAt);
-  const jsonlPath = `artifacts/archive/linear-completed-${month}.jsonl`;
-  const markdownPath = `artifacts/archive/linear-completed-${month}.md`;
+  const jsonlPath = profileArtifactPath("archive", `linear-completed-${month}.jsonl`);
+  const markdownPath = profileArtifactPath("archive", `linear-completed-${month}.md`);
   return {
     idempotencyKey: `linear:completed-archive:${month}:${candidates.map((issue) => issue.identifier).join(",")}`,
     summary: `Archive ${candidates.length} completed Linear issues locally before Linear cleanup.`,

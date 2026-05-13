@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
+import { profileArtifactPath } from "./profile.ts";
 
 export type ArtifactReference = {
   path: string;
@@ -78,7 +79,7 @@ export function buildRetroDraft(input: RetroDraftInput): string {
 export function writeRetroDraft(input: RetroDraftInput): string {
   const rootDir = input.rootDir ?? ".";
   const cycleName = safePathSegment(input.context.cycle.name || input.context.cycle.id);
-  const outputDir = join(rootDir, "artifacts", "sprints", cycleName);
+  const outputDir = join(rootDir, profileArtifactPath("sprints", cycleName));
   mkdirSync(outputDir, { recursive: true });
   const outputPath = join(outputDir, "retro.md");
   writeFileSync(outputPath, buildRetroDraft(input), "utf8");
@@ -87,8 +88,8 @@ export function writeRetroDraft(input: RetroDraftInput): string {
 
 function discoverArtifactReferences(rootDir: string): ArtifactReference[] {
   const artifactDirs = [
-    join(rootDir, "artifacts", "prds"),
-    join(rootDir, "artifacts", "criteria"),
+    join(rootDir, profileArtifactPath("prds")),
+    join(rootDir, profileArtifactPath("criteria")),
   ];
   const artifacts: ArtifactReference[] = [];
   for (const dir of artifactDirs) {
