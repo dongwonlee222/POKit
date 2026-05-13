@@ -10,7 +10,7 @@
 
 ### Changed
 
-- Improved completion reports so they show the next practical user decision and approval preview.
+- Improved completion reports so they show the next practical user decision, execution preflight, and expected benefit.
 - Clarified human approval boundaries so users approve external impact and product judgment, not mechanical substeps.
 
 ### Docs / Policy

@@ -73,14 +73,15 @@ Never write to Linear or GitHub without:
 2. User approval.
 3. An idempotency key.
 
-Dry-run plans must be user-readable approval previews, not just internal safety labels. Show:
+Dry-run plans must be user-readable execution preflight checks, not just internal safety labels. Show:
 
 - what will change in the external system;
 - which issue IDs/titles are affected and their current/target status;
 - the local evidence used to justify the change;
 - what will not change or remains carry-over;
 - the idempotency key;
-- the exact approval sentence the user can say.
+- the expected benefit after execution;
+- the exact execution sentence the user can say.
 
 ## Human Intervention Matrix
 

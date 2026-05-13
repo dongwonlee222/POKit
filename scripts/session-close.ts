@@ -83,7 +83,7 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
     "",
     "🧭 다음 실제 결정",
     ...practicalDecisionLines,
-    ...(approvalPreviewLines.length ? ["", "🔎 승인 미리보기", ...approvalPreviewLines] : []),
+    ...(approvalPreviewLines.length ? ["", "🔎 실행 전 확인", ...approvalPreviewLines] : []),
     "",
     "👉 다음에 사용자가 할 말 한 줄",
     nextAction,
@@ -300,11 +300,12 @@ function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAct
 
 function buildApprovalPreviewLines(historyConflicts: Array<Extract<ResumeBriefWriteResult, { status: "needs_approval" }>>): string[] {
   return historyConflicts.flatMap((item) => [
-    `- 승인하면 바뀌는 것: ${item.path} 재생성 또는 수동 병합`,
-    `- 승인 판단 근거: ${item.reason}`,
+    `- 실행하면 바뀌는 것: ${item.path} 재생성 또는 수동 병합`,
+    `- 판단 근거: ${item.reason}`,
     `- 현재 hash: ${item.currentHash}`,
     `- 예상 hash: ${item.expectedHash}`,
-    `- 승인 문장: "${item.path} 충돌을 확인했고, 재생성 또는 병합을 승인해"`,
+    "- 실행 후 기대효과: 다음 세션 handoff가 최신 상태로 복구됨",
+    `- 진행 문장: "${item.path} 충돌을 확인했고, 재생성 또는 병합을 실행해"`,
   ]);
 }
 

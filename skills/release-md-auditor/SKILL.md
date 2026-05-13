@@ -29,7 +29,7 @@ node --experimental-strip-types scripts/public-safety-scan.ts
 node --experimental-strip-types --test tests/*.test.mjs
 ```
 
-Show a user-readable release approval preview before GitHub push, tag, or release.
+Show a user-readable release execution preflight and expected benefit summary before GitHub push, tag, or release.
 
 ## Boundaries
 

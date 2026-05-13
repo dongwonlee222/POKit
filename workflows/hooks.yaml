@@ -37,7 +37,7 @@ hooks:
     - audit_release_markdown_roles
     - run_public_safety_scan
     - run_full_tests
-    - require_release_approval_preview
+    - require_release_execution_preflight
 
   after_run:
     - write_run_summary

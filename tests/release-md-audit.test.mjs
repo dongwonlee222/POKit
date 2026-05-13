@@ -82,3 +82,17 @@ test("scanTrackedReleaseMarkdown passes for repository release docs", async () =
 
   assert.deepEqual(result.violations, []);
 });
+
+test("release docs use execution preflight terminology instead of approval preview", async () => {
+  const files = [
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "skills/release-md-auditor/SKILL.md",
+    "workflows/hooks.yaml",
+  ];
+
+  for (const path of files) {
+    const content = await import("node:fs/promises").then((fs) => fs.readFile(path, "utf8"));
+    assert.doesNotMatch(content, /approval preview|승인 미리보기|require_release_approval_preview/i, path);
+  }
+});

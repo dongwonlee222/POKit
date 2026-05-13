@@ -98,7 +98,7 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
     "",
     ...decisionCandidates,
     "",
-    "## External Write Approval Preview",
+    "## External Write Preflight",
     "",
     ...approvalPreview,
     "",
@@ -204,12 +204,12 @@ function buildExternalWriteApprovalPreview(context: WorkingCycleContext, complet
   const completedIds = completedIssues.map((issue) => issue.identifier).sort(compareIssueIdentifierText);
   const idempotencyKey = `linear:cycle-close:${context.cycle.id}:done:${completedIds.join(",")}`;
   return [
-    "승인하면 Linear에서 바뀌는 것",
+    "실행하면 Linear에서 바뀌는 것",
     "",
     ...completedIssues.map((issue) => `- ${issue.identifier} ${issue.title} · Done 유지 · local evidence: completed in close draft`),
     ...carryOverIssues.map((issue) => `- ${issue.identifier} ${issue.title} · ${issue.state ?? "No state"} → carry-over 유지 · reason: not completed locally`),
     "",
-    "승인 판단에 필요한 근거",
+    "판단 근거",
     "",
     `- completed count: ${completedIssues.length}`,
     `- carry-over count: ${carryOverIssues.length}`,
@@ -217,7 +217,13 @@ function buildExternalWriteApprovalPreview(context: WorkingCycleContext, complet
     "- 실제 승인 전에는 Linear 현재 상태를 다시 조회해야 한다.",
     "",
     `idempotency key: \`${idempotencyKey}\``,
-    `승인 문장: "${cycleName(context)} 완료 증거를 확인했고, 위 Linear 상태 변경을 승인해"`,
+    "",
+    "실행 후 기대효과",
+    "",
+    `- ${cycleName(context)}의 운영 상태가 로컬 완료 증거와 일치한다.`,
+    "- 다음 brief가 완료된 작업 대신 다음 작업면을 보여준다.",
+    "",
+    `진행 문장: "${cycleName(context)} 완료 증거를 확인했고, 위 Linear 상태 변경을 실행해"`,
   ];
 }
 
