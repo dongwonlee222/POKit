@@ -19,6 +19,7 @@ type IssueCounts = {
 
 type ResolvedSessionContext = {
   activeSurface?: WorkingCycleContext;
+  displaySurface: WorkingCycleContext;
   primarySurface: WorkingCycleContext;
   backlogSurface?: WorkingCycleContext;
   primaryCandidates: Issue[];
@@ -34,7 +35,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
   const rootDir = input.rootDir ?? ".";
   const resolved = resolveSessionContext(input.context, now);
-  const currentSurface = resolved.activeSurface ?? resolved.primarySurface;
+  const currentSurface = resolved.displaySurface;
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
     context: resolved.primarySurface,
@@ -354,6 +355,7 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
   if (!isWorkingContext(context)) {
     const currentCounts = countIssues(context.issues);
     return {
+      displaySurface: context,
       primarySurface: context,
       primaryCandidates: selectNextCandidates(context.issues),
       backlogCandidates: [],
@@ -378,15 +380,25 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
       }
     : undefined;
 
-  const currentSurface = activeSurface ?? toWorkingCycleContext(context.selected);
+  const activeCounts = activeSurface ? countIssues(activeSurface.issues) : undefined;
+  const activeOperationallyComplete = Boolean(activeCounts && isOperationallyComplete(activeCounts));
+  const displayCompletedUpcoming = Boolean(
+    activeOperationallyComplete &&
+      upcomingSurface &&
+      upcomingSurface.issues.length > 0 &&
+      isOperationallyComplete(countIssues(upcomingSurface.issues)),
+  );
+  const currentSurface = displayCompletedUpcoming
+    ? upcomingSurface!
+    : activeSurface ?? toWorkingCycleContext(context.selected);
   const currentCounts = countIssues(currentSurface.issues);
-  const activeOperationallyComplete = Boolean(activeSurface) && isOperationallyComplete(currentCounts);
   const primarySurface = activeOperationallyComplete
     ? upcomingSurface ?? backlogSurface ?? currentSurface
     : currentSurface;
 
   return {
     activeSurface,
+    displaySurface: currentSurface,
     primarySurface,
     backlogSurface,
     primaryCandidates: selectNextCandidates(primarySurface.issues),

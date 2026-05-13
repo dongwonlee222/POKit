@@ -173,6 +173,47 @@ test("buildSessionBrief shows upcoming and backlog candidates when active cycle 
   assert.match(backlogDetail, /2\. EVM-36 History maintainer · Backlog · pokit:prd/);
 });
 
+test("buildSessionBrief shows completed upcoming cycle instead of stale active cycle when upcoming cycle is done", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-13T09:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-2", name: "Cycle 2", startsAt: "2026-05-19T00:00:00.000Z" },
+        issues: [
+          { id: "issue-32", identifier: "EVM-32", title: "Model tier", description: "done", labels: ["pokit:criteria"], state: "Done" },
+          { id: "issue-33", identifier: "EVM-33", title: "Resume brief", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      backlogIssues: [
+        { id: "issue-35", identifier: "EVM-35", title: "ICE-lite", description: "score", labels: ["pokit:criteria"], state: "Backlog" },
+      ],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1" },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T00:00:00.000Z",
+    },
+  });
+
+  assert.match(brief, /📅 .* · Cycle 2/);
+  assert.match(brief, /✅ Cycle 2 완료: Todo 0 · 진행 0 · 완료 2/);
+  assert.match(brief, /✅ 최근 완료: EVM-33, EVM-32/);
+  assert.doesNotMatch(brief, /✅ Cycle 1 완료/);
+});
+
 test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {
   const { buildSessionBrief } = await loadBriefModule();
 
