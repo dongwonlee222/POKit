@@ -149,6 +149,12 @@ Run the public safety scan before pushing or tagging a public release:
 node --experimental-strip-types scripts/public-safety-scan.ts
 ```
 
+Run the release Markdown role audit before pushing, tagging, or creating a release:
+
+```bash
+node --experimental-strip-types scripts/release-md-audit.ts --target-version=v0.2.0
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

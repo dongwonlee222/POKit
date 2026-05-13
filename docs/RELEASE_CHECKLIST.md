@@ -1,6 +1,6 @@
 # POKit Release Checklist
 
-## v0.1.1 Hotfix Clean Check
+## v0.2.0 Release Clean Check
 
 Checked on 2026-05-13.
 
@@ -31,7 +31,7 @@ Checked on 2026-05-13.
 - [ ] `VERSION` file, if present, matches the target tag.
 - [ ] Git tag matches the approved target version.
 - [ ] `CHANGELOG.md` has matching `Unreleased` or version-section entries for the release scope.
-- [ ] User approved `v0.1.1` tag creation in the final deploy request.
+- [ ] User approved `v0.2.0` tag creation in the final deploy request.
 - [ ] User approved GitHub release creation in the final deploy request.
 - [x] Hotfix metadata recorded before deploy: `sourceCycle`, `targetVersion`, `resumeCycle`, and release scope.
 - [x] Linear/GitHub writes remain dry-run or explicitly approved.

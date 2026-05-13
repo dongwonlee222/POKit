@@ -1,5 +1,7 @@
 # POKit Design Plan
 
+Design reference. This file records architecture and historical design rationale; current operating policy lives in `docs/OPERATING_MODEL.md`.
+
 ## 2.1 아키텍처 개요
 
 POKit은 기본적으로 4개 계층으로 구성된다. Phase 2 이후에는 문서 품질을 높이기 위한 Persona/Validation 계층을 선택적으로 추가한다.

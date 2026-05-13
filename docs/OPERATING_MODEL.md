@@ -1,5 +1,7 @@
 # POKit Operating Model
 
+Canonical policy source for approvals, cycle execution, release gates, artifact handling, and documentation ownership.
+
 POKit uses Linear as the official backlog and the current Codex/Claude session plan as the live work board.
 
 ## Current Phase

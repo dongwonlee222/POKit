@@ -33,6 +33,12 @@ hooks:
     - require_user_approval
     - require_idempotency_key
 
+  before_public_release:
+    - audit_release_markdown_roles
+    - run_public_safety_scan
+    - run_full_tests
+    - require_release_approval_preview
+
   after_run:
     - write_run_summary
     - update_current_cycle
