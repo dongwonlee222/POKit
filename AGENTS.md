@@ -82,4 +82,22 @@ Dry-run plans must be user-readable approval previews, not just internal safety 
 - the idempotency key;
 - the exact approval sentence the user can say.
 
+## Human Intervention Matrix
+
+Humans approve external impact and product judgment. They should not be turned into mechanical step approvers.
+
+| Work | Human intervention | Reason |
+|---|---|---|
+| Local file edits | No separate approval | Covered by the approved Cycle intent and easy to review or revert. |
+| Tests and local verification | No separate approval | Read-only validation. |
+| Local commits | No separate approval | Part of the Cycle completion flow after implementation approval. |
+| Local draft artifacts, run summaries, retros | No separate approval | Drafts stay inside the repo/workspace. |
+| Linear issue Done/status changes | Requires approval | External operational state changes. |
+| Linear label or cycle assignment changes | Requires approval | External planning state changes. |
+| GitHub push/tag/release | Requires approval | Public or distribution-facing change. |
+| CHANGELOG release edits | Requires approval when release-facing | Canonical release communication. |
+| decision-log append | Requires approval | Canonical product/operation decision history. |
+| ambiguous completion or unclear scope | Requires approval or clarification | The agent must not invent product judgment. |
+| destructive actions or deletes | Requires approval | Hard to recover and may lose context. |
+
 All artifacts are drafts. Do not overwrite an artifact when its content hash changed; mark it `Needs Approval`.
