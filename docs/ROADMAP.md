@@ -155,16 +155,18 @@ flowchart TD
 
 ### Linear Sync 상태
 
-현재 Linear에서 POKit team은 `Hotfix v0.1.0`이 cycle number 4로 이미 완료되어 있고, 일반 작업용 Cycle 4가 별도로 보이지 않는다. 이 상태는 사용자가 "Cycle 4"를 말할 때 Linear cycle number 4와 roadmap Cycle 4가 충돌하게 만든다.
+현재 Linear에서 POKit team의 일반 작업 cycle은 `Cycle 4: Context Boundary & Brief Trust`로 정리되어 있다. Linear 내부 number는 `3`이고, 이는 과거 hotfix cycle이 별도 number를 차지한 결과다. 사용자-facing 기준은 cycle name을 우선한다.
+
+Cycle 4 이슈 `POKIT-48`~`POKIT-52`는 모두 이 cycle에 할당되어 있고 Done 상태다.
 
 운영 원칙:
 
 1. 포킷 roadmap cycle과 Linear cycle은 같은 작업 단위로 관리한다.
 2. Hotfix는 roadmap cycle 번호를 차지하지 않고 version/release 흐름으로 분리한다.
 3. 브리프는 `Roadmap Cycle`, `Linear Cycle`, `Hotfix/Version`을 혼합해서 표시하지 않는다.
-4. Linear에서 hotfix cycle이 이미 생성되어 번호를 차지한 경우, 다음 일반 작업 전 cycle naming과 issue assignment를 먼저 정리한다.
+4. Linear에서 hotfix cycle이 이미 생성되어 번호를 차지한 경우, 사용자-facing cycle name과 issue assignment를 먼저 정리한다.
 
-추천: 일반 작업용 Linear cycle을 `Cycle 4: Context Boundary & Brief Trust`로 명확히 만들거나 조정하고, `POKIT-48`~`POKIT-52` 및 후속 기준 분리 작업을 그 cycle에 맞춘다. Hotfix `v0.1.0`은 release/hotfix 기록으로만 남긴다.
+Hotfix `v0.1.0`은 release/hotfix 기록으로만 남긴다.
 
 ## Cycle 5: PO Signal Watch -> Backlog & Share
 
