@@ -119,3 +119,26 @@ test("getActiveProfile lets selected profile override global Linear team env", a
     artifactsDir: "artifacts/profiles/private-product",
   });
 });
+
+test("getActiveProfile explains how to fix an unconfigured selected profile", async () => {
+  const tempDir = join(tmpdir(), `pokit-profile-missing-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  await writeFile(join(tempDir, "pokit.config.yaml"), [
+    "language: ko-KR",
+    "",
+  ].join("\n"));
+  process.chdir(tempDir);
+  process.env.POKIT_PROFILE = "evmodu";
+  delete process.env.LINEAR_TEAM_ID;
+  delete process.env.LINEAR_TEAM_KEY;
+  const { getActiveProfile } = await loadProfileModule();
+
+  assert.throws(
+    () => getActiveProfile(),
+    new RegExp([
+      "POKIT_PROFILE=evmodu is set but no matching profile is defined",
+      "For single-team/default use, clear POKIT_PROFILE",
+      "profiles:\\n  evmodu:",
+    ].join("[\\s\\S]*"))
+  );
+});

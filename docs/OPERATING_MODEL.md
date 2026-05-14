@@ -171,6 +171,45 @@ Forbidden next-action patterns:
 - `POKIT-43만 진행해줘` unless the user explicitly selected `POKIT-43`
 - any instruction that turns the user into a mechanical approval manager
 
+## Definition Pipeline
+
+POKit uses the Definition Pipeline when a raw idea needs to become a PRD, test plan, and Cycle-ready issue bundle.
+
+The canonical machine-readable structure lives in `workflows/definition-pipeline.yaml`. Reusable subagent role templates live in `workflows/agent-roles.yaml`. Templates for generated user-facing artifacts live in `templates/definition-pipeline/`.
+
+기계가 읽는 id와 파일명은 영어로 둔다. 사용자가 읽는 제목과 목차는 한국어로 쓴다. This keeps scripts stable while keeping PO-facing artifacts easy to read.
+
+Default stages:
+
+1. 아이디어 정리
+2. 포킷 적합성 확인
+3. 벤치마킹 정리
+4. 제품 흐름 지도
+5. PRD 초안
+6. 데이터 계약
+7. 완료 기준
+8. TDD 계획
+9. 하위 이슈 분해
+10. Dogfood 계획
+
+Size controls how much pipeline is required:
+
+- `full`: new product or feature surface. Run all ten stages.
+- `focused`: bounded change to an existing surface. Require 아이디어 정리, 제품 흐름 지도, PRD 초안, 완료 기준, and 하위 이슈 분해.
+- `patch`: bug, copy, config, or narrowly scoped fix. Require 아이디어 정리 and 완료 기준.
+
+The main agent proposes the size after 아이디어 정리, then continues with the minimum stage set for that size. This prevents small fixes from inheriting full-feature process weight.
+
+Before implementation, the pipeline must satisfy the size-specific gate in `workflows/definition-pipeline.yaml`. Before Linear writes, it still follows the external write boundary: dry-run, user approval, and idempotency key.
+
+For larger definition work, POKit may use 병렬 서브에이전트 only when all of these are true: size is `full`, at least two stages can run independently, output files do not overlap, and the user explicitly approves parallel agent work. The main agent owns final judgment, artifact integration, user confirmation, and every external write boundary. Subagents only produce bounded drafts such as 벤치마킹 정리, PRD 초안, 데이터 계약, TDD 계획, 하위 이슈 분해, or Dogfood 계획.
+
+When an idea is decomposed for Linear, 하위 이슈 분해 must include a 병렬 실행 계획 and a Linear sub-issue dry-run. Each proposed sub-issue should name the responsible role, expected artifact, dependency, parallel eligibility, Done gate, public evidence path, external blocker, rollback plan, and idempotency key. The dry-run section in the artifact is the source for the user-facing Linear write preflight.
+
+Definition artifacts under `artifacts/profiles/{profile}/...` are local drafts and may be ignored. Release-facing evidence must point to a public-safe redacted path such as `examples/definition/{issue}/...`.
+
+Features that depend on external content or providers must define provider/cost/limit, copyright/raw-content storage, privacy, rollback, and observability decisions before implementation.
+
 ## Conversation Visualization Contract
 
 Use visuals when structure, status, or trade-offs would otherwise require repeated explanation. Mermaid is for durable docs. ASCII is for live conversation and brief output.
