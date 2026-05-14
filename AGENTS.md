@@ -63,6 +63,14 @@ When a POKit work item is finished, use the completion report format:
 3. 🧪 검증 결과
 4. 👉 다음에 사용자가 할 말 한 줄
 
+When a Cycle is fully complete, the close report must also include the completion experience before the standard report sections:
+
+- `🎉 Cycle N 완료!`
+- `이번 Cycle 후 달라진 점`
+- `기대효과 / 가설`
+- `직접 사용해 볼 것`
+- `새 세션 추천`
+
 For unfinished or approval-pending items, include the task ID, title, current status, and why it is still pending so the user does not have to remember what each number means.
 Use emoji as section markers only; keep the report short and readable.
 The next sentence must continue or complete the current Cycle as a whole, not ask for a mechanical substep. Use Cycle-level wording unless the user explicitly picked one issue.

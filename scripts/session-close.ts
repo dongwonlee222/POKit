@@ -64,12 +64,15 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
   );
   const practicalDecisionLines = buildPracticalNextDecisionLines(resolved, nextAction);
   const approvalPreviewLines = buildApprovalPreviewLines(historyConflicts);
+  const completionExperienceLines = buildCycleCompletionExperienceLines(resolved);
 
   return [
     "# POKit 완료보고",
     "",
     `📅 ${formatKoreanDate(input.now ?? new Date())} · ${resolved.surface.cycle.name}`,
     "",
+    ...completionExperienceLines,
+    ...(completionExperienceLines.length ? [""] : []),
     "✅ 완료한 것",
     ...formatIssueList(resolved.completed),
     "",
@@ -296,6 +299,29 @@ function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAct
     `- repo 밖에 남은 것: ${pending}`,
     `- 필요한 승인/행동: ${action}`,
     `- 다음 추천 행동: ${nextAction}`,
+  ];
+}
+
+function buildCycleCompletionExperienceLines(resolved: ResolvedCloseContext): string[] {
+  if (resolved.pending.length > 0 || resolved.completed.length === 0) {
+    return [];
+  }
+  return [
+    `🎉 ${resolved.surface.cycle.name} 완료!`,
+    "",
+    "이번 Cycle 후 달라진 점",
+    `- ${resolved.completed.length}개 이슈가 Done 상태로 정리되었습니다.`,
+    "- 브리프, 로드맵, Linear 상태를 기준으로 다음 작업면을 더 명확히 볼 수 있습니다.",
+    "",
+    "기대효과 / 가설",
+    "- 다음 세션 시작 시 사용자가 현재 cycle 기준을 확인하는 시간이 줄어듭니다.",
+    "- 완료된 cycle과 다음 후보가 분리되어 후속 작업 선택이 쉬워집니다.",
+    "",
+    "직접 사용해 볼 것",
+    "- 새 세션에서 `POKit 시작해줘`를 실행해 브리프가 다음 작업면을 보여주는지 확인합니다.",
+    "",
+    "새 세션 추천",
+    "- Cycle이 끝났으니 새 세션에서 시작해 컨텍스트를 가볍게 유지하는 것을 권장합니다.",
   ];
 }
 

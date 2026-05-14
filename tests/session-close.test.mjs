@@ -116,6 +116,12 @@ test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is alrea
   });
 
   assert.match(report, /📅 .* · Cycle 2/);
+  assert.match(report, /🎉 Cycle 2 완료!/);
+  assert.match(report, /이번 Cycle 후 달라진 점/);
+  assert.match(report, /기대효과 \/ 가설/);
+  assert.match(report, /직접 사용해 볼 것/);
+  assert.match(report, /새 세션 추천/);
+  assert.match(report, /POKit 시작해줘/);
   assert.match(report, /EVM-32 model-tier policy 문서화 · Done/);
   assert.match(report, /Cycle 2 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
   assert.doesNotMatch(report, /EVM-1 old work/);

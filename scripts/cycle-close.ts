@@ -46,6 +46,7 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
   const runSummaryOnly = completedIssues.filter((issue) => !changelog.some((item) => item.issue.identifier === issue.identifier));
   const decisionCandidates = buildDecisionLogCandidates(input.context.issues).slice(0, 3);
   const approvalPreview = buildExternalWriteApprovalPreview(input.context, completedIssues, carryOverIssues);
+  const completionExperience = buildCycleCompletionExperience(input.context, completedIssues, carryOverIssues);
   const nextAction = carryOverIssues.length
     ? `${cycleName(input.context)} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`
     : `${cycleName(input.context)} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`;
@@ -71,6 +72,8 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
     `- Retro: ${existsSync(join(rootDir, retroPath)) ? `\`${retroPath}\`` : "not found"}`,
     "- Linear/GitHub writes performed by this close draft: none",
     "",
+    ...completionExperience,
+    ...(completionExperience.length ? [""] : []),
     "## Completed Issues",
     "",
     ...renderIssueList(completedIssues),
@@ -230,6 +233,35 @@ function buildExternalWriteApprovalPreview(context: WorkingCycleContext, complet
     "B. ✏️ 직접 입력하기",
     "",
     "A/B로 선택해 주세요.",
+  ];
+}
+
+function buildCycleCompletionExperience(context: WorkingCycleContext, completedIssues: Issue[], carryOverIssues: Issue[]): string[] {
+  if (carryOverIssues.length > 0 || completedIssues.length === 0) {
+    return [];
+  }
+  return [
+    "## Cycle Completion Experience",
+    "",
+    `🎉 ${context.cycle.name} 완료!`,
+    "",
+    "### 이번 Cycle 후 달라진 점",
+    "",
+    `- ${completedIssues.length}개 이슈가 Done 상태로 정리되었습니다.`,
+    "- 브리프, 로드맵, Linear 상태를 기준으로 다음 작업면을 더 명확히 볼 수 있습니다.",
+    "",
+    "### 기대효과 / 가설",
+    "",
+    "- 다음 세션 시작 시 사용자가 현재 cycle 기준을 확인하는 시간이 줄어듭니다.",
+    "- 완료된 cycle과 다음 후보가 분리되어 후속 작업 선택이 쉬워집니다.",
+    "",
+    "### 직접 사용해 볼 것",
+    "",
+    "- 새 세션에서 `POKit 시작해줘`를 실행해 브리프가 다음 작업면을 보여주는지 확인합니다.",
+    "",
+    "### 새 세션 추천",
+    "",
+    "- Cycle이 끝났으니 새 세션에서 시작해 컨텍스트를 가볍게 유지하는 것을 권장합니다.",
   ];
 }
 

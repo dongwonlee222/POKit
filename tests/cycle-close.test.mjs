@@ -89,6 +89,26 @@ test("writeCycleCloseDraft writes artifacts/sprints/[cycle]/cycle-close.md", asy
   assert.match(markdown, /external_writes: none/);
 });
 
+test("buildCycleCloseDraft includes completion celebration and usage nudge when cycle is complete", async () => {
+  const { buildCycleCloseDraft } = await loadCycleCloseModule();
+  const completeContext = {
+    ...cycle3Context,
+    issues: cycle3Context.issues.filter((issue) => issue.state === "Done"),
+  };
+
+  const markdown = buildCycleCloseDraft({
+    generatedAt: "2026-05-13T12:00:00+09:00",
+    context: completeContext,
+  });
+
+  assert.match(markdown, /🎉 Cycle 3 완료!/);
+  assert.match(markdown, /이번 Cycle 후 달라진 점/);
+  assert.match(markdown, /기대효과 \/ 가설/);
+  assert.match(markdown, /직접 사용해 볼 것/);
+  assert.match(markdown, /새 세션 추천/);
+  assert.match(markdown, /POKit 시작해줘/);
+});
+
 test("buildAfterCycleCompleteMessage shows once per complete cycle state", async () => {
   const { buildAfterCycleCompleteMessage } = await loadCycleCloseModule();
 

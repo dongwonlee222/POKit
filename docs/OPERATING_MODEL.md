@@ -322,7 +322,19 @@ When the selected work surface is operationally complete, the cycle close flow s
 - completed count;
 - Run Summary link;
 - Retro link;
+- what changed after this Cycle;
+- expected effect or hypothesis;
+- a direct usage nudge;
+- a new-session nudge;
 - a compact user confirmation choice for the recommended next action.
+
+The completion experience must be explicit enough that the user sees the Cycle boundary without asking again. Include these labels in generated close drafts and session close reports:
+
+- `🎉 Cycle N 완료!`
+- `이번 Cycle 후 달라진 점`
+- `기대효과 / 가설`
+- `직접 사용해 볼 것`
+- `새 세션 추천`
 
 The same cycle completion message should not repeat unless the cycle state changes. Do not ask the user to copy a long execution sentence. When an external write is proposed, end the dry-run with:
 
