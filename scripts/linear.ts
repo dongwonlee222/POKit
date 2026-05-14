@@ -72,6 +72,10 @@ export type Issue = {
   labels: string[];
   state?: string;
   assignee?: string;
+  parent?: {
+    id: string;
+    identifier?: string;
+  };
 };
 
 export type Cycle = {
@@ -149,6 +153,10 @@ type LinearIssueNode = {
   state?: { name: string };
   assignee?: { name: string } | null;
   cycle?: LinearCycleNode | null;
+  parent?: {
+    id: string;
+    identifier?: string;
+  } | null;
 };
 
 type LinearCycleNode = {
@@ -241,7 +249,7 @@ function normalizeCycle(cycle: LinearCycleNode): Cycle {
 }
 
 function normalizeIssue(issue: LinearIssueNode): Issue {
-  return {
+  const normalized: Issue = {
     id: issue.id,
     identifier: issue.identifier,
     title: issue.title,
@@ -251,6 +259,13 @@ function normalizeIssue(issue: LinearIssueNode): Issue {
     state: issue.state?.name,
     assignee: issue.assignee?.name,
   };
+  if (issue.parent) {
+    normalized.parent = {
+      id: issue.parent.id,
+      identifier: issue.parent.identifier,
+    };
+  }
+  return normalized;
 }
 
 function selectIssuesForCycle(issues: LinearIssueNode[], cycleId: string | undefined): Issue[] {
@@ -425,6 +440,10 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             assignee {
               name
             }
+            parent {
+              id
+              identifier
+            }
             cycle {
               id
               name
@@ -580,6 +599,10 @@ export async function listIssues(cycleId: string): Promise<Issue[]> {
             }
             assignee {
               name
+            }
+            parent {
+              id
+              identifier
             }
           }
         }

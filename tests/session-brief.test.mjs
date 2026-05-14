@@ -257,6 +257,26 @@ test("buildCycleDetail shows upcoming work surface after active cycle is complet
   assert.doesNotMatch(detail, /EVM-1 old work/);
 });
 
+test("buildCycleDetail groups sub-issues under their parent issues", async () => {
+  const { buildCycleDetail } = await loadBriefModule();
+
+  const detail = buildCycleDetail({
+    now: new Date("2026-05-14T09:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-5", name: "Cycle 5" },
+      issues: [
+        { id: "issue-54", identifier: "POKIT-54", title: "Visual layer", description: "parent", labels: ["pokit:prd"], state: "Todo" },
+        { id: "issue-57", identifier: "POKIT-57", title: "Brief roadmap position output", description: "child", labels: ["pokit:prd"], state: "Todo", parent: { id: "issue-54", identifier: "POKIT-54" } },
+        { id: "issue-58", identifier: "POKIT-58", title: "Before/After artifact", description: "child", labels: ["pokit:prd"], state: "Done", parent: { id: "issue-54", identifier: "POKIT-54" } },
+        { id: "issue-55", identifier: "POKIT-55", title: "Signal watch", description: "parent", labels: ["pokit:prd"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(detail, /Todo\n1\. POKIT-54 Visual layer · Todo · pokit:prd\n   - POKIT-57 Brief roadmap position output · Todo · pokit:prd\n   - POKIT-58 Before\/After artifact · Done · pokit:prd\n2\. POKIT-55 Signal watch · Todo · pokit:prd/);
+});
+
 test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {
   const { buildSessionBrief } = await loadBriefModule();
 

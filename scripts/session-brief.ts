@@ -97,13 +97,13 @@ export function buildCycleDetail(input: SessionBriefInput): string {
     `📅 ${formatKoreanDate(now)} · ${cycleSurface.cycle.name}`,
     "",
     "Todo",
-    ...formatNumberedIssues(issuesByState.todo),
+    ...formatHierarchicalIssues(issuesByState.todo, cycleSurface.issues),
     "",
     "In Progress",
-    ...formatNumberedIssues(issuesByState.inProgress),
+    ...formatHierarchicalIssues(issuesByState.inProgress, cycleSurface.issues),
     "",
     "Done",
-    ...formatNumberedIssues(issuesByState.done),
+    ...formatHierarchicalIssues(issuesByState.done, cycleSurface.issues),
     "",
   ].join("\n");
 }
@@ -280,6 +280,37 @@ function formatNumberedIssues(issues: Issue[]): string[] {
     return ["- 없음"];
   }
   return issues.map((issue, index) => `${index + 1}. ${formatIssue(issue)}`);
+}
+
+function formatHierarchicalIssues(issues: Issue[], allIssues: Issue[]): string[] {
+  const parentIssues = issues.filter((issue) => !issue.parent);
+  if (!parentIssues.length) {
+    return ["- 없음"];
+  }
+  const childrenByParent = groupSubIssuesByParent(allIssues);
+  return parentIssues.flatMap((issue, index) => {
+    const children = childrenByParent.get(issue.id) ?? [];
+    return [
+      `${index + 1}. ${formatIssue(issue)}`,
+      ...children.map((child) => `   - ${formatIssue(child)}`),
+    ];
+  });
+}
+
+function groupSubIssuesByParent(issues: Issue[]): Map<string, Issue[]> {
+  const grouped = new Map<string, Issue[]>();
+  for (const issue of issues) {
+    if (!issue.parent?.id) {
+      continue;
+    }
+    const existing = grouped.get(issue.parent.id) ?? [];
+    existing.push(issue);
+    grouped.set(issue.parent.id, existing);
+  }
+  for (const children of grouped.values()) {
+    children.sort(compareIssueIdentifier);
+  }
+  return grouped;
 }
 
 function formatBulletedIssues(issues: Issue[]): string[] {
