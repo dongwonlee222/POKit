@@ -34,3 +34,15 @@ test("OPERATING_MODEL documents conversational ASCII visualization rules", async
   assert.match(content, /Decision Flow/);
   assert.match(content, /Before\/After ASCII/);
 });
+
+test("external write boundaries require actionable dry-run next steps", async () => {
+  const agents = await readFile("AGENTS.md", "utf8");
+  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(agents, /When local work is complete and the next step is an external write/);
+  assert.match(agents, /Show the external write dry-run immediately/);
+  assert.match(agents, /Approval-pending responses must still be actionable/);
+  assert.match(operatingModel, /must not simply stop/);
+  assert.match(operatingModel, /print the external write dry-run/);
+  assert.match(operatingModel, /A completion response that says an external write was skipped is incomplete/);
+});

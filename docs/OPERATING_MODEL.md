@@ -366,6 +366,8 @@ Separate explicit approval is still required for:
 
 If the task scope is ambiguous, stop and clarify the task boundary instead of splitting the work into mechanical approval prompts.
 
+When local work reaches an external write boundary, POKit must not simply stop with "not pushed", "not marked Done", or "approval required". The pause itself must be useful: print the external write dry-run, show the recommended next action, include the idempotency key and non-changes, and make clear what POKit will execute after approval.
+
 ## Artifact Policy
 
 The public POKit repository should not keep user-specific generated artifacts in `artifacts/`.
@@ -407,6 +409,8 @@ The completion experience must be explicit enough that the user sees the Cycle b
 ### External Write Confirmation Contract
 
 The same cycle completion message should not repeat unless the cycle state changes. Do not ask the user to copy a long execution sentence. When an external write or real product judgment choice is proposed, end the dry-run with an emoji-scannable recommendation block. Only show choices when a real decision is required; do not turn mechanical substeps into approvals.
+
+External write dry-runs are mandatory at approval boundaries. A completion response that says an external write was skipped is incomplete unless it also includes the executable dry-run or points to the already-rendered dry-run from the same turn.
 
 ```text
 사용자 확인
