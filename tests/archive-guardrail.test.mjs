@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+process.env.POKIT_PROFILE = "";
+
 async function loadArchiveModule() {
   return import(`../scripts/archive-guardrail.ts?cacheBust=${Date.now()}`);
 }

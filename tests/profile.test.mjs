@@ -42,53 +42,80 @@ test("getActiveProfile reads team and storage paths from pokit.config.yaml", asy
   await mkdir(tempDir, { recursive: true });
   await writeFile(join(tempDir, "pokit.config.yaml"), [
     "profiles:",
-    "  pokit:",
-    "    linear_team_key: POKIT",
-    "    memory_dir: memory/profiles/pokit",
-    "    artifacts_dir: artifacts/profiles/pokit",
+    "  product_a:",
+    "    linear_team_key: PRODA",
+    "    memory_dir: memory/profiles/product-a",
+    "    artifacts_dir: artifacts/profiles/product-a",
     "",
   ].join("\n"));
   process.chdir(tempDir);
-  process.env.POKIT_PROFILE = "pokit";
+  process.env.POKIT_PROFILE = "product_a";
   delete process.env.LINEAR_TEAM_ID;
   delete process.env.LINEAR_TEAM_KEY;
   const { getActiveProfile, profileArtifactPath, profileMemoryPath } = await loadProfileModule();
 
   assert.deepEqual(getActiveProfile(), {
-    name: "pokit",
+    name: "product_a",
     configured: true,
     linearTeamId: undefined,
-    linearTeamKey: "POKIT",
-    memoryDir: "memory/profiles/pokit",
-    artifactsDir: "artifacts/profiles/pokit",
+    linearTeamKey: "PRODA",
+    memoryDir: "memory/profiles/product-a",
+    artifactsDir: "artifacts/profiles/product-a",
   });
-  assert.equal(profileArtifactPath("sprints", "Cycle-1"), "artifacts/profiles/pokit/sprints/Cycle-1");
-  assert.equal(profileMemoryPath("resume-brief.md"), "memory/profiles/pokit/resume-brief.md");
+  assert.equal(profileArtifactPath("sprints", "Cycle-1"), "artifacts/profiles/product-a/sprints/Cycle-1");
+  assert.equal(profileMemoryPath("resume-brief.md"), "memory/profiles/product-a/resume-brief.md");
 });
 
-test("getActiveProfile routes evmodu profile to the EVMODU team key", async () => {
-  const tempDir = join(tmpdir(), `pokit-profile-evmodu-${Date.now()}`);
+test("getActiveProfile reads private profiles from pokit.local.config.yaml", async () => {
+  const tempDir = join(tmpdir(), `pokit-profile-local-${Date.now()}`);
   await mkdir(tempDir, { recursive: true });
-  await writeFile(join(tempDir, "pokit.config.yaml"), [
+  await writeFile(join(tempDir, "pokit.local.config.yaml"), [
     "profiles:",
-    "  evmodu:",
-    "    linear_team_key: EVMODU",
-    "    memory_dir: memory/profiles/evmodu",
-    "    artifacts_dir: artifacts/profiles/evmodu",
+    "  private_product:",
+    "    linear_team_key: PRIV",
+    "    memory_dir: memory/profiles/private-product",
+    "    artifacts_dir: artifacts/profiles/private-product",
     "",
   ].join("\n"));
   process.chdir(tempDir);
-  process.env.POKIT_PROFILE = "evmodu";
+  process.env.POKIT_PROFILE = "private_product";
   delete process.env.LINEAR_TEAM_ID;
   delete process.env.LINEAR_TEAM_KEY;
   const { getActiveProfile } = await loadProfileModule();
 
   assert.deepEqual(getActiveProfile(), {
-    name: "evmodu",
+    name: "private_product",
     configured: true,
     linearTeamId: undefined,
-    linearTeamKey: "EVMODU",
-    memoryDir: "memory/profiles/evmodu",
-    artifactsDir: "artifacts/profiles/evmodu",
+    linearTeamKey: "PRIV",
+    memoryDir: "memory/profiles/private-product",
+    artifactsDir: "artifacts/profiles/private-product",
+  });
+});
+
+test("getActiveProfile lets selected profile override global Linear team env", async () => {
+  const tempDir = join(tmpdir(), `pokit-profile-env-override-${Date.now()}`);
+  await mkdir(tempDir, { recursive: true });
+  await writeFile(join(tempDir, "pokit.local.config.yaml"), [
+    "profiles:",
+    "  private_product:",
+    "    linear_team_key: PRIV",
+    "    memory_dir: memory/profiles/private-product",
+    "    artifacts_dir: artifacts/profiles/private-product",
+    "",
+  ].join("\n"));
+  process.chdir(tempDir);
+  process.env.POKIT_PROFILE = "private_product";
+  process.env.LINEAR_TEAM_ID = "stale-shared-team-id";
+  process.env.LINEAR_TEAM_KEY = "SHARED";
+  const { getActiveProfile } = await loadProfileModule();
+
+  assert.deepEqual(getActiveProfile(), {
+    name: "private_product",
+    configured: true,
+    linearTeamId: undefined,
+    linearTeamKey: "PRIV",
+    memoryDir: "memory/profiles/private-product",
+    artifactsDir: "artifacts/profiles/private-product",
   });
 });

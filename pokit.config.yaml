@@ -13,15 +13,5 @@ linear:
     - pokit:research
     - pokit:abtest
 
-profiles:
-  pokit:
-    linear_team_key: POKIT
-    memory_dir: memory/profiles/pokit
-    artifacts_dir: artifacts/profiles/pokit
-  evmodu:
-    linear_team_key: EVMODU
-    memory_dir: memory/profiles/evmodu
-    artifacts_dir: artifacts/profiles/evmodu
-
 artifacts:
   hash_algorithm: sha256

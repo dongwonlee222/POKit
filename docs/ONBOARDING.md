@@ -96,16 +96,16 @@ node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m)
 - [ ] Copy either the intended profile, team id, or team key into `.env`. For a single Linear team, skip `POKIT_PROFILE` and use the default setup:
 
 ```bash
-POKIT_PROFILE=pokit
+POKIT_PROFILE=product_a
 # or
-POKIT_PROFILE=evmodu
+POKIT_PROFILE=product_b
 # or
 LINEAR_TEAM_ID=...
 # or
-LINEAR_TEAM_KEY=EVMODU
+LINEAR_TEAM_KEY=PRODA
 ```
 
-Use profiles only when one Linear account runs multiple product cycles with POKit. Profile storage stays under `memory/profiles/[name]` and `artifacts/profiles/[name]` so resume briefs and generated artifacts do not mix.
+Use profiles only when one Linear account runs multiple product cycles with POKit. Keep private team keys and personal routing in ignored `pokit.local.config.yaml`, not in shared `pokit.config.yaml`. Profile storage stays under `memory/profiles/[name]` and `artifacts/profiles/[name]` so resume briefs and generated artifacts do not mix.
 
 ## 4. Label Preflight
 

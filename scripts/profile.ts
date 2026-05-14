@@ -18,6 +18,8 @@ type ProfileConfig = {
 };
 
 const loadedEnvRoots = new Set<string>();
+const SHARED_CONFIG_FILE = "pokit.config.yaml";
+const LOCAL_CONFIG_FILE = "pokit.local.config.yaml";
 
 export function loadDotEnvOnce(rootDir = process.cwd()): void {
   if (loadedEnvRoots.has(rootDir)) {
@@ -69,8 +71,8 @@ export function getActiveProfile(rootDir = process.cwd()): PokitProfile {
   return {
     name: profileName,
     configured: true,
-    linearTeamId: process.env.LINEAR_TEAM_ID ?? profile.linearTeamId,
-    linearTeamKey: process.env.LINEAR_TEAM_KEY ?? profile.linearTeamKey,
+    linearTeamId: profile.linearTeamId,
+    linearTeamKey: profile.linearTeamKey,
     memoryDir: profile.memoryDir ?? `memory/profiles/${profileName}`,
     artifactsDir: profile.artifactsDir ?? `artifacts/profiles/${profileName}`,
   };
@@ -85,11 +87,19 @@ export function profileMemoryPath(...segments: string[]): string {
 }
 
 function readProfilesConfig(rootDir: string): Map<string, ProfileConfig> {
-  const configPath = join(rootDir, "pokit.config.yaml");
-  if (!existsSync(configPath)) {
-    throw new Error("POKIT_PROFILE is set, but pokit.config.yaml was not found.");
+  const sharedConfigPath = join(rootDir, SHARED_CONFIG_FILE);
+  const localConfigPath = join(rootDir, LOCAL_CONFIG_FILE);
+  if (!existsSync(sharedConfigPath) && !existsSync(localConfigPath)) {
+    throw new Error(`POKIT_PROFILE is set, but neither ${SHARED_CONFIG_FILE} nor ${LOCAL_CONFIG_FILE} was found.`);
   }
-  return parseProfilesConfig(readFileSync(configPath, "utf8"));
+  const profiles = new Map<string, ProfileConfig>();
+  if (existsSync(sharedConfigPath)) {
+    mergeProfiles(profiles, parseProfilesConfig(readFileSync(sharedConfigPath, "utf8")));
+  }
+  if (existsSync(localConfigPath)) {
+    mergeProfiles(profiles, parseProfilesConfig(readFileSync(localConfigPath, "utf8")));
+  }
+  return profiles;
 }
 
 export function parseProfilesConfig(contents: string): Map<string, ProfileConfig> {
@@ -148,6 +158,12 @@ function cleanConfigValue(value: string): string {
 
 function formatProfileOptions(profiles: Map<string, ProfileConfig>): string {
   return [...profiles.keys()].join(", ") || "none";
+}
+
+function mergeProfiles(target: Map<string, ProfileConfig>, source: Map<string, ProfileConfig>): void {
+  for (const [name, profile] of source.entries()) {
+    target.set(name, profile);
+  }
 }
 
 function normalizePath(value: string): string {

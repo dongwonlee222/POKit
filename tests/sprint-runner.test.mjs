@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
+process.env.POKIT_PROFILE = "";
+
 async function loadRunnerModule() {
   return import(`../scripts/sprint-runner.ts?cacheBust=${Date.now()}`);
 }

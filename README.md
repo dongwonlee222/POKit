@@ -240,9 +240,27 @@ API key가 정확히 하나의 Linear team에 접근할 수 있으면 포킷이 
 
 대부분의 사용자는 Linear team 하나와 기본 `memory/`, `artifacts/` 경로만으로 충분합니다. Multi-profile은 같은 Linear 계정에서 여러 제품 cycle을 동시에 돌릴 때만 쓰는 선택 기능입니다.
 
-- `POKIT_PROFILE=pokit`: POKit 자체 개발. 기본 team key는 `POKIT`, 로컬 상태는 `memory/profiles/pokit`, `artifacts/profiles/pokit`.
-- `POKIT_PROFILE=evmodu`: 모두의충전 운영/제품 업무. 기본 team key는 `EVMODU`, 로컬 상태는 `memory/profiles/evmodu`, `artifacts/profiles/evmodu`.
-- profile이 없으면 기존처럼 `memory/`, `artifacts/`, `LINEAR_TEAM_ID`, `LINEAR_TEAM_KEY`를 사용합니다. 기존 사용자에게 추가 team 생성은 필요하지 않습니다.
+공유 repo의 `pokit.config.yaml`에는 누구에게나 적용되는 기본 설정만 둡니다. 개인 또는 회사별 Linear team key, profile 이름, 저장 경로는 git에 올리지 않는 `pokit.local.config.yaml`에 둡니다.
+
+```yaml
+profiles:
+  product_a:
+    linear_team_key: PRODA
+    memory_dir: memory/profiles/product-a
+    artifacts_dir: artifacts/profiles/product-a
+  product_b:
+    linear_team_key: PRODB
+    memory_dir: memory/profiles/product-b
+    artifacts_dir: artifacts/profiles/product-b
+```
+
+그 다음 `.env`에서 현재 작업 대상을 고릅니다.
+
+```bash
+POKIT_PROFILE=product_a
+```
+
+profile이 없으면 기존처럼 `memory/`, `artifacts/`, `LINEAR_TEAM_ID`, `LINEAR_TEAM_KEY`를 사용합니다. 기존 사용자에게 추가 team 생성은 필요하지 않습니다.
 
 한 작업공간에서 제품별 이슈가 섞인 경우에는 제품별 Linear team 분리를 검토할 수 있습니다. Linear 팀 생성, 팀 이름/key 변경, 이슈 이동은 항상 dry-run 계획과 사용자 승인 후에만 실행합니다.
 

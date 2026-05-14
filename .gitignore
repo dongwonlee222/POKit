@@ -1,6 +1,7 @@
 .env
 node_modules/
 *.local.*
+pokit.local.config.yaml
 .DS_Store
 
 # Local design exports or unpacked reference bundles.

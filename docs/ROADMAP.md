@@ -84,27 +84,78 @@ flowchart LR
   C8 --> C9["Cycle 9<br/>Team / Collaboration Readiness"]
 ```
 
-## Cycle 4: Human-LLM Scrum Communication
+## Cycle 4: Context Boundary & Brief Trust
 
-목표: 사람과 LLM이 일을 주고받는 방식을 더 명확하고 시각적으로 만들되, 외부 write 안전성은 약화하지 않는다.
+목표: 포킷이 여러 Linear team/profile을 오가는 개인 작업환경에서도 공유 repo와 개인 운영 맥락을 섞지 않고, 세션 시작 브리프가 신뢰할 수 있는 작업면을 보여주게 만든다.
+
+Cycle 4는 기존의 "Human-LLM Scrum Communication" 방향 중 가장 먼저 막힌 부분을 좁혀 해결한다. 지금 문제는 보고 형식의 화려함이 아니라, 사용자가 보는 첫 브리프가 "어느 팀, 어느 cycle, 어떤 로컬/외부 상태를 기준으로 말하는가"를 정확히 드러내지 못하는 것이다.
+
+### Cycle 4 실행 묶음
+
+1. POKIT-48 개인 Linear/profile 설정을 repo 밖 로컬 설정으로 분리
+2. POKIT-49 세션 브리프가 완료된 cycle을 작업면으로 다시 선택하지 않게 수정
+3. POKIT-50 POKit 시작 브리프에 profile/team/cycle 기준을 명확히 표시
+4. POKIT-51 Cycle 4 진행 효과를 로드맵에 시각화
 
 후보 백로그:
 
-1. LLM Scrum Communication Contract
-2. 시각적 커뮤니케이션 레이어
-3. 상황별 보고 템플릿
-4. Closed-loop / Check-back 이해 확인
-5. MoSCoW + WSJF-lite 우선순위 프레임
-6. Scrum Context Memory / Resume Brief 강화
-7. 세션 종료 동기화 카드: 로컬 상태와 Linear 상태 차이 표시
-8. 세션 전환 넛지: 큰 작업 단위가 닫히거나 대화가 길어졌을 때 새 세션 시작을 추천
+1. `pokit.local.config.yaml` 지원: 개인 team key와 profile routing은 ignored local config로 이동
+2. 공유 `pokit.config.yaml` 정리: 누구에게나 적용되는 기본 설정만 유지
+3. profile 선택 우선순위 정리: `POKIT_PROFILE`이 선택되면 stale `LINEAR_TEAM_ID`가 작업면을 가로채지 않게 함
+4. completed cycle 제외: `completedAt`이 있는 cycle은 다음 작업 후보에서 제외
+5. brief source 표시: `Profile`, `Team Key`, `Cycle`, `Run Summary`, `Retro` 기준을 숨기지 않음
+6. Cycle 4 Linear sync preflight: 일반 Cycle 4와 hotfix cycle 번호 충돌을 확인한 뒤 외부 write 실행
 
 기대 효과:
 
-- 사용자가 현재 상태, 필요한 결정, 다음 액션을 더 빨리 이해한다.
-- 포킷이 블릿, 번호, 이모지, 표, Mermaid, ASCII 카드로 더 쉽게 설명한다.
-- 작업 단위가 닫혔을 때 새 세션 첫 문장을 함께 보여줘 맥락 품질을 지킨다.
+- 공유 repo에 개인 Linear team key나 사용자별 운영 맥락이 남지 않는다.
+- POKit/모두의충전처럼 한 컴퓨터에서 여러 team을 오가도 profile 기준이 명시된다.
+- Cycle 3까지 끝난 뒤 시작 브리프가 완료된 Cycle 1로 되돌아가는 문제가 사라진다.
+- Cycle 4를 진행하면 "컨텍스트가 맞는가?"를 사용자가 직접 추적하는 시간이 줄어든다.
 - 외부 write는 계속 실행 전 확인과 승인으로 통제된다.
+
+### Cycle 4 개선 시각화
+
+```mermaid
+flowchart LR
+  subgraph Before["Before: 헷갈리는 시작 상태"]
+    B1[".env stale LINEAR_TEAM_ID"] --> B2["잘못된 team/profile 선택"]
+    B3["completed cycle 포함"] --> B4["Cycle 1 같은 과거 작업면 표시"]
+    B5["공유 config에 개인 team key"] --> B6["repo product와 개인 운영 맥락 혼합"]
+  end
+
+  subgraph After["After: Cycle 4 목표 상태"]
+    A1["POKIT_PROFILE"] --> A2["pokit.local.config.yaml"]
+    A2 --> A3["개인 team/profile routing"]
+    A4["completedAt cycle 제외"] --> A5["다음 실제 작업면 표시"]
+    A6["Brief에 Profile / Team Key / Cycle 표시"] --> A7["시작 즉시 기준 확인"]
+  end
+
+  B2 --> A3
+  B4 --> A5
+  B6 --> A2
+```
+
+```mermaid
+flowchart TD
+  C3["Cycle 3 완료 상태"] --> P["Cycle 4: Context Boundary & Brief Trust"]
+  P --> L1["Local boundary<br/>개인 설정은 ignored local config"]
+  P --> L2["Linear boundary<br/>완료 cycle은 작업면 제외"]
+  P --> L3["Brief boundary<br/>profile/team/cycle 기준 표시"]
+  L1 --> O["Outcome<br/>시작 브리프를 믿고 다음 작업을 고를 수 있음"]
+  L2 --> O
+  L3 --> O
+```
+
+### Linear Sync 상태
+
+현재 Linear에서 POKit team은 `Hotfix v0.1.0`이 cycle number 4로 이미 완료되어 있고, 일반 작업용 Cycle 4가 별도로 보이지 않는다. 따라서 Cycle 4 이슈 생성/할당은 다음 중 하나를 먼저 정한 뒤 실행한다.
+
+1. 일반 작업용 새 cycle을 만들고 이름을 `Cycle 4: Context Boundary & Brief Trust`로 둔다.
+2. 현재 미래 `Cycle 3`을 실제 다음 일반 cycle로 보고 이름/범위를 조정한다.
+3. Linear cycle 번호는 그대로 두고, Project 또는 issue title에 `Cycle 4` 묶음을 명시한다.
+
+추천: 3번. Linear의 자동 cycle number와 제품 로드맵의 cycle 이름이 이미 hotfix 때문에 어긋났으므로, 외부 cycle 구조를 억지로 바꾸지 않고 issue 묶음에 `Cycle 4`를 명시한다.
 
 ## Cycle 5: PO Signal Watch -> Backlog & Share
 

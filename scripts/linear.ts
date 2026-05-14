@@ -274,7 +274,7 @@ function buildCycleWorkSurface(
   cycle: LinearCycleNode | undefined,
   issues: Issue[],
 ): CycleWorkSurface | undefined {
-  if (!cycle) {
+  if (!cycle || isCompletedCycle(cycle)) {
     return undefined;
   }
   return {
@@ -299,6 +299,7 @@ function selectUpcomingCycleNode(
   }
   const candidates = uniqueCycles([...upcomingCycles, ...issueCycles.values()])
     .filter((cycle) => cycle.id !== activeCycleId)
+    .filter((cycle) => !isCompletedCycle(cycle))
     .sort(compareCycles);
   return candidates.find((cycle) => selectOpenIssuesForCycle(issues, cycle.id).length > 0)
     ?? candidates.find((cycle) => selectIssuesForCycle(issues, cycle.id).length > 0)
@@ -338,6 +339,10 @@ function cycleSortTime(cycle: LinearCycleNode): number {
 function isTerminalIssueState(state: string | undefined): boolean {
   const normalized = normalizeState(state);
   return normalized === "done" || normalized === "completed" || normalized === "canceled" || normalized === "cancelled" || normalized === "duplicate";
+}
+
+function isCompletedCycle(cycle: LinearCycleNode): boolean {
+  return Boolean(cycle.completedAt);
 }
 
 function selectOpenIssuesForCycle(issues: LinearIssueNode[], cycleId: string | undefined): Issue[] {
@@ -389,6 +394,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             number
             startsAt
             endsAt
+            completedAt
           }
         }
         upcomingCycles: cycles(first: 5, filter: { isActive: { eq: false } }) {
@@ -398,6 +404,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             number
             startsAt
             endsAt
+            completedAt
           }
         }
         issues(first: 100) {
@@ -424,6 +431,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
               number
               startsAt
               endsAt
+              completedAt
             }
           }
         }

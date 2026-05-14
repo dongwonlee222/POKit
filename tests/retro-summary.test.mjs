@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
+process.env.POKIT_PROFILE = "";
+
 async function loadRetroModule() {
   return import(`../scripts/retro-summary.ts?cacheBust=${Date.now()}`);
 }
