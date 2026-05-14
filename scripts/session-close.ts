@@ -295,19 +295,27 @@ function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAct
     `- 로컬에서 끝난 것: ${completed}`,
     `- repo 밖에 남은 것: ${pending}`,
     `- 필요한 승인/행동: ${action}`,
-    `- 사용자가 말할 문장: "${nextAction}"`,
+    `- 다음 추천 행동: ${nextAction}`,
   ];
 }
 
 function buildApprovalPreviewLines(historyConflicts: Array<Extract<ResumeBriefWriteResult, { status: "needs_approval" }>>): string[] {
-  return historyConflicts.flatMap((item) => [
-    `- 실행하면 바뀌는 것: ${item.path} 재생성 또는 수동 병합`,
-    `- 판단 근거: ${item.reason}`,
-    `- 현재 hash: ${item.currentHash}`,
-    `- 예상 hash: ${item.expectedHash}`,
-    "- 실행 후 기대효과: 다음 세션 handoff가 최신 상태로 복구됨",
-    `- 진행 문장: "${item.path} 충돌을 확인했고, 재생성 또는 병합을 실행해"`,
-  ]);
+  return [
+    ...historyConflicts.flatMap((item) => [
+      `- 실행하면 바뀌는 것: ${item.path} 재생성 또는 수동 병합`,
+      `- 판단 근거: ${item.reason}`,
+      `- 현재 hash: ${item.currentHash}`,
+      `- 예상 hash: ${item.expectedHash}`,
+      "- 실행 후 기대효과: 다음 세션 handoff가 최신 상태로 복구됨",
+    ]),
+    "",
+    "사용자 확인",
+    "",
+    "1. ✅ 추천대로 실행",
+    "2. ✏️ 직접 입력하기",
+    "",
+    "번호로 선택해 주세요.",
+  ];
 }
 
 function classifyIssueState(state: string | undefined): "done" | "inProgress" | "todo" | "review" {

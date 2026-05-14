@@ -224,7 +224,12 @@ function buildExternalWriteApprovalPreview(context: WorkingCycleContext, complet
     `- ${cycleName(context)}의 운영 상태가 로컬 완료 증거와 일치한다.`,
     "- 다음 brief가 완료된 작업 대신 다음 작업면을 보여준다.",
     "",
-    `진행 문장: "${cycleName(context)} 완료 증거를 확인했고, 위 Linear 상태 변경을 실행해"`,
+    "사용자 확인",
+    "",
+    "1. ✅ 추천대로 실행",
+    "2. ✏️ 직접 입력하기",
+    "",
+    "번호로 선택해 주세요.",
   ];
 }
 

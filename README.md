@@ -20,7 +20,7 @@
 
 포킷은 Linear issue와 cycle을 읽고, LLM 에이전트가 스크럼을 굴리는 데 필요한 기능을 제공합니다.
 
-- 세션 브리핑: 현재 cycle의 Todo, 진행 중, 완료 상태와 다음 실행 문장을 보여줍니다.
+- 세션 브리핑: 현재 cycle의 Todo, 진행 중, 완료 상태와 다음 추천 행동을 보여줍니다.
 - 스크럼 맥락 유지: 이전 세션의 결정, 남은 일, 승인 대기, 다음 액션을 이어서 볼 수 있게 남깁니다.
 - 백로그 구체화: 아이디어를 실행 가능한 issue 후보, 작업 정의, 우선순위로 나눕니다.
 - 스프린트/Cycle 계획: 이번 cycle에 묶어 진행할 일, 남은 일, 다음 후보를 정리합니다.
@@ -109,7 +109,7 @@ LINEAR_API_KEY=lin_api_...
 
 5. Linear 작업공간에 진행 중인 cycle issue가 없다면 [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues)의 안전한 샘플 issue를 하나 만들고, `pokit:prd` 또는 `pokit:criteria` label을 붙인 뒤 현재 cycle에 넣습니다.
 
-6. 브리프가 보여주는 Cycle 단위 실행 문장을 따라갑니다.
+6. 브리프가 보여주는 Cycle 단위 추천 행동을 확인하고 번호로 선택합니다.
 
 ```text
 Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘
@@ -202,7 +202,7 @@ API key가 chat, log, screenshot, commit에 노출되면 계속 진행하기 전
 - 상태 브리프(State Brief)는 매 세션 표시되며 읽기 전용입니다.
 - 액션 넛지(Action Nudge)는 cycle 상태가 바뀐 경우에만 세션당 최대 한 번 표시됩니다.
 - `artifacts/`, `.modu-harness/`, `.env`, 생성된 run summary의 실제 작업 맥락은 commit하지 않습니다. 공개 예시는 민감정보 제거 샘플만 `examples/` 아래에 둡니다.
-- cycle 완료는 명확해야 합니다. cycle이 운영상 완료되면 포킷은 짧은 축하 메시지, 완료 수, 실행 요약, 회고, 다음 실행 문장을 보여줘야 합니다.
+- cycle 완료는 명확해야 합니다. cycle이 운영상 완료되면 포킷은 짧은 축하 메시지, 완료 수, 실행 요약, 회고, 다음 추천 행동을 보여줘야 합니다.
 
 ## Linear 흐름
 

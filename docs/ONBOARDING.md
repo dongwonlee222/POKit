@@ -23,7 +23,7 @@ POKit 시작해줘. Brief의 다음 후보를 기준으로 Cycle bundle을 만�
   - current cycle status;
   - numbered next cycle candidates with issue IDs and titles;
   - one recommended bundle;
-  - an execution sentence you can approve or edit.
+  - a recommended action you can approve or edit by number.
 - [ ] Use the single Cycle-level command when you want POKit to proceed:
 
 ```text
@@ -187,7 +187,7 @@ Expected behavior:
 - POKit separates completed, carried-over, pending approval, and clarification items.
 - POKit does not mark Linear issues Done without approval.
 - POKit shows Run Summary and Retro links.
-- If the cycle is operationally complete, POKit shows one celebration message with emoji and the next execution sentence.
+- If the cycle is operationally complete, POKit shows one celebration message with emoji and the next recommended action.
 
 ## 8. What To Commit
 

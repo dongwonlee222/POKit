@@ -88,7 +88,7 @@ When the active cycle is operationally complete:
 1. Show a compact completion line for the active cycle.
 2. Prefer upcoming cycle issues as "next candidates."
 3. Show team Backlog issues below the next candidates.
-4. Recommend a next execution sentence based on real candidates.
+4. Recommend the next action with compact confirmation choices based on real candidates.
 5. Only recommend adding new backlog when upcoming cycle and backlog are both empty.
 
 Expected shape:
@@ -126,7 +126,7 @@ The close summary should include:
 - Retro path;
 - decision-log candidates, if any;
 - changelog candidates, if any;
-- next execution sentence.
+- next recommended action with compact confirmation choices.
 
 If the user says "마무리해줘", "완료 처리해줘", or approves the close summary, POKit may run the directly required local close work as one coherent flow.
 

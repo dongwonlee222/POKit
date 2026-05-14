@@ -74,7 +74,10 @@ test("buildSessionCloseReport surfaces history write conflict warnings as Needs 
   assert.match(report, /실행하면 바뀌는 것: memory\/resume-brief\.md 재생성 또는 수동 병합/);
   assert.match(report, /판단 근거: content hash changed; refusing stale resume-brief overwrite/);
   assert.match(report, /실행 후 기대효과/);
-  assert.match(report, /진행 문장: "memory\/resume-brief\.md 충돌을 확인했고, 재생성 또는 병합을 실행해"/);
+  assert.match(report, /사용자 확인/);
+  assert.match(report, /1\. ✅ 추천대로 실행/);
+  assert.match(report, /2\. ✏️ 직접 입력하기/);
+  assert.match(report, /번호로 선택해 주세요\./);
 });
 
 test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is already complete", async () => {
