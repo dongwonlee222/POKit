@@ -74,7 +74,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const previousCycleName = readArg(args, "--previous-cycle-name", "Previous Cycle");
   const completedCycleName = readArg(args, "--completed-cycle-name", "Completed Cycle");
   const previousReason = readArg(args, "--previous-reason", "Operationally complete; stale Linear current cycle.");
-  const completedReason = readArg(args, "--completed-reason", "Operationally complete; release or handoff tracked separately.");
+  const completedReason = readArg(args, "--completed-reason", "Operationally complete after approved release gate.");
   const plans = await buildCycleMaintenancePlans({
     completedAt,
     cycles: [

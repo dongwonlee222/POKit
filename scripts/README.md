@@ -157,6 +157,22 @@ Run the release Markdown role audit before pushing, tagging, or creating a relea
 node --experimental-strip-types scripts/release-md-audit.ts --target-version=v0.2.0
 ```
 
+Run the release preflight gate before pushing, tagging, or creating a release:
+
+```bash
+node --experimental-strip-types scripts/release-preflight.ts --target-version=v0.4.0 --cycle-name "Cycle 5"
+```
+
+This command reads `workflows/hooks.yaml` `before_public_release` gates, runs the executable checks, and prints an ASCII gate map. Ignored artifact evidence references are warnings in the current phase.
+
+Show the hook enforcement map:
+
+```bash
+node --experimental-strip-types scripts/hook-map.ts
+node --experimental-strip-types scripts/session-brief.ts --detail hooks
+node --experimental-strip-types scripts/session-brief.ts --detail flow
+```
+
 Print the completed issue archive dry-run contract:
 
 ```bash

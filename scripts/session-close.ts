@@ -242,8 +242,11 @@ function selectCloseSurface(context: WorkingCycleContext | WorkingContext): Work
   if (!("selected" in context)) {
     return context;
   }
-  if (context.activeCycle && isSurfaceComplete(context.activeCycle) && context.upcomingCycle) {
+  if (context.activeCycle && isSurfaceFullyComplete(context.activeCycle) && context.upcomingCycle) {
     return toWorkingCycleContext(context.upcomingCycle);
+  }
+  if (context.activeCycle && isSurfaceReleasePending(context.activeCycle)) {
+    return toWorkingCycleContext(context.activeCycle);
   }
   if (context.upcomingCycle?.issues.some((issue) => classifyIssueState(issue.state) !== "done")) {
     return toWorkingCycleContext(context.upcomingCycle);
@@ -254,8 +257,12 @@ function selectCloseSurface(context: WorkingCycleContext | WorkingContext): Work
   return toWorkingCycleContext(context.selected);
 }
 
-function isSurfaceComplete(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"]): boolean {
-  return Boolean(context && context.issues.length > 0 && context.issues.every((issue) => classifyIssueState(issue.state) === "done"));
+function isSurfaceFullyComplete(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"]): boolean {
+  return Boolean(context && isCycleReleaseComplete(toWorkingCycleContext(context)) && context.issues.length > 0 && context.issues.every((issue) => classifyIssueState(issue.state) === "done"));
+}
+
+function isSurfaceReleasePending(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"]): boolean {
+  return Boolean(context && !isCycleReleaseComplete(toWorkingCycleContext(context)) && context.issues.length > 0 && context.issues.every((issue) => classifyIssueState(issue.state) === "done"));
 }
 
 function toWorkingCycleContext(context: WorkingContext["activeCycle"] | WorkingContext["upcomingCycle"] | WorkingCycleContext): WorkingCycleContext {
@@ -272,7 +279,9 @@ function toWorkingCycleContext(context: WorkingContext["activeCycle"] | WorkingC
 function buildCycleNextAction(context: WorkingCycleContext, pendingCount: number): string {
   const cycleName = context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
   if (pendingCount === 0) {
-    return `${cycleName} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`;
+    return isCycleReleaseComplete(context)
+      ? `${cycleName} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`
+      : `${cycleName} release preflight부터 완료 조건까지 이어가줘`;
   }
   return `${cycleName} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`;
 }
@@ -293,7 +302,9 @@ function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAct
   const pending = resolved.pending.map((issue) => issue.identifier).join(", ") || "없음";
   const action = resolved.pending.length
     ? `${resolved.surface.cycle.name} 남은 Todo 전체를 계속 진행할지 결정`
-    : `${resolved.surface.cycle.name} 완료 상태를 확인하고 다음 Cycle 후보를 준비할지 결정`;
+    : isCycleReleaseComplete(resolved.surface)
+      ? `${resolved.surface.cycle.name} 완료 상태를 확인하고 다음 Cycle 후보를 준비할지 결정`
+      : `${resolved.surface.cycle.name} release gate를 진행할지 결정`;
   return [
     `- 로컬에서 끝난 것: ${completed}`,
     `- repo 밖에 남은 것: ${pending}`,
@@ -305,6 +316,18 @@ function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAct
 function buildCycleCompletionExperienceLines(resolved: ResolvedCloseContext): string[] {
   if (resolved.pending.length > 0 || resolved.completed.length === 0) {
     return [];
+  }
+  if (!isCycleReleaseComplete(resolved.surface)) {
+    return [
+      "Cycle Release Pending",
+      `Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${resolved.surface.cycle.name}`,
+      "",
+      "남은 완료 조건",
+      "- Release preflight 재확인",
+      "- Commit",
+      "- Push / Tag / GitHub Release",
+      "- Linear Cycle completion sync",
+    ];
   }
   return [
     `🎉 ${resolved.surface.cycle.name} 완료!`,
@@ -323,6 +346,10 @@ function buildCycleCompletionExperienceLines(resolved: ResolvedCloseContext): st
     "새 세션 추천",
     "- Cycle이 끝났으니 새 세션에서 시작해 컨텍스트를 가볍게 유지하는 것을 권장합니다.",
   ];
+}
+
+function isCycleReleaseComplete(context: WorkingCycleContext): boolean {
+  return Boolean(context.cycle.completedAt);
 }
 
 function buildApprovalPreviewLines(historyConflicts: Array<Extract<ResumeBriefWriteResult, { status: "needs_approval" }>>): string[] {

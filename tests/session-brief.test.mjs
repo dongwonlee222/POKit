@@ -299,6 +299,47 @@ test("buildSessionBrief renders ASCII parent progress for cycle issues", async (
   assert.match(brief, /POKIT-73 대화형 ASCII 시각화\s+\[░\] 0\/1/);
 });
 
+test("buildFlowDetail shows release inside the Cycle loop", async () => {
+  const { buildFlowDetail } = await loadBriefModule();
+
+  const detail = buildFlowDetail({
+    now: new Date("2026-05-14T12:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-5", name: "Cycle 5" },
+      issues: [],
+    },
+  });
+
+  assert.match(detail, /POKit Flow Map/);
+  assert.match(detail, /읽는 법/);
+  assert.match(detail, /Start/);
+  assert.match(detail, /Brief/);
+  assert.match(detail, /Backlog/);
+  assert.match(detail, /사용자 아이디어를 후보 작업으로 정리/);
+  assert.match(detail, /Push \/ Tag \/ GitHub Release/);
+  assert.match(detail, /외부 사용자가 받을 수 있게 배포/);
+  assert.match(detail, /Cycle Complete/);
+});
+
+test("buildHookDetail shows hooks and enforcement metadata", async () => {
+  const { buildHookDetail } = await loadBriefModule();
+
+  const detail = buildHookDetail({
+    now: new Date("2026-05-14T12:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-5", name: "Cycle 5" },
+      issues: [],
+    },
+  });
+
+  assert.match(detail, /POKit Hook Map/);
+  assert.match(detail, /before_public_release/);
+  assert.match(detail, /enforcement: script/);
+  assert.match(detail, /scripts\/release-preflight\.ts/);
+});
+
 test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {
   const { buildSessionBrief } = await loadBriefModule();
 

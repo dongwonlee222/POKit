@@ -41,10 +41,23 @@ hooks:
     - require_idempotency_key
 
   before_public_release:
-    - audit_release_markdown_roles
-    - run_public_safety_scan
-    - run_full_tests
-    - require_release_execution_preflight
+    enforcement: script
+    runner: scripts/release-preflight.ts
+    gates:
+      - id: release_md_audit
+        severity: blocker
+        requires:
+          - target_version
+      - id: public_safety_scan
+        severity: blocker
+      - id: full_tests
+        severity: blocker
+      - id: git_diff_check
+        severity: blocker
+      - id: git_status_check
+        severity: blocker
+      - id: ignored_evidence_scan
+        severity: warning
 
   after_run:
     - write_run_summary

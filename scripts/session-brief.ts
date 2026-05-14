@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "./archive-guardrail.ts";
+import { loadHookMap, renderHookMap } from "./hook-map.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { getActiveProfile, profileArtifactPath } from "./profile.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
@@ -157,6 +158,78 @@ export function buildApprovalDetail(input: SessionBriefInput): string {
   ].join("\n");
 }
 
+export function buildFlowDetail(input: SessionBriefInput): string {
+  const now = input.now ?? new Date();
+  const resolved = resolveSessionContext(input.context, now);
+  const cycleName = resolved.displaySurface.cycle.name;
+  return [
+    "# POKit Flow Map",
+    "",
+    `📅 ${formatKoreanDate(now)} · ${cycleName}`,
+    "",
+    "읽는 법",
+    "- 왼쪽 단계는 사용자가 겪는 흐름입니다.",
+    "- `|` 오른쪽 설명은 그 단계에서 POKit이 실제로 읽거나 실행하는 것들입니다.",
+    "- release는 Cycle 밖 후속작업이 아니라 Cycle 완료 직전 gate입니다.",
+    "",
+    "Cycle loop:",
+    "",
+    "Start",
+    "  |",
+    "  v",
+    "Context Load",
+    "  |  이전 세션 요약 · 현재 Cycle · Linear 상태를 읽음",
+    "  |  files: memory/context-map.yaml · memory/resume-brief.md",
+    "  v",
+    "Brief",
+    "  |  사용자가 지금 무엇부터 볼지 정리",
+    "  |  script: scripts/session-brief.ts · hook: session_start",
+    "  v",
+    "Backlog",
+    "  |  사용자 아이디어를 후보 작업으로 정리",
+    "  |  checks: Identity Fit · Discovery depth · Backlog Candidate",
+    "  v",
+    "Cycle Plan",
+    "  |  후보를 Linear Parent/Sub-issue 작업 묶음으로 배치",
+    "  |  hook: before_implementation",
+    "  v",
+    "Cycle Run",
+    "  |  실제 변경과 산출물이 생김",
+    "  |  outputs: docs/ · scripts/ · examples/ · tests/ · artifacts/",
+    "  v",
+    "Issue Done",
+    "  |  증거 확인 후 사용자 승인으로 Linear Done 반영",
+    "  v",
+    "Verification",
+    "  |  테스트와 안전검사로 release 가능성 확인",
+    "  v",
+    "Commit",
+    "  |",
+    "  v",
+    "Push / Tag / GitHub Release",
+    "  |  외부 사용자가 받을 수 있게 배포",
+    "  |  hook: before_public_release · script: scripts/release-preflight.ts",
+    "  v",
+    "Cycle Complete",
+    "  |",
+    "  v",
+    "Next Cycle",
+    "",
+    "Rule: release는 Cycle 바깥 후속작업이 아니라 Cycle 완료 조건 안쪽 gate입니다.",
+    "",
+  ].join("\n");
+}
+
+export function buildHookDetail(input: SessionBriefInput): string {
+  const now = input.now ?? new Date();
+  const resolved = resolveSessionContext(input.context, now);
+  return [
+    renderHookMap(loadHookMap()),
+    `Context: ${formatKoreanDate(now)} · ${resolved.displaySurface.cycle.name}`,
+    "",
+  ].join("\n");
+}
+
 export function buildCandidateDetail(input: SessionBriefInput, candidateNumber: number): string {
   const now = input.now ?? new Date();
   const resolved = resolveSessionContext(input.context, now);
@@ -211,6 +284,14 @@ async function main(): Promise<void> {
   }
   if (detail === "approvals") {
     console.log(buildApprovalDetail({ context }));
+    return;
+  }
+  if (detail === "flow") {
+    console.log(buildFlowDetail({ context }));
+    return;
+  }
+  if (detail === "hooks") {
+    console.log(buildHookDetail({ context }));
     return;
   }
   console.log(buildSessionBrief({ context }));

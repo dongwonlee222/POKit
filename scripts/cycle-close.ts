@@ -46,10 +46,15 @@ export function buildCycleCloseDraft(input: CycleCloseInput): string {
   const runSummaryOnly = completedIssues.filter((issue) => !changelog.some((item) => item.issue.identifier === issue.identifier));
   const decisionCandidates = buildDecisionLogCandidates(input.context.issues).slice(0, 3);
   const approvalPreview = buildExternalWriteApprovalPreview(input.context, completedIssues, carryOverIssues);
-  const completionExperience = buildCycleCompletionExperience(input.context, completedIssues, carryOverIssues);
+  const releaseComplete = isCycleReleaseComplete(input.context);
+  const completionExperience = releaseComplete
+    ? buildCycleCompletionExperience(input.context, completedIssues, carryOverIssues)
+    : buildCycleReleasePendingSection(input.context, completedIssues, carryOverIssues);
   const nextAction = carryOverIssues.length
     ? `${cycleName(input.context)} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`
-    : `${cycleName(input.context)} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`;
+    : releaseComplete
+      ? `${cycleName(input.context)} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`
+      : `${cycleName(input.context)} release preflight부터 완료 조건까지 이어가줘`;
 
   return [
     "---",
@@ -129,6 +134,9 @@ export function buildAfterCycleCompleteMessage(input: CycleCompleteMessageInput)
   const approvalPendingCount = input.approvalPendingCount ?? 0;
   const clarificationCount = input.clarificationCount ?? 0;
   if (incompleteCount > 0 || approvalPendingCount > 0 || clarificationCount > 0) {
+    return null;
+  }
+  if (!isCycleReleaseComplete(input.context)) {
     return null;
   }
 
@@ -263,6 +271,28 @@ function buildCycleCompletionExperience(context: WorkingCycleContext, completedI
     "",
     "- Cycle이 끝났으니 새 세션에서 시작해 컨텍스트를 가볍게 유지하는 것을 권장합니다.",
   ];
+}
+
+function buildCycleReleasePendingSection(context: WorkingCycleContext, completedIssues: Issue[], carryOverIssues: Issue[]): string[] {
+  if (carryOverIssues.length > 0 || completedIssues.length === 0) {
+    return [];
+  }
+  return [
+    "## Cycle Release Pending",
+    "",
+    `Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${cycleName(context)}`,
+    "",
+    "### 남은 완료 조건",
+    "",
+    "- Release preflight 재확인",
+    "- Commit",
+    "- Push / Tag / GitHub Release",
+    "- Linear Cycle completion sync",
+  ];
+}
+
+function isCycleReleaseComplete(context: WorkingCycleContext): boolean {
+  return Boolean(context.cycle.completedAt);
 }
 
 function isCompletedIssue(issue: Issue): boolean {

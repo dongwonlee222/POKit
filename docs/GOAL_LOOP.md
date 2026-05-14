@@ -13,7 +13,7 @@ Codex does not rely on Claude's `/goal` command. In Codex, POKit uses skills as 
 Claude Code:
 
 ```text
-/goal POKit shows a brief, processes the selected Linear tasks, all tests pass, git status is clean except known local files, and completed Linear issues are marked Done.
+/goal POKit shows a brief, processes the selected Linear tasks, all tests pass, git status is clean except known local files, completed Linear issues are marked Done, and the Cycle is either released or explicitly release-pending.
 ```
 
 Codex:
@@ -30,7 +30,8 @@ Both runtimes should follow the same operating loop:
 4. Use scripts only as helpers or smoke tests.
 5. Verify tests and repo state.
 6. Mark completed Linear issues Done.
-7. Show the next brief or next nudge.
+7. Run the release gate for substantial Cycle work, or show release-pending status when approval is still needed.
+8. Show the next brief or next nudge only after the Cycle is released or explicitly deferred.
 
 ## POKit Completion Conditions
 
@@ -42,6 +43,8 @@ Use these conditions for substantial POKit runs:
 - Tests pass.
 - Generated artifacts are local unless intentionally documented as examples.
 - Completed Cycle issues are marked Done in Linear.
+- Substantial Cycle work is not called fully complete until the approved commit, push, tag, and GitHub release are done.
+- If release is not approved yet, the final response says `release pending` and does not recommend the next Cycle as if the current Cycle were complete.
 - The final response names the latest commit and remaining tasks.
 
 ## References

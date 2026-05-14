@@ -93,6 +93,7 @@ test("buildCycleCloseDraft includes completion celebration and usage nudge when 
   const { buildCycleCloseDraft } = await loadCycleCloseModule();
   const completeContext = {
     ...cycle3Context,
+    cycle: { ...cycle3Context.cycle, completedAt: "2026-05-13T15:00:00.000Z" },
     issues: cycle3Context.issues.filter((issue) => issue.state === "Done"),
   };
 
@@ -109,12 +110,33 @@ test("buildCycleCloseDraft includes completion celebration and usage nudge when 
   assert.match(markdown, /POKit 시작해줘/);
 });
 
+test("buildCycleCloseDraft shows release pending instead of completion before release gate", async () => {
+  const { buildCycleCloseDraft } = await loadCycleCloseModule();
+  const releasePendingContext = {
+    ...cycle3Context,
+    cycle: { ...cycle3Context.cycle, completedAt: null },
+    issues: cycle3Context.issues.filter((issue) => issue.state === "Done"),
+  };
+
+  const markdown = buildCycleCloseDraft({
+    generatedAt: "2026-05-13T12:00:00+09:00",
+    context: releasePendingContext,
+  });
+
+  assert.match(markdown, /## Cycle Release Pending/);
+  assert.match(markdown, /Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
+  assert.match(markdown, /Push \/ Tag \/ GitHub Release/);
+  assert.doesNotMatch(markdown, /🎉 Cycle 3 완료!/);
+  assert.doesNotMatch(markdown, /Cycle 3 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
+});
+
 test("buildAfterCycleCompleteMessage shows once per complete cycle state", async () => {
   const { buildAfterCycleCompleteMessage } = await loadCycleCloseModule();
 
   const first = buildAfterCycleCompleteMessage({
     context: {
       ...cycle3Context,
+      cycle: { ...cycle3Context.cycle, completedAt: "2026-05-13T15:00:00.000Z" },
       issues: cycle3Context.issues.map((issue) => ({ ...issue, state: "Done" })),
     },
     runSummaryPath: "artifacts/sprints/Cycle-3/run-summary.md",
@@ -130,6 +152,7 @@ test("buildAfterCycleCompleteMessage shows once per complete cycle state", async
   const second = buildAfterCycleCompleteMessage({
     context: {
       ...cycle3Context,
+      cycle: { ...cycle3Context.cycle, completedAt: "2026-05-13T15:00:00.000Z" },
       issues: cycle3Context.issues.map((issue) => ({ ...issue, state: "Done" })),
     },
     runSummaryPath: "artifacts/sprints/Cycle-3/run-summary.md",
@@ -138,4 +161,20 @@ test("buildAfterCycleCompleteMessage shows once per complete cycle state", async
   });
 
   assert.equal(second, null);
+});
+
+test("buildAfterCycleCompleteMessage waits for release gate before celebrating", async () => {
+  const { buildAfterCycleCompleteMessage } = await loadCycleCloseModule();
+
+  const message = buildAfterCycleCompleteMessage({
+    context: {
+      ...cycle3Context,
+      cycle: { ...cycle3Context.cycle, completedAt: null },
+      issues: cycle3Context.issues.map((issue) => ({ ...issue, state: "Done" })),
+    },
+    runSummaryPath: "artifacts/sprints/Cycle-3/run-summary.md",
+    retroPath: "artifacts/sprints/Cycle-3/retro.md",
+  });
+
+  assert.equal(message, null);
 });

@@ -136,6 +136,8 @@ Linear 반영은 조용히 실행되지 않습니다. label, issue, comment, cyc
 
 승인은 작은 기계적 단계가 아니라 목적 단위로 받습니다. 예를 들어 “POKIT-32부터 POKIT-34까지 현재 cycle에 넣고 실행 준비해줘”를 승인하면, 포킷은 그 계획에 직접 필요한 cycle assignment와 label sync를 함께 처리할 수 있습니다. 다만 파괴적 작업, Done 전환, release, GitHub push, decision log 확정, cycle 종료 확정은 별도 명시 승인이 필요합니다.
 
+POKit에서 release는 Cycle 바깥의 후속 작업이 아니라 Cycle 완료 조건의 마지막 gate입니다. Issue Done과 테스트 통과만으로는 `작업 완료` 상태이고, approved commit, push, tag, GitHub release까지 끝나야 `Cycle 완전 완료`입니다.
+
 ## 평소 사용법
 
 1. 후보 작업을 Linear에 넣습니다.

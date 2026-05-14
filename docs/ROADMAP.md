@@ -25,7 +25,7 @@ Linear를 대체하지 않는다. Linear는 승인된 Project, Cycle, Issue의 �
 
 포킷은 Linear를 복제하지 않고 활용한다.
 
-포킷의 roadmap cycle은 Linear cycle과 같은 운영 단위로 맞춘다. Linear 공식 문서 기준으로 cycles는 sprint처럼 반복되는 time-box이고, release와는 별개다. 따라서 사용자가 "Cycle 4"라고 말하면 포킷은 기본적으로 Linear의 해당 작업 cycle을 의미해야 한다.
+포킷의 roadmap cycle은 Linear cycle과 같은 운영 단위로 맞춘다. Linear의 cycle 객체와 GitHub release 객체는 별개지만, POKit의 Cycle 완료 조건에는 승인된 release가 포함된다. 따라서 사용자가 "Cycle 4"라고 말하면 포킷은 기본적으로 Linear의 해당 작업 cycle을 의미하되, Cycle 완전 완료는 검증된 변경의 commit, push, tag, GitHub release까지 끝난 상태를 뜻한다.
 
 Hotfix는 roadmap cycle 번호 흐름에 끼우지 않는다. 긴급 수정은 `targetVersion`, `releaseKind: hotfix`, `sourceCycle`, `resumeCycle`로 관리하고, Linear cycle number가 hotfix 때문에 차지되었더라도 포킷의 사용자-facing roadmap cycle 이름을 바꾸지 않는다. 필요하면 hotfix는 Linear Project, issue label, 또는 별도 hotfix tracking issue로 묶고, 일반 roadmap cycle과 분리한다.
 

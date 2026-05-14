@@ -1,37 +1,31 @@
 # POKit Release Checklist
 
-## v0.2.0 Release Clean Check
+## v0.4.0 Release Clean Check
 
-Checked on 2026-05-13.
+Checked on 2026-05-14.
 
 - [x] `git status --short --branch` checked.
-- [x] Only known local untracked design/workbench files remain outside release scope:
-  - `.modu-harness/`
-  - `POKit-Day1-Design.zip`
-  - `POKit-Day1-Design/`
+- [x] Working tree checked: only release document updates remain before the final preflight commit.
+- [x] Local `main` is ahead of `origin/main` by 8 Cycle 5 commits before release publication.
 - [x] `.env` is not tracked.
+- [x] `pokit.local.config.yaml` is not tracked.
 - [x] Generated local artifacts under `artifacts/prds/*.md`, `artifacts/criteria/*.md`, `artifacts/sprints/**/retro.md`, and `artifacts/sprints/**/*-run-summary.md` are not tracked.
 - [x] Secret pattern scan found no committed Linear API key, GitHub token, Supabase password, or private key.
 - [x] Public safety scan passed: no private Linear workspace slug, private cycle ID, or live tracked memory state.
-- [x] Live `memory/resume-brief.md` replaced with a public-safe starter placeholder.
-- [x] Dogfood examples sanitized to placeholder Linear URLs and cycle IDs.
-- [x] Script examples and helper defaults no longer embed private cycle IDs.
-- [x] LLM-first README and onboarding flow checked.
-- [x] Cycle-first next-action wording checked.
-- [x] Brief user scenario checked: no numbered quick-command prompts remain in the default brief.
-- [x] Completed-cycle immutability guard checked.
-- [x] Release/Hotfix policy checked: normal deployment stays in the Cycle completion condition; deployment omission or urgent redeploy uses a versioned Hotfix Cycle with source/resume Cycle metadata.
-- [x] Hotfix Cycle dry-run checked for placeholder deployment omission tracking.
-- [x] Cycle maintenance dry-run checked for placeholder Linear completion drift.
-- [x] Test suite passed: 80/80.
+- [x] Release Markdown audit passed for `v0.4.0`.
+- [x] Release preflight gate passed for `v0.4.0`.
+- [x] POKit Brief checked: Cycle 5 shows Todo 0, In Progress 0, Done 5.
+- [x] Cycle 5 release scope checked: Identity Fit / Discovery / Done Gate policy, PO Signal Watch docs, brief progress visualization, Korean-first artifact hooks, completion contract updates.
+- [x] Test suite passed: 106/106.
 
 ## Release Gate
 
-- [x] Target version chosen according to `docs/VERSIONING.md`: `v0.2.0`.
+- [x] Target version chosen according to `docs/VERSIONING.md`: `v0.4.0`.
 - [x] `VERSION` file check complete: no `VERSION` file is present.
-- [x] Git tag target matches the approved target version: `v0.2.0`.
+- [x] Git tag target matches the approved target version: `v0.4.0`.
 - [x] `CHANGELOG.md` has matching version-section entries for the release scope.
-- [x] User approved `v0.2.0` tag creation in the final deploy request.
-- [x] User approved GitHub release creation in the final deploy request.
-- [x] Hotfix metadata check complete: not applicable for normal `v0.2.0` release.
+- [ ] User approved `v0.4.0` GitHub push in the final deploy request.
+- [ ] User approved `v0.4.0` tag creation in the final deploy request.
+- [ ] User approved GitHub release creation in the final deploy request.
+- [x] Hotfix metadata check complete: not applicable for normal `v0.4.0` release.
 - [x] Linear/GitHub writes remain dry-run or explicitly approved.

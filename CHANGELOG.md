@@ -4,6 +4,37 @@
 
 No pending public release notes.
 
+## v0.4.0 - 2026-05-14
+
+### Added
+
+- Added PO Signal Watch workflow docs and source registry guidance for turning external product signals into backlog candidate dry-runs.
+- Added Signal Watch examples for discovery briefs and backlog candidate dry-runs.
+- Added POKit Brief parent progress bars and hierarchical sub-issue detail views.
+- Added release preflight and hook map scripts so `before_public_release` gates are executable and visible.
+- Added POKit flow and hook detail views to the session brief.
+
+### Changed
+
+- Refined Cycle 5 operating gates for Identity Fit, Discovery depth, external write confirmation, and completion reporting.
+- Fixed Cycle close and session close behavior so all-Done issues are reported as release pending until the approved release gate completes.
+- Updated session brief fallback behavior so empty upcoming cycles can surface backlog candidates more clearly.
+- Added Linear parent issue metadata to issue reads so parent and sub-issue progress can be shown together.
+- Extended `workflows/hooks.yaml` with enforcement metadata for release gates.
+
+### Docs / Policy
+
+- Documented Korean-first user-facing replies, reports, and local artifacts.
+- Moved detailed completion and external write confirmation contracts into `docs/OPERATING_MODEL.md`.
+- Reduced duplicated rule text in `AGENTS.md` by linking to the canonical operating model.
+- Documented compact ASCII visualization patterns for live POKit conversations.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 106/106.
+
 ## v0.3.0 - 2026-05-14
 
 ### Changed

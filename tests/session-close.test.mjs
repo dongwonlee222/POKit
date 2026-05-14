@@ -90,14 +90,14 @@ test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is alrea
     context: {
       activeCycle: {
         source: "linear_active",
-        cycle: { id: "cycle-1", name: "Cycle 1" },
+        cycle: { id: "cycle-1", name: "Cycle 1", completedAt: "2026-05-13T15:00:00.000Z" },
         issues: [
           { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
         ],
       },
       upcomingCycle: {
         source: "linear_upcoming",
-        cycle: { id: "cycle-2", name: "Cycle 2" },
+        cycle: { id: "cycle-2", name: "Cycle 2", completedAt: "2026-05-13T16:00:00.000Z" },
         issues: [
           { id: "issue-32", identifier: "EVM-32", title: "model-tier policy 문서화", description: "done", labels: ["pokit:criteria"], state: "Done" },
           { id: "issue-33", identifier: "EVM-33", title: "resume-brief compact contract 강화", description: "done", labels: ["pokit:criteria"], state: "Done" },
@@ -106,7 +106,7 @@ test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is alrea
       backlogIssues: [],
       selected: {
         source: "linear_active",
-        cycle: { id: "cycle-1", name: "Cycle 1" },
+        cycle: { id: "cycle-1", name: "Cycle 1", completedAt: "2026-05-13T15:00:00.000Z" },
         issues: [
           { id: "issue-1", identifier: "EVM-1", title: "old work", description: "done", labels: ["pokit:criteria"], state: "Done" },
         ],
@@ -125,6 +125,45 @@ test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is alrea
   assert.match(report, /EVM-32 model-tier policy 문서화 · Done/);
   assert.match(report, /Cycle 2 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
   assert.doesNotMatch(report, /EVM-1 old work/);
+});
+
+test("buildSessionCloseReport keeps all-done active Cycle release pending until release gate completes", async () => {
+  const { buildSessionCloseReport } = await loadSessionCloseModule();
+
+  const report = buildSessionCloseReport({
+    now: new Date("2026-05-13T12:00:00+09:00"),
+    context: {
+      activeCycle: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1", completedAt: null },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "release pending work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-2", name: "Cycle 2" },
+        issues: [
+          { id: "issue-32", identifier: "EVM-32", title: "next work", description: "todo", labels: ["pokit:criteria"], state: "Todo" },
+        ],
+      },
+      backlogIssues: [],
+      selected: {
+        source: "linear_active",
+        cycle: { id: "cycle-1", name: "Cycle 1", completedAt: null },
+        issues: [
+          { id: "issue-1", identifier: "EVM-1", title: "release pending work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+        ],
+      },
+      fetchedAt: "2026-05-13T03:00:00.000Z",
+    },
+  });
+
+  assert.match(report, /📅 .* · Cycle 1/);
+  assert.match(report, /Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
+  assert.match(report, /Cycle 1 release preflight부터 완료 조건까지 이어가줘/);
+  assert.doesNotMatch(report, /🎉 Cycle 1 완료!/);
+  assert.doesNotMatch(report, /EVM-32 next work/);
 });
 
 test("buildResumeBrief keeps compact contract and Cycle-level next action", async () => {
