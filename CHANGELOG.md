@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Moved personal/company Linear profile routing out of shared `pokit.config.yaml` and into ignored `pokit.local.config.yaml`.
+- Made selected `POKIT_PROFILE` routing override stale global `LINEAR_TEAM_ID` / `LINEAR_TEAM_KEY` values.
+- Updated working-context selection so completed Linear cycles are not reused as the active work surface.
+- Aligned POKit roadmap cycles with Linear cycles while keeping hotfix work in a separate version/release flow.
+- Replaced long dry-run execution sentences with compact `A/B` confirmation choices.
+
+### Docs / Policy
+
+- Updated README, onboarding, operating model, and roadmap guidance for local profile routing and cycle/Linear alignment.
+- Documented Cycle 4 as `Context Boundary & Brief Trust`.
+
+### Verification
+
+- Public safety scan passed.
+- Test suite passed: 86/86.
+
 ## v0.2.2 Hotfix - 2026-05-14
 
 This hotfix aligns the built-in Evmodu profile with the actual Linear team key created during product-cycle separation.
