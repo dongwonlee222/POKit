@@ -25,6 +25,10 @@ Linear를 대체하지 않는다. Linear는 승인된 Project, Cycle, Issue의 �
 
 포킷은 Linear를 복제하지 않고 활용한다.
 
+포킷의 roadmap cycle은 Linear cycle과 같은 운영 단위로 맞춘다. Linear 공식 문서 기준으로 cycles는 sprint처럼 반복되는 time-box이고, release와는 별개다. 따라서 사용자가 "Cycle 4"라고 말하면 포킷은 기본적으로 Linear의 해당 작업 cycle을 의미해야 한다.
+
+Hotfix는 roadmap cycle 번호 흐름에 끼우지 않는다. 긴급 수정은 `targetVersion`, `releaseKind: hotfix`, `sourceCycle`, `resumeCycle`로 관리하고, Linear cycle number가 hotfix 때문에 차지되었더라도 포킷의 사용자-facing roadmap cycle 이름을 바꾸지 않는다. 필요하면 hotfix는 Linear Project, issue label, 또는 별도 hotfix tracking issue로 묶고, 일반 roadmap cycle과 분리한다.
+
 ```mermaid
 flowchart TD
   A["North Star<br/>포킷 정체성"] --> B["Goal / Initiative<br/>docs roadmap 또는 Linear Initiative"]
@@ -39,7 +43,8 @@ flowchart TD
 - `docs/ROADMAP.md`: 전체 그림, 미래 방향, 아직 Linear에 올리지 않은 후보.
 - Linear Initiative: 장기적으로 추적할 가치가 있는 전략 방향.
 - Linear Project: Cycle 4, Cycle 5처럼 큰 개선 흐름.
-- Linear Issue: 실제 실행 단위.
+- Linear Cycle: 포킷 roadmap cycle의 실제 실행 컨테이너.
+- Linear Issue: cycle 안에서 처리할 실제 실행 단위.
 - Linear Updates: 포킷 요약에서 만든 승인된 상태 업데이트.
 
 Linear 반영 흐름:
@@ -105,6 +110,7 @@ Cycle 4는 기존의 "Human-LLM Scrum Communication" 방향 중 가장 먼저 �
 4. completed cycle 제외: `completedAt`이 있는 cycle은 다음 작업 후보에서 제외
 5. brief source 표시: `Profile`, `Team Key`, `Cycle`, `Run Summary`, `Retro` 기준을 숨기지 않음
 6. Cycle 4 Linear sync preflight: 일반 Cycle 4와 hotfix cycle 번호 충돌을 확인한 뒤 외부 write 실행
+7. POKIT-52 POKit roadmap cycle과 Linear cycle 기준 일치
 
 기대 효과:
 
@@ -149,13 +155,16 @@ flowchart TD
 
 ### Linear Sync 상태
 
-현재 Linear에서 POKit team은 `Hotfix v0.1.0`이 cycle number 4로 이미 완료되어 있고, 일반 작업용 Cycle 4가 별도로 보이지 않는다. 따라서 Cycle 4 이슈 생성/할당은 다음 중 하나를 먼저 정한 뒤 실행한다.
+현재 Linear에서 POKit team은 `Hotfix v0.1.0`이 cycle number 4로 이미 완료되어 있고, 일반 작업용 Cycle 4가 별도로 보이지 않는다. 이 상태는 사용자가 "Cycle 4"를 말할 때 Linear cycle number 4와 roadmap Cycle 4가 충돌하게 만든다.
 
-1. 일반 작업용 새 cycle을 만들고 이름을 `Cycle 4: Context Boundary & Brief Trust`로 둔다.
-2. 현재 미래 `Cycle 3`을 실제 다음 일반 cycle로 보고 이름/범위를 조정한다.
-3. Linear cycle 번호는 그대로 두고, Project 또는 issue title에 `Cycle 4` 묶음을 명시한다.
+운영 원칙:
 
-추천: 3번. Linear의 자동 cycle number와 제품 로드맵의 cycle 이름이 이미 hotfix 때문에 어긋났으므로, 외부 cycle 구조를 억지로 바꾸지 않고 issue 묶음에 `Cycle 4`를 명시한다.
+1. 포킷 roadmap cycle과 Linear cycle은 같은 작업 단위로 관리한다.
+2. Hotfix는 roadmap cycle 번호를 차지하지 않고 version/release 흐름으로 분리한다.
+3. 브리프는 `Roadmap Cycle`, `Linear Cycle`, `Hotfix/Version`을 혼합해서 표시하지 않는다.
+4. Linear에서 hotfix cycle이 이미 생성되어 번호를 차지한 경우, 다음 일반 작업 전 cycle naming과 issue assignment를 먼저 정리한다.
+
+추천: 일반 작업용 Linear cycle을 `Cycle 4: Context Boundary & Brief Trust`로 명확히 만들거나 조정하고, `POKIT-48`~`POKIT-52` 및 후속 기준 분리 작업을 그 cycle에 맞춘다. Hotfix `v0.1.0`은 release/hotfix 기록으로만 남긴다.
 
 ## Cycle 5: PO Signal Watch -> Backlog & Share
 
