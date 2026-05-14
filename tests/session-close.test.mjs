@@ -75,9 +75,11 @@ test("buildSessionCloseReport surfaces history write conflict warnings as Needs 
   assert.match(report, /판단 근거: content hash changed; refusing stale resume-brief overwrite/);
   assert.match(report, /실행 후 기대효과/);
   assert.match(report, /사용자 확인/);
-  assert.match(report, /1\. ✅ 추천대로 실행/);
-  assert.match(report, /2\. ✏️ 직접 입력하기/);
-  assert.match(report, /번호로 선택해 주세요\./);
+  assert.match(report, /A\. ✅ 추천대로 실행/);
+  assert.match(report, /B\. ✏️ 직접 입력하기/);
+  assert.match(report, /A\/B로 선택해 주세요\./);
+  assert.doesNotMatch(report, /1\. ✅ 추천대로 실행/);
+  assert.doesNotMatch(report, /번호로 선택해 주세요\./);
 });
 
 test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is already complete", async () => {

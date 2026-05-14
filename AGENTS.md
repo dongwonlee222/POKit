@@ -82,11 +82,11 @@ Dry-run plans must be user-readable execution preflight checks, not just interna
 - the idempotency key;
 - the expected benefit after execution;
 - a short "사용자 확인" block:
-  - `1. ✅ 추천대로 실행`
-  - `2. ✏️ 직접 입력하기`
-  - `번호로 선택해 주세요.`
+  - `A. ✅ 추천대로 실행`
+  - `B. ✏️ 직접 입력하기`
+  - `A/B로 선택해 주세요.`
 
-Do not make the user copy a long execution sentence. Put the detailed recommended action in the dry-run body, then let the user choose by number. If the user selects `1`, execute the recommended action. If the user selects `2`, ask what they want to change and revise the dry-run.
+Do not make the user copy a long execution sentence. Put the detailed recommended action in the dry-run body, then let the user choose by `A/B`. If the user selects `A`, execute the recommended action. If the user selects `B`, ask what they want to change and revise the dry-run. Do not use numeric choices for confirmation blocks because they conflict with numbered completion report sections.
 
 ## Human Intervention Matrix
 

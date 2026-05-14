@@ -65,9 +65,11 @@ test("buildCycleCloseDraft separates completed, carry-over, approvals, artifacts
   assert.match(markdown, /idempotency key: `linear:cycle-close:cycle-3:done:EVM-35,EVM-36,EVM-37,EVM-38,EVM-39,EVM-47`/);
   assert.match(markdown, /실행 후 기대효과/);
   assert.match(markdown, /사용자 확인/);
-  assert.match(markdown, /1\. ✅ 추천대로 실행/);
-  assert.match(markdown, /2\. ✏️ 직접 입력하기/);
-  assert.match(markdown, /번호로 선택해 주세요\./);
+  assert.match(markdown, /A\. ✅ 추천대로 실행/);
+  assert.match(markdown, /B\. ✏️ 직접 입력하기/);
+  assert.match(markdown, /A\/B로 선택해 주세요\./);
+  assert.doesNotMatch(markdown, /1\. ✅ 추천대로 실행/);
+  assert.doesNotMatch(markdown, /번호로 선택해 주세요\./);
   assert.match(markdown, /Cycle 3 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
 });
 

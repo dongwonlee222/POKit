@@ -329,10 +329,10 @@ The same cycle completion message should not repeat unless the cycle state chang
 ```text
 사용자 확인
 
-1. ✅ 추천대로 실행
-2. ✏️ 직접 입력하기
+A. ✅ 추천대로 실행
+B. ✏️ 직접 입력하기
 
-번호로 선택해 주세요.
+A/B로 선택해 주세요.
 ```
 
 POKit operational completion and Linear date-based cycle state can drift. When a Cycle is operationally complete but still appears as Linear current or upcoming, print a cycle maintenance dry-run before applying any Linear cycle update:

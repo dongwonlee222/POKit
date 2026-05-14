@@ -311,10 +311,10 @@ function buildApprovalPreviewLines(historyConflicts: Array<Extract<ResumeBriefWr
     "",
     "사용자 확인",
     "",
-    "1. ✅ 추천대로 실행",
-    "2. ✏️ 직접 입력하기",
+    "A. ✅ 추천대로 실행",
+    "B. ✏️ 직접 입력하기",
     "",
-    "번호로 선택해 주세요.",
+    "A/B로 선택해 주세요.",
   ];
 }
 
