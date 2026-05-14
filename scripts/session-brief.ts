@@ -30,6 +30,7 @@ type ResolvedSessionContext = {
   warningReviewCount: number;
   activeOperationallyComplete: boolean;
   futureUpcoming: boolean;
+  backlogCandidateFallback: boolean;
 };
 
 export function buildSessionBrief(input: SessionBriefInput): string {
@@ -45,12 +46,14 @@ export function buildSessionBrief(input: SessionBriefInput): string {
   const archiveGuardrail = buildArchiveGuardrail({ issues: currentSurface.issues });
   const runSummaryPath = findLatestRunSummary(rootDir, currentSurface.cycle.name);
   const retroPath = findRetro(rootDir, currentSurface.cycle.name);
+  const roadmapLine = buildRoadmapLine(currentSurface.cycle.name);
   const candidateNumbers = resolved.primaryCandidates.map((_, index) => `${index + 1}번`);
   const recommendation = buildRecommendation({
     activeOperationallyComplete: resolved.activeOperationallyComplete,
     futureUpcoming: resolved.futureUpcoming,
     candidateNumbers,
     hasBacklogCandidates: resolved.backlogCandidates.length > 0,
+    backlogCandidateFallback: resolved.backlogCandidateFallback,
     primarySource: resolved.primarySurface.source,
     cycleName: resolved.primarySurface.cycle.name,
   });
@@ -63,6 +66,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     "",
     `📅 ${formatKoreanDate(now)} · ${currentSurface.cycle.name}`,
     `Profile: ${profile.name}${profile.linearTeamKey ? ` · Team Key: ${profile.linearTeamKey}` : ""}`,
+    ...(roadmapLine ? [roadmapLine] : []),
     "",
     cycleLine,
     formatWarningLine(dryRun, resolved.warningReviewCount),
@@ -170,6 +174,7 @@ export function buildCandidateDetail(input: SessionBriefInput, candidateNumber: 
     futureUpcoming: resolved.futureUpcoming,
     candidateNumbers: [`${candidateNumber}번`],
     hasBacklogCandidates: resolved.backlogCandidates.length > 0,
+    backlogCandidateFallback: resolved.backlogCandidateFallback,
     primarySource: resolved.primarySurface.source,
     cycleName: resolved.primarySurface.cycle.name,
   });
@@ -362,6 +367,7 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
       warningReviewCount: currentCounts.review,
       activeOperationallyComplete: isOperationallyComplete(currentCounts),
       futureUpcoming: false,
+      backlogCandidateFallback: false,
     };
   }
 
@@ -380,8 +386,14 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
 
   const activeCounts = activeSurface ? countIssues(activeSurface.issues) : undefined;
   const activeOperationallyComplete = Boolean(activeCounts && isOperationallyComplete(activeCounts));
+  const shouldUseBacklogCandidates = Boolean(
+    !activeSurface &&
+      upcomingSurface &&
+      upcomingSurface.issues.length === 0 &&
+      backlogSurface,
+  );
   const displayUpcoming = Boolean(
-    activeOperationallyComplete &&
+    (activeOperationallyComplete || shouldUseBacklogCandidates) &&
       upcomingSurface &&
       upcomingSurface.issues.length > 0,
   );
@@ -389,9 +401,19 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
     ? upcomingSurface!
     : activeSurface ?? toWorkingCycleContext(context.selected);
   const currentCounts = countIssues(currentSurface.issues);
+  const emptyUpcomingWithBacklog = Boolean(
+    (activeOperationallyComplete || shouldUseBacklogCandidates) &&
+      upcomingSurface &&
+      upcomingSurface.issues.length === 0 &&
+      backlogSurface,
+  );
   const primarySurface = activeOperationallyComplete
-    ? upcomingSurface ?? backlogSurface ?? currentSurface
-    : currentSurface;
+    ? emptyUpcomingWithBacklog
+      ? backlogSurface!
+      : upcomingSurface ?? backlogSurface ?? currentSurface
+    : shouldUseBacklogCandidates
+      ? backlogSurface!
+      : currentSurface;
 
   return {
     activeSurface,
@@ -407,6 +429,7 @@ function resolveSessionContext(context: WorkingCycleContext | WorkingContext, no
     currentCounts,
     warningReviewCount: currentCounts.review,
     activeOperationallyComplete,
+    backlogCandidateFallback: shouldUseBacklogCandidates,
     futureUpcoming: Boolean(
       activeOperationallyComplete &&
         upcomingSurface &&
@@ -467,9 +490,16 @@ function buildRecommendation(input: {
   futureUpcoming: boolean;
   candidateNumbers: string[];
   hasBacklogCandidates: boolean;
+  backlogCandidateFallback: boolean;
   primarySource: WorkingCycleContext["source"];
   cycleName: string;
 }): { summary: string; command: string } {
+  if (input.backlogCandidateFallback) {
+    return {
+      summary: "Backlog 후보를 다음 Cycle 후보로 묶기",
+      command: "Backlog 후보를 다음 Cycle 후보로 묶어줘",
+    };
+  }
   if (input.candidateNumbers.length) {
     if (input.futureUpcoming) {
       return {
@@ -498,6 +528,18 @@ function buildRecommendation(input: {
     summary: "새 후보를 Backlog에 정리",
     command: "새 후보를 Backlog에 정리하고 다음 Cycle 후보를 묶어줘",
   };
+}
+
+function buildRoadmapLine(cycleName: string): string | null {
+  const match = cycleName.match(/Cycle\s+(\d+)/i);
+  if (!match) {
+    return null;
+  }
+  const current = Number(match[1]);
+  if (!Number.isFinite(current) || current < 2) {
+    return null;
+  }
+  return `Roadmap: Cycle ${current - 1} → [Cycle ${current}] → Cycle ${current + 1}`;
 }
 
 function classifyIssueState(state: string | undefined): "done" | "inProgress" | "todo" | "review" {

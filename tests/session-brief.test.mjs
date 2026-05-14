@@ -364,3 +364,54 @@ test("buildSessionBrief recommends adding new backlog work only when there are n
   assert.match(brief, /👉 추천: 새 후보를 Backlog에 정리/);
   assert.match(brief, /💬 실행: “새 후보를 Backlog에 정리하고 다음 Cycle 후보를 묶어줘”/);
 });
+
+test("buildSessionBrief shows backlog candidates when only an empty upcoming cycle exists", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-14T09:00:00+09:00"),
+    context: {
+      upcomingCycle: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-5", name: "Cycle 5", startsAt: "2026-05-14T00:00:00.000Z" },
+        issues: [],
+      },
+      backlogIssues: [
+        { id: "issue-53", identifier: "POKIT-53", title: "Brief fallback", description: "show backlog", labels: ["pokit:criteria"], state: "Backlog" },
+        { id: "issue-54", identifier: "POKIT-54", title: "Visual layer", description: "show flow", labels: ["pokit:prd"], state: "Backlog" },
+      ],
+      selected: {
+        source: "linear_upcoming",
+        cycle: { id: "cycle-5", name: "Cycle 5", startsAt: "2026-05-14T00:00:00.000Z" },
+        issues: [],
+      },
+      fetchedAt: "2026-05-14T00:00:00.000Z",
+    },
+  });
+
+  assert.match(brief, /📅 .* · Cycle 5/);
+  assert.match(brief, /✅ Cycle 5 완료: Todo 0 · 진행 0 · 완료 0/);
+  assert.match(brief, /🧺 다음 후보/);
+  assert.match(brief, /1\. POKIT-53 Brief fallback · Backlog · pokit:criteria/);
+  assert.match(brief, /2\. POKIT-54 Visual layer · Backlog · pokit:prd/);
+  assert.match(brief, /👉 추천: Backlog 후보를 다음 Cycle 후보로 묶기/);
+  assert.match(brief, /💬 실행: “Backlog 후보를 다음 Cycle 후보로 묶어줘”/);
+  assert.doesNotMatch(brief, /새 후보를 Backlog에 정리/);
+});
+
+test("buildSessionBrief shows compact roadmap position for roadmap cycles", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-14T09:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-5", name: "Cycle 5: PO Signal Watch -> Backlog & Share" },
+      issues: [
+        { id: "issue-55", identifier: "POKIT-55", title: "Signal watch", description: "define flow", labels: ["pokit:prd"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /Roadmap: Cycle 4 → \[Cycle 5\] → Cycle 6/);
+});
