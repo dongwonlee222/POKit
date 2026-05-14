@@ -56,12 +56,20 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 - Model routing follows `docs/OPERATING_MODEL.md#model-tier-policy`: main agent owns judgment, integration, and final Done claims; lower-tier subagents only handle bounded file-owned work.
 - `memory/resume-brief.md` follows `docs/OPERATING_MODEL.md#resume-brief-contract`: compact handoff, one Cycle-level next action, and hash conflict protection before overwrite.
 
-When a POKit work item is finished, use the completion report format:
+Default completion response must be short. Do not use a structured completion report for ordinary local edits, minor Linear updates, or rule tweaks. Prefer one or two sentences:
+
+```text
+반영했습니다. 다음은 <POKit이 이어서 할 일>로 이어가겠습니다.
+```
+
+Use a structured completion report only for Cycle close, external write result summaries, test failures, approval-pending work, or when the user explicitly asks for a report/summary.
+
+When a structured POKit completion report is needed, use this order:
 
 1. ✅ 완료한 것
-2. ⏳ 아직 안 한 것 / 승인 대기
-3. 🧪 검증 결과
-4. 👉 다음에 사용자가 할 말 한 줄
+2. ➡️ 다음 작업
+3. ⏳ 아직 안 한 것 / 승인 대기
+4. 🧪 검증 결과
 
 When a Cycle is fully complete, the close report must also include the completion experience before the standard report sections:
 
@@ -73,8 +81,8 @@ When a Cycle is fully complete, the close report must also include the completio
 
 For unfinished or approval-pending items, include the task ID, title, current status, and why it is still pending so the user does not have to remember what each number means.
 Use emoji as section markers only; keep the report short and readable.
-The next sentence must continue or complete the current Cycle as a whole, not ask for a mechanical substep. Use Cycle-level wording unless the user explicitly picked one issue.
-After changing files, always close the report with the user's practical next decision: what is already done locally, what remains outside the repo, what approval or action is needed next, and a compact confirmation choice when an external write remains. Do not leave the user needing to ask "what now?".
+The next task must be what POKit will do next, not a sentence the user must copy back. Continue or complete the current Cycle as a whole, and do not ask for a mechanical substep. Use Cycle-level wording unless the user explicitly picked one issue.
+After changing files, do not force a report if the work is routine. Mention what changed only briefly, then continue the approved Cycle flow. Show a compact recommendation choice only when an external write or real product judgment remains. Do not require the user to retype the next action.
 
 Never write to Linear or GitHub without:
 1. A dry-run plan.
@@ -90,11 +98,14 @@ Dry-run plans must be user-readable execution preflight checks, not just interna
 - the idempotency key;
 - the expected benefit after execution;
 - a short "사용자 확인" block:
-  - `A. ✅ 추천대로 실행`
-  - `B. ✏️ 직접 입력하기`
+  - `🤔 선택이 필요한 이유: <external write, product judgment, ambiguity, destructive risk>`
+  - `✅ 추천안 A: <recommended action>`
+  - `이유: <why A is safer/better for the current Cycle>`
+  - `↩️ 대안 B: <alternative action>`
+  - `차이: <trade-off or why it is not preferred>`
   - `A/B로 선택해 주세요.`
 
-Do not make the user copy a long execution sentence. Put the detailed recommended action in the dry-run body, then let the user choose by `A/B`. If the user selects `A`, execute the recommended action. If the user selects `B`, ask what they want to change and revise the dry-run. Do not use numeric choices for confirmation blocks because they conflict with numbered completion report sections.
+Only show choices when a real decision is required. Do not ask the user to choose for mechanical substeps. When choices are needed, state why the decision is needed, recommend one option, and explain the reason and trade-off. Do not make the user copy a long execution sentence. Put the detailed recommended action in the dry-run body, then let the user choose by `A/B`. If the user selects `A`, execute the recommended action. If the user selects `B`, ask what they want to change and revise the dry-run. Do not use numeric choices for confirmation blocks because they conflict with numbered completion report sections.
 
 ## Human Intervention Matrix
 

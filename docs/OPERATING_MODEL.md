@@ -92,6 +92,20 @@ Backlog items should pass the POKit identity fit check:
 6. Are external state changes still controlled by execution preflight and approval?
 7. Does it automate local context while preserving approval boundaries for external state?
 
+Backlog memo to Linear candidate flow:
+
+```text
+Backlog Memo
+→ Identity Fit Check
+→ Discovery 필요 여부 판단
+→ Backlog Candidate
+→ Linear Parent Issue
+→ Sub-issue 산출물
+→ 실사용 Done Gate
+```
+
+Do not force every memo through full discovery. Apply Identity Fit only when a memo is being promoted toward a Linear candidate. Use Light Discovery for small or already-understood work, and Full Discovery Brief for parent-level changes, user-facing flow changes, external dependencies, identity-impacting ideas, or large bundles.
+
 When the product has to choose between competing behaviors, use this order:
 
 1. Reduce approval noise.
@@ -336,16 +350,23 @@ The completion experience must be explicit enough that the user sees the Cycle b
 - `직접 사용해 볼 것`
 - `새 세션 추천`
 
-The same cycle completion message should not repeat unless the cycle state changes. Do not ask the user to copy a long execution sentence. When an external write is proposed, end the dry-run with:
+The same cycle completion message should not repeat unless the cycle state changes. Do not ask the user to copy a long execution sentence. When an external write or real product judgment choice is proposed, end the dry-run with an emoji-scannable recommendation block. Only show choices when a real decision is required; do not turn mechanical substeps into approvals.
 
 ```text
 사용자 확인
 
-A. ✅ 추천대로 실행
-B. ✏️ 직접 입력하기
+🤔 선택이 필요한 이유: <external write, product judgment, ambiguity, destructive risk>
+
+✅ 추천안 A: <recommended action>
+이유: <why A is safer/better for the current Cycle>
+
+↩️ 대안 B: <alternative action>
+차이: <trade-off or why it is not preferred>
 
 A/B로 선택해 주세요.
 ```
+
+If the user selects A, execute the recommended action. If the user selects B, ask what to change and revise the dry-run. Do not show choices when the next step is already covered by the approved Cycle intent.
 
 POKit operational completion and Linear date-based cycle state can drift. When a Cycle is operationally complete but still appears as Linear current or upcoming, print a cycle maintenance dry-run before applying any Linear cycle update:
 
@@ -361,10 +382,16 @@ When POKit finishes a work item, it should close with a short report instead of 
 
 Use this order:
 
+Default completion response must be short. Use one or two sentences for ordinary local edits, rule updates, and minor Linear maintenance. Do not make the user read a report after every step.
+
+Use structured completion reports only for Cycle close, external write result summaries, test failures, approval-pending work, or when the user explicitly asks for a report/summary.
+
+When structured reporting is needed, use this order so the next step stays visible:
+
 1. ✅ 완료한 것
-2. ⏳ 아직 안 한 것 / 승인 대기
-3. 🧪 검증 결과
-4. 👉 다음에 사용자가 할 말 한 줄
+2. ➡️ 다음 작업
+3. ⏳ 아직 안 한 것 / 승인 대기
+4. 🧪 검증 결과
 
 For unfinished or approval-pending work, include enough task content to act without looking elsewhere:
 
@@ -372,13 +399,13 @@ For unfinished or approval-pending work, include enough task content to act with
 - title
 - current status
 - why it is pending
-- next action
+- next task
 
-The final line should be an executable sentence the user can say next, such as `Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`.
+The final line should describe what POKit will do next, not a sentence the user needs to copy back.
 
 Use emoji as section markers only. They should make status easier to scan, not make the report decorative.
 
-The final line must point at the next Cycle outcome, not a mechanical substep. If the user did not explicitly select one issue, prefer `Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`. Use issue-specific wording only when the user selected that issue or numbered candidate.
+The final line must point at the next Cycle outcome, not a mechanical substep. If the next step is already covered by the approved Cycle intent, continue without asking. Ask only when the next step needs external write approval, destructive action approval, product judgment, or scope clarification. Use issue-specific wording only when the user selected that issue or numbered candidate.
 
 ## Next Backlog
 
