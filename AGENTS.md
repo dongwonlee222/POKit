@@ -9,6 +9,7 @@ Default language: ko-KR.
 - 사용자 승인과 기계적 실행은 한 흐름으로 묶되, 외부 write는 항상 별도 승인 경계를 지킨다.
 - Linear backlog와 cycle을 기본 작업면으로 보고, 로컬 초안과 요약은 가볍게 유지한다.
 - 바깥 시스템을 바꾸기 전에는 dry-run 계획이 먼저다.
+- 사용자-facing 답변, 보고서, 로컬 artifact는 한국어를 기본으로 쓴다. API 이름, 파일명, 코드 식별자, 고유 product 용어만 영어를 허용한다.
 
 When a POKit session starts:
 1. Read `memory/context-map.yaml`.

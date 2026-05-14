@@ -16,6 +16,15 @@ test("AGENTS documents minimal human intervention approval matrix", async () => 
   assert.match(content, /Humans approve external impact and product judgment/);
 });
 
+test("AGENTS and OPERATING_MODEL require Korean-first user-facing artifacts", async () => {
+  const agents = await readFile("AGENTS.md", "utf8");
+  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(agents, /사용자-facing 답변, 보고서, 로컬 artifact는 한국어를 기본으로 쓴다/);
+  assert.match(operatingModel, /User-facing POKit output is Korean-first/);
+  assert.match(operatingModel, /understandable without translating English prose/);
+});
+
 test("OPERATING_MODEL documents conversational ASCII visualization rules", async () => {
   const content = await readFile("docs/OPERATING_MODEL.md", "utf8");
 

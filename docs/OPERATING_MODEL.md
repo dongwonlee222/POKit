@@ -63,6 +63,8 @@ POKit is built to keep scrum automation lightweight. The product should feel lik
 
 POKit is not a complex management system. It is a lightweight workspace where people and LLMs run scrum together.
 
+User-facing POKit output is Korean-first. Replies, close reports, local artifacts, run summaries, retros, examples, and dry-run explanations should be written in Korean by default. English is allowed for API names, file paths, code identifiers, command names, and established product terms such as Linear, GitHub, Signal Summary, or Backlog Candidate. If a generated artifact is meant for the user to read, it must be understandable without translating English prose.
+
 The automation boundary is intentional:
 
 - AI should keep moving local work forward.
