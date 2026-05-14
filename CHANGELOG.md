@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No pending public release notes.
+
+## v0.3.0 - 2026-05-14
+
 ### Changed
 
 - Moved personal/company Linear profile routing out of shared `pokit.config.yaml` and into ignored `pokit.local.config.yaml`.
@@ -14,11 +18,12 @@
 
 - Updated README, onboarding, operating model, and roadmap guidance for local profile routing and cycle/Linear alignment.
 - Documented Cycle 4 as `Context Boundary & Brief Trust`.
+- Defined Cycle completion as version release completion, not just main-branch push.
 
 ### Verification
 
 - Public safety scan passed.
-- Test suite passed: 86/86.
+- Test suite passed: 87/87.
 
 ## v0.2.2 Hotfix - 2026-05-14
 

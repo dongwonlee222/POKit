@@ -7,6 +7,7 @@ This document is the canonical release version policy for POKit.
 - Before the first official release, POKit work is unreleased unless it is explicitly tagged as a pre-release.
 - `v0.1.0` was the first official release.
 - Work after `v0.1.0` accumulates under `Unreleased` in `CHANGELOG.md` until a new version is approved.
+- A normal POKit Cycle is not complete while its completed work remains in `Unreleased`; Cycle completion includes the approved version tag and GitHub release.
 
 ## SemVer After v0.1.0
 

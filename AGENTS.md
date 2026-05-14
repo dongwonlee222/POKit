@@ -50,7 +50,7 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 - Use the Cycle Steward check before plans, completion reports, and next-action sentences: the next action should move the current Cycle forward, not isolate a single issue unless the user explicitly selected it.
 - Default next action wording must target the whole Cycle, such as "Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘". Show only one next action.
 - Forbidden next-action wording: standalone "커밋해줘", "Done 처리해줘", "테스트 돌려줘", or issue-only wording when the user did not explicitly select that issue.
-- Normal deployment is part of the current Cycle completion condition, not a separate release task. If deployment was omitted after a Cycle should have shipped, or urgent redeploy work appears after shipping, open/use a Linear Hotfix Cycle instead of mixing it into the normal Cycle.
+- Normal deployment and version release are part of Cycle completion; a Cycle is not fully complete until verified changes are committed, pushed, tagged, and released under the approved version.
 - Hotfix Cycle work must carry `sourceCycle`, `targetVersion`, `resumeCycle`, `releaseKind: hotfix`, and release scope. Before GitHub push/tag/release or another public deploy, run or emulate `scripts/cycle-guard.ts --operation external_release --release-kind hotfix ...`.
 - Before any public GitHub push/tag/release, run or emulate `node --experimental-strip-types scripts/public-safety-scan.ts`; private Linear workspace slugs, private cycle IDs, and live `memory/` state must not be published.
 - Model routing follows `docs/OPERATING_MODEL.md#model-tier-policy`: main agent owns judgment, integration, and final Done claims; lower-tier subagents only handle bounded file-owned work.

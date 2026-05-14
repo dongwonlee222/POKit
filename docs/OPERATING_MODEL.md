@@ -159,7 +159,7 @@ Forbidden next-action patterns:
 
 Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.
 
-Do not create separate release tasks for normal planned work. If deployment is part of a Cycle's completion condition, finish the deployment inside that same Cycle or make an explicit deployment deferral before marking the Cycle complete. If deployment is not part of the Cycle's completion condition, the Cycle may finish after implementation, verification, commit, and Linear Done.
+Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the Cycle completion condition. A Cycle is not fully complete until verified changes are committed, pushed, tagged, and released under the approved version, unless the user explicitly approves a release deferral. If deployment or version release was omitted after a Cycle should have shipped, treat that as release-pending work for the same Cycle or prepare a Hotfix Cycle when the omission is urgent and the next normal Cycle has already resumed.
 
 Hotfix Cycles are only for urgent correction after a Cycle was completed or should have been deployed. Use a Hotfix Cycle for:
 
