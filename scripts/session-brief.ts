@@ -70,6 +70,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     "",
     cycleLine,
     formatWarningLine(dryRun, resolved.warningReviewCount),
+    ...formatProgressSection(currentSurface.issues),
     "",
     buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming),
     ...formatNumberedIssues(resolved.primaryCandidates),
@@ -295,6 +296,32 @@ function formatHierarchicalIssues(issues: Issue[], allIssues: Issue[]): string[]
       ...children.map((child) => `   - ${formatIssue(child)}`),
     ];
   });
+}
+
+function formatProgressSection(issues: Issue[]): string[] {
+  if (!issues.length) {
+    return [];
+  }
+  const childrenByParent = groupSubIssuesByParent(issues);
+  const parentIssues = [...issues]
+    .filter((issue) => !issue.parent)
+    .sort(compareIssueIdentifier);
+  if (!parentIssues.length) {
+    return [];
+  }
+  return [
+    "",
+    "📊 진행도",
+    ...parentIssues.map((issue) => formatParentProgress(issue, childrenByParent.get(issue.id) ?? [])),
+  ];
+}
+
+function formatParentProgress(parent: Issue, children: Issue[]): string {
+  const units = children.length ? children : [parent];
+  const done = units.filter((issue) => classifyIssueState(issue.state) === "done").length;
+  const total = units.length;
+  const bar = "█".repeat(done) + "░".repeat(Math.max(total - done, 0));
+  return `- ${parent.identifier} ${parent.title} [${bar}] ${done}/${total}`;
 }
 
 function groupSubIssuesByParent(issues: Issue[]): Map<string, Issue[]> {

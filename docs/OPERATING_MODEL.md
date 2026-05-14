@@ -169,6 +169,19 @@ Forbidden next-action patterns:
 - `POKIT-43만 진행해줘` unless the user explicitly selected `POKIT-43`
 - any instruction that turns the user into a mechanical approval manager
 
+## Conversation Visualization Contract
+
+Use visuals when structure, status, or trade-offs would otherwise require repeated explanation. Mermaid is for durable docs. ASCII is for live conversation and brief output.
+
+Default patterns:
+
+- Brief Progress: show parent issues with child completion bars, such as `[██░░] 2/4`.
+- Structure Map: show nested scopes with indentation before explaining a complex plan.
+- Decision Flow: show the current decision point, recommended path, alternative path, and approval boundary.
+- Before/After ASCII: in Cycle close drafts, show what changed in the workflow before adding narrative detail.
+
+Keep conversational visuals compact. They should make the next Cycle action easier to see, not become a separate dashboard or a second source of truth.
+
 ## Release And Hotfix Cycles
 
 Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.
@@ -350,6 +363,8 @@ The completion experience must be explicit enough that the user sees the Cycle b
 - `직접 사용해 볼 것`
 - `새 세션 추천`
 
+### External Write Confirmation Contract
+
 The same cycle completion message should not repeat unless the cycle state changes. Do not ask the user to copy a long execution sentence. When an external write or real product judgment choice is proposed, end the dry-run with an emoji-scannable recommendation block. Only show choices when a real decision is required; do not turn mechanical substeps into approvals.
 
 ```text
@@ -376,11 +391,9 @@ node --experimental-strip-types scripts/cycle-maintenance.ts --completed-at 2026
 
 The dry-run may propose `cycleUpdate` plans with `completedAt` and an explanatory description. Apply those plans only after user approval because they change Linear cycle state.
 
-## Completion Report Format
+## Completion Report Contract
 
 When POKit finishes a work item, it should close with a short report instead of leaving the user to infer the next step.
-
-Use this order:
 
 Default completion response must be short. Use one or two sentences for ordinary local edits, rule updates, and minor Linear maintenance. Do not make the user read a report after every step.
 

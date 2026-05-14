@@ -277,6 +277,28 @@ test("buildCycleDetail groups sub-issues under their parent issues", async () =>
   assert.match(detail, /Todo\n1\. POKIT-54 Visual layer · Todo · pokit:prd\n   - POKIT-57 Brief roadmap position output · Todo · pokit:prd\n   - POKIT-58 Before\/After artifact · Done · pokit:prd\n2\. POKIT-55 Signal watch · Todo · pokit:prd/);
 });
 
+test("buildSessionBrief renders ASCII parent progress for cycle issues", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-14T09:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-5f", name: "Cycle 5 Follow-up" },
+      issues: [
+        { id: "issue-71", identifier: "POKIT-71", title: "운영 규칙 보강", description: "parent", labels: ["pokit:prd"], state: "In Progress" },
+        { id: "issue-74", identifier: "POKIT-74", title: "정체성 적합성 체크 규칙 (decomposition-playbook.md)", description: "child", labels: ["pokit:prd"], state: "Done", parent: { id: "issue-71", identifier: "POKIT-71" } },
+        { id: "issue-75", identifier: "POKIT-75", title: "발견 브리프 적용 기준 (decomposition-playbook.md)", description: "child", labels: ["pokit:prd"], state: "Todo", parent: { id: "issue-71", identifier: "POKIT-71" } },
+        { id: "issue-73", identifier: "POKIT-73", title: "대화형 ASCII 시각화", description: "parent", labels: ["pokit:prd"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /📊 진행도/);
+  assert.match(brief, /POKIT-71 운영 규칙 보강\s+\[█░\] 1\/2/);
+  assert.match(brief, /POKIT-73 대화형 ASCII 시각화\s+\[░\] 0\/1/);
+});
+
 test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {
   const { buildSessionBrief } = await loadBriefModule();
 
