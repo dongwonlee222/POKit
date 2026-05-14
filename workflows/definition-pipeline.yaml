@@ -1,0 +1,334 @@
+name: definition_pipeline
+version: 1
+language: ko-KR
+
+principles:
+  machine_identifiers: english
+  user_facing_copy: korean
+  external_writes: dry_run_first
+
+sizes:
+  full:
+    description: new product or feature surface
+    minimum_stages:
+      - ideation_brief
+      - identity_fit_check
+      - benchmarking_brief
+      - product_flow_map
+      - prd_draft
+      - data_contract
+      - acceptance_criteria
+      - tdd_plan
+      - sub_issue_breakdown
+      - dogfood_plan
+    required_before_implementation:
+      - prd_draft
+      - data_contract
+      - acceptance_criteria
+      - tdd_plan
+      - sub_issue_breakdown
+  focused:
+    description: bounded change to an existing surface
+    minimum_stages:
+      - ideation_brief
+      - product_flow_map
+      - prd_draft
+      - acceptance_criteria
+      - sub_issue_breakdown
+    required_before_implementation:
+      - prd_draft
+      - acceptance_criteria
+      - sub_issue_breakdown
+  patch:
+    description: bug, copy, config, or narrowly scoped fix
+    minimum_stages:
+      - ideation_brief
+      - acceptance_criteria
+    required_before_implementation:
+      - acceptance_criteria
+
+parallel_agent_conditions:
+  requires:
+    - size_full
+    - two_or_more_independent_stages
+    - non_overlapping_output_files
+    - user_approval
+
+roles:
+  main_agent:
+    owns:
+      - final_judgment
+      - artifact_integration
+      - user_confirmation
+      - external_write_boundary
+      - linear_dry_run
+
+  benchmark_agent:
+    owns:
+      - benchmarking_brief
+    constraints:
+      - read_only_research
+      - cite_sources
+      - no_external_write
+
+  prd_agent:
+    owns:
+      - prd_draft
+      - product_flow_map
+    constraints:
+      - follow_korean_headings
+      - no_scope_expansion_without_main_agent
+
+  data_contract_agent:
+    owns:
+      - data_contract
+    constraints:
+      - define_storage_paths
+      - define_ids_hashes_dedupe
+
+  tdd_agent:
+    owns:
+      - tdd_plan
+      - acceptance_criteria
+    constraints:
+      - red_tests_first
+      - include_edge_cases
+
+  breakdown_agent:
+    owns:
+      - sub_issue_breakdown
+      - dogfood_plan
+    constraints:
+      - keep_linear_writes_as_dry_run
+      - include_done_gates
+
+stages:
+  - id: ideation_brief
+    title: 아이디어 정리
+    output: artifacts/profiles/{profile}/definition/{issue}/ideation-brief.md
+    template: templates/definition-pipeline/ideation-brief.md
+    headings:
+      - 한 줄 아이디어
+      - 사용자와 상황
+      - 해결하려는 문제
+      - 기대 변화
+      - 아직 모르는 것
+      - 다음 판단
+    required:
+      - idea
+      - user_context
+      - problem
+      - expected_change
+      - unknowns
+      - next_decision
+
+  - id: identity_fit_check
+    title: 포킷 적합성 확인
+    output: artifacts/profiles/{profile}/definition/{issue}/identity-fit-check.md
+    template: templates/definition-pipeline/identity-fit-check.md
+    headings:
+      - 포킷 정체성과 맞는가
+      - 백로그에서 회고까지 연결되는가
+      - 가벼운 운영 레이어로 유지되는가
+      - 외부 변경 승인 경계
+      - 판정
+    required:
+      - north_star_fit
+      - cycle_flow_fit
+      - lightweight_fit
+      - approval_boundary
+      - decision
+
+  - id: benchmarking_brief
+    title: 벤치마킹 정리
+    output: artifacts/profiles/{profile}/definition/{issue}/benchmarking-brief.md
+    template: templates/definition-pipeline/benchmarking-brief.md
+    headings:
+      - 참고한 서비스와 출처
+      - 비슷한 흐름
+      - 배울 점
+      - 피할 점
+      - 포킷에 반영할 원칙
+    required:
+      - references
+      - similar_flows
+      - lessons
+      - avoid
+      - pokit_principles
+
+  - id: product_flow_map
+    title: 제품 흐름 지도
+    output: artifacts/profiles/{profile}/definition/{issue}/product-flow-map.md
+    template: templates/definition-pipeline/product-flow-map.md
+    headings:
+      - 사용자 시작점
+      - 주요 단계
+      - 시스템 처리
+      - 사용자 확인 지점
+      - 실패 또는 보류 흐름
+    required:
+      - entry_point
+      - user_steps
+      - system_steps
+      - confirmation_points
+      - failure_or_hold_flow
+
+  - id: prd_draft
+    title: PRD 초안
+    output: artifacts/profiles/{profile}/prds/{issue}.md
+    template: templates/definition-pipeline/prd-draft.md
+    headings:
+      - 배경
+      - 문제
+      - 목표
+      - 사용자 시나리오
+      - 1차 범위
+      - 제외 범위
+      - 기능 요구사항
+      - 비기능 요구사항
+      - 외부 의존성 / 비용 / 한도
+      - Rollback / 비활성화 계획
+      - 성공 기준
+      - 위험과 열린 질문
+    required:
+      - background
+      - problem
+      - goal
+      - user_scenarios
+      - scope
+      - out_of_scope
+      - functional_requirements
+      - non_functional_requirements
+      - provider_cost_limits
+      - rollback_disable_plan
+      - success_criteria
+      - risks_and_questions
+
+  - id: data_contract
+    title: 데이터 계약
+    output: artifacts/profiles/{profile}/definition/{issue}/data-contract.md
+    template: templates/definition-pipeline/data-contract.md
+    headings:
+      - 입력 데이터
+      - 저장 위치
+      - 필드 정의
+      - ID와 hash와 중복 제거 기준
+      - 상태값
+      - 저작권 / 원문 저장 범위
+      - 개인정보와 민감정보
+      - 보존과 삭제 기준
+    required:
+      - inputs
+      - storage_paths
+      - fields
+      - ids_hashes_dedupe
+      - states
+      - copyright_storage_policy
+      - privacy_sensitive_data
+      - retention
+
+  - id: acceptance_criteria
+    title: 완료 기준
+    output: artifacts/profiles/{profile}/criteria/{issue}.md
+    template: templates/definition-pipeline/acceptance-criteria.md
+    headings:
+      - Given / When / Then
+      - 사용자 확인 기준
+      - 외부 변경 경계
+      - 실패 케이스
+      - 완료 증거
+    required:
+      - given_when_then
+      - user_review
+      - external_write_boundary
+      - failure_cases
+      - completion_evidence
+
+  - id: tdd_plan
+    title: TDD 계획
+    output: artifacts/profiles/{profile}/definition/{issue}/tdd-plan.md
+    template: templates/definition-pipeline/tdd-plan.md
+    headings:
+      - 테스트할 단위
+      - 먼저 실패해야 할 테스트
+      - 주요 edge case
+      - fixture / sample data
+      - 통합 테스트 범위
+      - 제외할 테스트
+    required:
+      - units
+      - red_tests
+      - edge_cases
+      - fixtures
+      - integration_scope
+      - excluded_tests
+
+  - id: sub_issue_breakdown
+    title: 하위 이슈 분해
+    output: artifacts/profiles/{profile}/definition/{issue}/sub-issue-breakdown.md
+    template: templates/definition-pipeline/sub-issue-breakdown.md
+    headings:
+      - Parent issue
+      - Sub-issues
+      - 병렬 실행 계획
+      - 각 산출물
+      - Done gate
+      - 의존성
+      - Linear sub-issue dry-run
+      - 공개 증거 경로
+      - 외부 의존성과 rollback
+      - idempotency key
+    required:
+      - parent_issue
+      - sub_issues
+      - parallel_execution_plan
+      - outputs
+      - done_gates
+      - dependencies
+      - linear_sub_issue_plan
+      - public_evidence_path
+      - blocked_by_external
+      - rollback_plan
+      - idempotency_key
+
+  - id: dogfood_plan
+    title: Dogfood 계획
+    output: artifacts/profiles/{profile}/definition/{issue}/dogfood-plan.md
+    template: templates/definition-pipeline/dogfood-plan.md
+    headings:
+      - 직접 써볼 시나리오
+      - 기간
+      - 확인할 지표와 질문
+      - 실패 조건
+      - 다음 Cycle 반영 기준
+    required:
+      - scenarios
+      - duration
+      - checks
+      - failure_conditions
+      - next_cycle_decision
+
+gates:
+  before_implementation:
+    by_size:
+      full:
+        requires:
+          - prd_draft
+          - data_contract
+          - acceptance_criteria
+          - tdd_plan
+          - sub_issue_breakdown
+      focused:
+        requires:
+          - prd_draft
+          - acceptance_criteria
+          - sub_issue_breakdown
+      patch:
+        requires:
+          - acceptance_criteria
+
+  before_linear_write:
+    requires:
+      - dry_run
+      - user_approval
+      - idempotency_key

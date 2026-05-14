@@ -66,7 +66,7 @@ export function getActiveProfile(rootDir = process.cwd()): PokitProfile {
   const profiles = readProfilesConfig(rootDir);
   const profile = profiles.get(profileName);
   if (!profile) {
-    throw new Error(`No POKit profile matched POKIT_PROFILE=${profileName}. Available profiles: ${formatProfileOptions(profiles)}.`);
+    throw new Error(formatMissingProfileError(profileName, profiles));
   }
   return {
     name: profileName,
@@ -158,6 +158,20 @@ function cleanConfigValue(value: string): string {
 
 function formatProfileOptions(profiles: Map<string, ProfileConfig>): string {
   return [...profiles.keys()].join(", ") || "none";
+}
+
+function formatMissingProfileError(profileName: string, profiles: Map<string, ProfileConfig>): string {
+  return [
+    `POKIT_PROFILE=${profileName} is set but no matching profile is defined.`,
+    `Available profiles: ${formatProfileOptions(profiles)}.`,
+    "For single-team/default use, clear POKIT_PROFILE in .env.",
+    `For multi-profile use, add this to ${LOCAL_CONFIG_FILE}:`,
+    "profiles:",
+    `  ${profileName}:`,
+    "    linear_team_key: YOUR_TEAM_KEY",
+    `    memory_dir: memory/profiles/${profileName}`,
+    `    artifacts_dir: artifacts/profiles/${profileName}`,
+  ].join("\n");
 }
 
 function mergeProfiles(target: Map<string, ProfileConfig>, source: Map<string, ProfileConfig>): void {
