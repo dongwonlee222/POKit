@@ -24,9 +24,16 @@ hooks:
     - block_durable_file_changes_without_cycle_context
 
   after_artifact:
+    - require_korean_first_user_copy
+    - allow_english_only_for_identifiers_and_product_terms
     - validate_frontmatter
     - record_content_hash
     - validate_artifact_path
+
+  before_user_facing_artifact:
+    - require_korean_first_user_copy
+    - allow_english_only_for_identifiers_and_product_terms
+    - reject_english_prose_without_user_request
 
   before_external_write:
     - require_dry_run_plan
@@ -44,6 +51,13 @@ hooks:
     - update_current_cycle
     - update_context_map
     - update_resume_brief
+
+  after_completion_report:
+    - include_verification_result
+    - include_latest_commit_when_available
+    - include_one_next_action
+    - reject_mechanical_next_action
+    - prefer_cycle_level_next_action
 
   after_cycle_complete:
     - verify_todo_zero
