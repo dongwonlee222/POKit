@@ -4,6 +4,25 @@
 
 No pending public release notes.
 
+## v0.4.1 - 2026-05-15
+
+### Fixed
+
+- Improved stale `POKIT_PROFILE` errors so users see available profiles and a concrete local config fix.
+
+### Docs / Policy
+
+- Added Definition Pipeline governance with `full`, `focused`, and `patch` size levels.
+- Added reusable subagent role contracts and Korean user-facing definition templates.
+- Added public-safe PO Daily News Signal definition examples under `examples/definition/POKIT-89/`.
+- Required actionable external write dry-runs so approval-pending responses include the next executable plan.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 118/118.
+
 ## v0.4.0 - 2026-05-14
 
 ### Added
