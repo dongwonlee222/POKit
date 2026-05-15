@@ -1004,6 +1004,45 @@ test("applyCreateCycle surfaces Linear validation details", async () => {
   );
 });
 
+test("applyCreateCycle prevents Linear cycle description maxLength errors locally", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        cycleCreate: {
+          success: true,
+          cycle: {
+            id: "cycle-hotfix",
+            name: "Hotfix v0.4.4: Cycle Number Display",
+            number: 10,
+            startsAt: "2026-05-15T00:00:00.000Z",
+            endsAt: "2026-05-16T00:00:00.000Z",
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { applyCreateCycle, planCreateHotfixCycle } = await loadLinearModule();
+  const plan = await planCreateHotfixCycle({
+    name: "Hotfix v0.4.4: Cycle Number Display",
+    startsAt: "2026-05-15T00:00:00.000Z",
+    endsAt: "2026-05-16T00:00:00.000Z",
+    sourceCycle: "Cycle 5 Follow-up: Discovery Gate & Visual Communication",
+    targetVersion: "v0.4.4",
+    resumeCycle: "Cycle 6",
+    releaseScope: "session-brief cycle display hotfix with a deliberately long scope that should be compacted before Linear API write",
+  });
+
+  await applyCreateCycle(plan, { approved: true });
+
+  assert.ok(requestBody.variables.input.description.length <= 255);
+  assert.match(requestBody.variables.input.description, /targetVersion: v0\.4\.4/);
+  assert.match(requestBody.variables.input.description, /idempotency: linear:create_cycle/);
+});
+
 test("planUpdateCycle creates a dry-run cycle completion plan", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";

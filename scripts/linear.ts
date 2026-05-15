@@ -59,6 +59,8 @@ type AssignLabelToIssuePayload = {
   labelName: string;
 };
 
+const LINEAR_CYCLE_DESCRIPTION_MAX_LENGTH = 255;
+
 export type ApplyOptions = {
   approved?: boolean;
 };
@@ -860,8 +862,9 @@ export async function planCreateCycle(input: CycleInput): Promise<Plan> {
 }
 
 export async function planCreateHotfixCycle(input: HotfixCycleInput): Promise<Plan> {
+  const idempotencyKey = `linear:create_cycle:${input.name}:${input.targetVersion}`;
   return {
-    idempotencyKey: `linear:create_cycle:${input.name}:${input.targetVersion}`,
+    idempotencyKey,
     summary: `Create Linear hotfix cycle: ${input.name}`,
     writes: [
       {
@@ -871,15 +874,7 @@ export async function planCreateHotfixCycle(input: HotfixCycleInput): Promise<Pl
           name: input.name,
           startsAt: input.startsAt,
           endsAt: input.endsAt,
-          description: [
-            "POKit Hotfix Cycle",
-            "",
-            `sourceCycle: ${input.sourceCycle}`,
-            `targetVersion: ${input.targetVersion}`,
-            `resumeCycle: ${input.resumeCycle}`,
-            "releaseKind: hotfix",
-            `releaseScope: ${input.releaseScope}`,
-          ].join("\n"),
+          description: buildHotfixCycleDescription(input),
         },
       },
     ],
@@ -901,10 +896,7 @@ export async function applyCreateCycle(plan: Plan, options: ApplyOptions = {}): 
   if (!payload.name || !payload.startsAt || !payload.endsAt) {
     throw new Error("Refusing create cycle apply without name, startsAt, and endsAt.");
   }
-  const description = [
-    payload.description,
-    `\n\nPOKit idempotency key: ${plan.idempotencyKey}`,
-  ].filter(Boolean).join("");
+  const description = buildCycleDescription(payload.description, plan.idempotencyKey);
   const data = await linearGraphql<{
     cycleCreate: {
       success: boolean;
@@ -936,6 +928,64 @@ export async function applyCreateCycle(plan: Plan, options: ApplyOptions = {}): 
     throw new Error("Linear cycleCreate returned success=false.");
   }
   return normalizeCycle(data.cycleCreate.cycle);
+}
+
+function buildHotfixCycleDescription(input: HotfixCycleInput): string {
+  const lines = [
+    "POKit Hotfix Cycle",
+    `sourceCycle: ${input.sourceCycle}`,
+    `targetVersion: ${input.targetVersion}`,
+    `resumeCycle: ${input.resumeCycle}`,
+    "releaseKind: hotfix",
+    `releaseScope: ${input.releaseScope}`,
+  ];
+  return lines.join("\n");
+}
+
+function buildCycleDescription(description: string | undefined, idempotencyKey: string): string {
+  const full = [
+    description,
+    `\n\nPOKit idempotency key: ${idempotencyKey}`,
+  ].filter(Boolean).join("");
+  if (full.length <= LINEAR_CYCLE_DESCRIPTION_MAX_LENGTH) {
+    return full;
+  }
+  return compactCycleDescription(description, idempotencyKey);
+}
+
+function compactCycleDescription(description: string | undefined, idempotencyKey: string): string {
+  const targetVersion = description?.match(/^targetVersion:\s*(.+)$/m)?.[1];
+  const releaseKind = description?.match(/^releaseKind:\s*(.+)$/m)?.[1];
+  const sourceCycle = description?.match(/^sourceCycle:\s*(.+)$/m)?.[1];
+  const resumeCycle = description?.match(/^resumeCycle:\s*(.+)$/m)?.[1];
+  const lines = [
+    firstDescriptionLine(description),
+    sourceCycle ? `sourceCycle: ${sourceCycle}` : null,
+    targetVersion ? `targetVersion: ${targetVersion}` : null,
+    resumeCycle ? `resumeCycle: ${resumeCycle}` : null,
+    releaseKind ? `releaseKind: ${releaseKind}` : null,
+    `idempotency: ${idempotencyKey}`,
+  ].filter(Boolean) as string[];
+  return fitLinesToLength(lines, LINEAR_CYCLE_DESCRIPTION_MAX_LENGTH);
+}
+
+function firstDescriptionLine(description: string | undefined): string {
+  return description?.split(/\r?\n/).find((line) => line.trim())?.trim() ?? "POKit Cycle";
+}
+
+function fitLinesToLength(lines: string[], maxLength: number): string {
+  let result = lines.join("\n");
+  if (result.length <= maxLength) {
+    return result;
+  }
+  const required = lines.at(-1) ?? "";
+  const remaining = maxLength - required.length - 1;
+  if (remaining <= 0) {
+    return required.slice(0, maxLength);
+  }
+  const head = lines.slice(0, -1).join("\n").slice(0, remaining);
+  result = `${head}\n${required}`;
+  return result.length <= maxLength ? result : result.slice(0, maxLength);
 }
 
 export async function planUpdateCycle(input: CycleUpdateInput): Promise<Plan> {

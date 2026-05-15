@@ -7,6 +7,7 @@
 - Use Linear cycle `number` as the canonical Cycle label in session brief and close next-action wording.
 - Warn when a Linear cycle name contains a different `Cycle N` than the canonical Linear cycle number.
 - Surface Linear API validation details, including user-presentable messages, fields, constraints, and summarized values.
+- Compact Linear cycle descriptions before writes to prevent known `description` max length API failures.
 
 ## v0.4.3 - 2026-05-15
 
