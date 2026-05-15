@@ -47,7 +47,10 @@ export function buildSessionBrief(input: SessionBriefInput): string {
   const archiveGuardrail = buildArchiveGuardrail({ issues: currentSurface.issues });
   const runSummaryPath = findLatestRunSummary(rootDir, currentSurface.cycle.name);
   const retroPath = findRetro(rootDir, currentSurface.cycle.name);
-  const roadmapLine = buildRoadmapLine(currentSurface.cycle.name);
+  const roadmapLine = buildRoadmapLine(currentSurface.cycle);
+  const cycleDisplayName = formatCycleDisplayName(currentSurface.cycle);
+  const primaryCycleReference = formatCycleReference(resolved.primarySurface.cycle);
+  const cycleNumberWarning = buildCycleNumberWarning(currentSurface.cycle);
   const candidateNumbers = resolved.primaryCandidates.map((_, index) => `${index + 1}번`);
   const recommendation = buildRecommendation({
     activeOperationallyComplete: resolved.activeOperationallyComplete,
@@ -56,18 +59,19 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     hasBacklogCandidates: resolved.backlogCandidates.length > 0,
     backlogCandidateFallback: resolved.backlogCandidateFallback,
     primarySource: resolved.primarySurface.source,
-    cycleName: resolved.primarySurface.cycle.name,
+    cycleName: primaryCycleReference,
   });
   const cycleLine = isOperationallyComplete(resolved.currentCounts)
-    ? `✅ ${currentSurface.cycle.name} 완료: ${formatCounts(resolved.currentCounts)}`
+    ? `✅ ${cycleDisplayName} 완료: ${formatCounts(resolved.currentCounts)}`
     : `📌 현재: ${formatCounts(resolved.currentCounts)}`;
 
   return [
     "# POKit Brief",
     "",
-    `📅 ${formatKoreanDate(now)} · ${currentSurface.cycle.name}`,
+    `📅 ${formatKoreanDate(now)} · ${cycleDisplayName}`,
     `Profile: ${profile.name}${profile.linearTeamKey ? ` · Team Key: ${profile.linearTeamKey}` : ""}`,
     ...(roadmapLine ? [roadmapLine] : []),
+    ...(cycleNumberWarning ? [cycleNumberWarning] : []),
     "",
     cycleLine,
     formatWarningLine(dryRun, resolved.warningReviewCount),
@@ -610,10 +614,11 @@ function buildCandidateHeading(context: WorkingCycleContext, futureUpcoming: boo
   if (context.source !== "linear_upcoming") {
     return "🧺 다음 후보";
   }
+  const cycleName = formatCycleDisplayName(context.cycle);
   const suffix = futureUpcoming
     ? cycleStartsAtLabel(context.cycle.startsAt, true)
     : cycleStartsAtLabel(context.cycle.startsAt, false);
-  return suffix ? `🧺 다음 후보 (${context.cycle.name}, ${suffix})` : `🧺 다음 후보 (${context.cycle.name})`;
+  return suffix ? `🧺 다음 후보 (${cycleName}, ${suffix})` : `🧺 다음 후보 (${cycleName})`;
 }
 
 function cycleStartsAtLabel(startsAt: string | undefined, future: boolean): string | null {
@@ -669,16 +674,36 @@ function buildRecommendation(input: {
   };
 }
 
-function buildRoadmapLine(cycleName: string): string | null {
-  const match = cycleName.match(/Cycle\s+(\d+)/i);
-  if (!match) {
+function buildRoadmapLine(cycle: WorkingCycleContext["cycle"]): string | null {
+  const current = cycle.number ?? cycle.name.match(/Cycle\s+(\d+)/i)?.[1];
+  const cycleNumber = Number(current);
+  if (!Number.isFinite(cycleNumber) || cycleNumber < 2) {
     return null;
   }
-  const current = Number(match[1]);
-  if (!Number.isFinite(current) || current < 2) {
+  return `Roadmap: Cycle ${cycleNumber - 1} → [Cycle ${cycleNumber}] → Cycle ${cycleNumber + 1}`;
+}
+
+function formatCycleReference(cycle: WorkingCycleContext["cycle"]): string {
+  return cycle.number ? `Cycle ${cycle.number}` : cycle.name;
+}
+
+function formatCycleDisplayName(cycle: WorkingCycleContext["cycle"]): string {
+  const reference = formatCycleReference(cycle);
+  if (!cycle.number || cycle.name === reference) {
+    return cycle.name;
+  }
+  return `${reference} · ${cycle.name}`;
+}
+
+function buildCycleNumberWarning(cycle: WorkingCycleContext["cycle"]): string | null {
+  if (!cycle.number) {
     return null;
   }
-  return `Roadmap: Cycle ${current - 1} → [Cycle ${current}] → Cycle ${current + 1}`;
+  const nameCycleNumber = cycle.name.match(/Cycle\s+(\d+)/i)?.[1];
+  if (!nameCycleNumber || Number(nameCycleNumber) === cycle.number) {
+    return null;
+  }
+  return `⚠️ Cycle 번호 확인: Linear number ${cycle.number} · name contains Cycle ${nameCycleNumber}`;
 }
 
 function classifyIssueState(state: string | undefined): "done" | "inProgress" | "todo" | "review" {

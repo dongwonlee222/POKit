@@ -195,6 +195,25 @@ test("buildSessionCloseReport treats release evidence as Cycle completion when c
   assert.doesNotMatch(report, /Cycle Release Pending/);
 });
 
+test("buildSessionCloseReport uses Linear cycle number in next actions", async () => {
+  const { buildSessionCloseReport } = await loadSessionCloseModule();
+
+  const report = buildSessionCloseReport({
+    now: new Date("2026-05-15T12:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-10", name: "Hotfix v0.4.4: Cycle Number Display", number: 10 },
+      issues: [
+        { id: "issue-90", identifier: "POKIT-90", title: "Cycle number display", description: "todo", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(report, /📅 .* · Hotfix v0\.4\.4: Cycle Number Display/);
+  assert.match(report, /Cycle 10 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
+  assert.doesNotMatch(report, /Hotfix v0\.4\.4: Cycle Number Display 남은 Todo/);
+});
+
 test("buildResumeBrief keeps compact contract and Cycle-level next action", async () => {
   const { buildResumeBrief, validateResumeBriefContract } = await loadSessionCloseModule();
 

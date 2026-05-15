@@ -332,7 +332,7 @@ function releaseNoteFor(issue: Issue): string {
 }
 
 function cycleName(context: WorkingCycleContext): string {
-  return context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
+  return context.cycle.number ? `Cycle ${context.cycle.number}` : context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
 }
 
 function compareIssueIdentifier(left: Issue, right: Issue): number {

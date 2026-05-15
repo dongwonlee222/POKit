@@ -498,3 +498,42 @@ test("buildSessionBrief shows compact roadmap position for roadmap cycles", asyn
 
   assert.match(brief, /Roadmap: Cycle 4 → \[Cycle 5\] → Cycle 6/);
 });
+
+test("buildSessionBrief uses Linear cycle number as the canonical cycle label", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-15T09:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-10", name: "Hotfix v0.4.4: Cycle Number Display", number: 10 },
+      issues: [
+        { id: "issue-90", identifier: "POKIT-90", title: "Cycle number display", description: "hotfix", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /📅 .* · Cycle 10 · Hotfix v0\.4\.4: Cycle Number Display/);
+  assert.match(brief, /Roadmap: Cycle 9 → \[Cycle 10\] → Cycle 11/);
+  assert.match(brief, /👉 추천: Cycle 10 남은 Todo 전체 진행/);
+  assert.match(brief, /💬 실행: “Cycle 10 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
+});
+
+test("buildSessionBrief warns when cycle name contains a different cycle number", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-15T09:00:00+09:00"),
+    context: {
+      source: "linear_upcoming",
+      cycle: { id: "cycle-6", name: "Cycle 5 Follow-up: Discovery Gate & Visual Communication", number: 6 },
+      issues: [
+        { id: "issue-71", identifier: "POKIT-71", title: "Follow-up rules", description: "done", labels: ["pokit:prd"], state: "Done" },
+      ],
+    },
+  });
+
+  assert.match(brief, /📅 .* · Cycle 6 · Cycle 5 Follow-up: Discovery Gate & Visual Communication/);
+  assert.match(brief, /⚠️ Cycle 번호 확인: Linear number 6 · name contains Cycle 5/);
+  assert.match(brief, /Roadmap: Cycle 5 → \[Cycle 6\] → Cycle 7/);
+});

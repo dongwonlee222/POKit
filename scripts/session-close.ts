@@ -52,8 +52,9 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
   const historyConflicts = (input.historyWrites ?? []).filter((item) => item.status === "needs_approval");
   const nextAction = buildCycleNextAction(resolved.surface, resolved.pending.length);
   const nextActionCheck = validateNextAction(nextAction);
+  const cycleActionName = cycleNameForAction(resolved.surface);
   const pendingLines = resolved.pending.length
-    ? resolved.pending.map((issue) => `- ${formatIssueStatus(issue)} · ${resolved.surface.cycle.name} 남은 Todo 묶음 · 다음: ${nextAction}`)
+    ? resolved.pending.map((issue) => `- ${formatIssueStatus(issue)} · ${cycleActionName} 남은 Todo 묶음 · 다음: ${nextAction}`)
     : ["- 없음"];
   const approvalLines = historyConflicts.map((item) => `- Needs Approval · ${item.path} · ${item.reason}`);
   const verificationLines = verification.length
@@ -277,13 +278,17 @@ function toWorkingCycleContext(context: WorkingContext["activeCycle"] | WorkingC
 }
 
 function buildCycleNextAction(context: WorkingCycleContext, pendingCount: number): string {
-  const cycleName = context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
+  const cycleName = cycleNameForAction(context);
   if (pendingCount === 0) {
     return isCycleReleaseComplete(context)
       ? `${cycleName} 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘`
       : `${cycleName} release preflight부터 완료 조건까지 이어가줘`;
   }
   return `${cycleName} 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘`;
+}
+
+function cycleNameForAction(context: WorkingCycleContext): string {
+  return context.cycle.number ? `Cycle ${context.cycle.number}` : context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
 }
 
 function formatIssueList(issues: Issue[]): string[] {
@@ -300,11 +305,12 @@ function formatIssueStatus(issue: Issue): string {
 function buildPracticalNextDecisionLines(resolved: ResolvedCloseContext, nextAction: string): string[] {
   const completed = resolved.completed.map((issue) => issue.identifier).join(", ") || "없음";
   const pending = resolved.pending.map((issue) => issue.identifier).join(", ") || "없음";
+  const cycleActionName = cycleNameForAction(resolved.surface);
   const action = resolved.pending.length
-    ? `${resolved.surface.cycle.name} 남은 Todo 전체를 계속 진행할지 결정`
+    ? `${cycleActionName} 남은 Todo 전체를 계속 진행할지 결정`
     : isCycleReleaseComplete(resolved.surface)
-      ? `${resolved.surface.cycle.name} 완료 상태를 확인하고 다음 Cycle 후보를 준비할지 결정`
-      : `${resolved.surface.cycle.name} release gate를 진행할지 결정`;
+      ? `${cycleActionName} 완료 상태를 확인하고 다음 Cycle 후보를 준비할지 결정`
+      : `${cycleActionName} release gate를 진행할지 결정`;
   return [
     `- 로컬에서 끝난 것: ${completed}`,
     `- repo 밖에 남은 것: ${pending}`,

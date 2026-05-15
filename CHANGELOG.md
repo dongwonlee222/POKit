@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-No pending public release notes.
+### Fixed
+
+- Use Linear cycle `number` as the canonical Cycle label in session brief and close next-action wording.
+- Warn when a Linear cycle name contains a different `Cycle N` than the canonical Linear cycle number.
 
 ## v0.4.3 - 2026-05-15
 

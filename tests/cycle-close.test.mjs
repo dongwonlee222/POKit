@@ -156,6 +156,24 @@ test("buildCycleCloseDraft accepts release evidence when completedAt is unavaila
   assert.doesNotMatch(markdown, /Cycle Release Pending/);
 });
 
+test("buildCycleCloseDraft uses Linear cycle number in next actions", async () => {
+  const { buildCycleCloseDraft } = await loadCycleCloseModule();
+
+  const markdown = buildCycleCloseDraft({
+    generatedAt: "2026-05-15T12:00:00+09:00",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-10", name: "Hotfix v0.4.4: Cycle Number Display", number: 10 },
+      issues: [
+        { id: "issue-90", identifier: "POKIT-90", title: "Cycle number display", description: "todo", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(markdown, /Cycle 10 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
+  assert.doesNotMatch(markdown, /Hotfix v0\.4\.4: Cycle Number Display 남은 Todo/);
+});
+
 test("buildAfterCycleCompleteMessage shows once per complete cycle state", async () => {
   const { buildAfterCycleCompleteMessage } = await loadCycleCloseModule();
 
