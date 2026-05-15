@@ -71,6 +71,7 @@ export type Issue = {
   title: string;
   description?: string;
   url?: string;
+  dueDate?: string | null;
   labels: string[];
   state?: string;
   assignee?: string;
@@ -166,6 +167,7 @@ type LinearIssueNode = {
   title: string;
   description?: string;
   url?: string;
+  dueDate?: string | null;
   labels: { nodes: Array<{ name: string }> };
   state?: { name: string };
   assignee?: { name: string } | null;
@@ -312,6 +314,9 @@ function normalizeIssue(issue: LinearIssueNode): Issue {
     state: issue.state?.name,
     assignee: issue.assignee?.name,
   };
+  if (issue.dueDate !== undefined && issue.dueDate !== null) {
+    normalized.dueDate = issue.dueDate;
+  }
   if (issue.parent) {
     normalized.parent = {
       id: issue.parent.id,
@@ -484,6 +489,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             title
             description
             url
+            dueDate
             labels {
               nodes {
                 name
@@ -645,6 +651,7 @@ export async function listIssues(cycleId: string): Promise<Issue[]> {
             title
             description
             url
+            dueDate
             labels {
               nodes {
                 name
@@ -749,6 +756,7 @@ export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): 
           title
           description
           url
+          dueDate
           labels {
             nodes {
               name
@@ -821,6 +829,7 @@ export async function applyAssignIssueToCycle(plan: Plan, options: ApplyOptions 
           title
           description
           url
+          dueDate
           labels {
             nodes {
               name
@@ -990,14 +999,21 @@ function fitLinesToLength(lines: string[], maxLength: number): string {
 
 export async function planUpdateCycle(input: CycleUpdateInput): Promise<Plan> {
   const action = input.completedAt ? "complete" : "update";
+  const idempotencyKey = `linear:update_cycle:${input.cycleId}:${action}`;
+  const payload = input.description === undefined
+    ? input
+    : {
+        ...input,
+        description: buildCycleDescription(input.description, idempotencyKey),
+      };
   return {
-    idempotencyKey: `linear:update_cycle:${input.cycleId}:${action}`,
+    idempotencyKey,
     summary: `${input.completedAt ? "Complete" : "Update"} Linear cycle: ${input.cycleName ?? input.cycleId}`,
     writes: [
       {
         type: "update_cycle",
         target: input.cycleId,
-        payload: input,
+        payload,
       },
     ],
   };
@@ -1156,6 +1172,7 @@ export async function applyAssignLabelToIssue(plan: Plan, options: ApplyOptions 
           title
           description
           url
+          dueDate
           labels {
             nodes {
               name

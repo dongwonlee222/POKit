@@ -1062,8 +1062,36 @@ test("planUpdateCycle creates a dry-run cycle completion plan", async () => {
     cycleId: "cycle-1",
     cycleName: "Cycle 1",
     completedAt: "2026-05-13T15:00:00.000Z",
-    description: "Operationally completed by POKit.",
+    description: [
+      "Operationally completed by POKit.",
+      "",
+      "POKit idempotency key: linear:update_cycle:cycle-1:complete",
+    ].join("\n"),
   });
+});
+
+test("planUpdateCycle compacts long descriptions before Linear update", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { planUpdateCycle } = await loadLinearModule();
+
+  const plan = await planUpdateCycle({
+    cycleId: "cycle-focus",
+    cycleName: "Cycle 6: Focus Run Visual Grouping",
+    name: "Cycle 6: Focus Run Visual Grouping",
+    description: [
+      "Weekly Cycle for Focus Run visual grouping.",
+      "",
+      "POKit canonical cycleNumber: 6",
+      "Scope: Focus Run label group/view rules, checklist brief, status rules, due date filter, numbering rules.",
+      "Replaces confusing name: Cycle 5 Follow-up: Discovery Gate & Visual Communication.",
+    ].join("\n"),
+  });
+
+  const payload = plan.writes[0].payload;
+  assert.ok(payload.description.length <= 255);
+  assert.match(payload.description, /Weekly Cycle for Focus Run visual grouping/);
+  assert.match(payload.description, /idempotency: linear:update_cycle:cycle-focus:update/);
 });
 
 test("applyUpdateCycle updates a Linear cycle only with approval and idempotency key", async () => {

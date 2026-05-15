@@ -76,6 +76,8 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     cycleLine,
     formatWarningLine(dryRun, resolved.warningReviewCount),
     ...formatProgressSection(currentSurface.issues),
+    ...formatFocusRunSection(currentSurface.issues),
+    ...formatDueDateSection(currentSurface.issues, now),
     "",
     buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming),
     ...formatNumberedIssues(resolved.primaryCandidates),
@@ -407,6 +409,105 @@ function formatParentProgress(parent: Issue, children: Issue[]): string {
   const total = units.length;
   const bar = "█".repeat(done) + "░".repeat(Math.max(total - done, 0));
   return `- ${parent.identifier} ${parent.title} [${bar}] ${done}/${total}`;
+}
+
+function formatFocusRunSection(issues: Issue[]): string[] {
+  const groups = groupIssuesByFocusRun(issues);
+  if (!groups.length) {
+    return [];
+  }
+  return [
+    "",
+    "🎯 Focus Runs",
+    ...groups.flatMap(([runNumber, runIssues]) => formatFocusRun(runNumber, runIssues)),
+  ];
+}
+
+function groupIssuesByFocusRun(issues: Issue[]): Array<[string, Issue[]]> {
+  const groups = new Map<string, Issue[]>();
+  for (const issue of issues) {
+    const runNumber = issue.labels.map(readFocusRunNumber).find(Boolean);
+    if (!runNumber) {
+      continue;
+    }
+    const existing = groups.get(runNumber) ?? [];
+    existing.push(issue);
+    groups.set(runNumber, existing);
+  }
+  return [...groups.entries()]
+    .map(([runNumber, runIssues]) => [runNumber, runIssues.sort(compareIssueIdentifier)] as [string, Issue[]])
+    .sort(([left], [right]) => compareFocusRunNumber(left, right));
+}
+
+function readFocusRunNumber(label: string): string | null {
+  const trimmed = label.trim();
+  const match = trimmed.match(/^(?:Focus Run\s*\/\s*|focus:)?(\d+\.\d+)$/i);
+  return match?.[1] ?? null;
+}
+
+function compareFocusRunNumber(left: string, right: string): number {
+  const [leftCycle, leftRun] = left.split(".").map(Number);
+  const [rightCycle, rightRun] = right.split(".").map(Number);
+  return (leftCycle - rightCycle) || (leftRun - rightRun);
+}
+
+function formatFocusRun(runNumber: string, issues: Issue[]): string[] {
+  const done = issues.filter((issue) => classifyIssueState(issue.state) === "done").length;
+  const total = issues.length;
+  const status = classifyFocusRunStatus(issues);
+  const bar = "█".repeat(done) + "░".repeat(Math.max(total - done, 0));
+  const lines = [
+    `${runNumber} [${status}]`,
+    ...issues.map((issue) => `${classifyIssueState(issue.state) === "done" ? "[x]" : "[ ]"} ${issue.identifier} ${issue.title}`),
+  ];
+  if (status === "완료") {
+    lines.push(`✅ ${runNumber} 완료`);
+  } else if (status === "대기") {
+    lines.push("대기");
+  } else {
+    lines.push(`진행도 [${bar}] ${done}/${total}`);
+  }
+  return lines;
+}
+
+function classifyFocusRunStatus(issues: Issue[]): "완료" | "진행" | "대기" {
+  const states = issues.map((issue) => classifyIssueState(issue.state));
+  if (states.every((state) => state === "done")) {
+    return "완료";
+  }
+  if (states.every((state) => state === "todo")) {
+    return "대기";
+  }
+  return "진행";
+}
+
+function formatDueDateSection(issues: Issue[], now: Date): string[] {
+  const withDueDate = issues.filter((issue) => issue.dueDate && classifyIssueState(issue.state) !== "done");
+  if (!withDueDate.length) {
+    return [];
+  }
+  const today = formatIsoDate(now);
+  const dueToday = withDueDate.filter((issue) => issue.dueDate === today).sort(compareIssueIdentifier);
+  const overdue = withDueDate.filter((issue) => issue.dueDate && issue.dueDate < today).sort(compareIssueIdentifier);
+  const next = withDueDate.filter((issue) => issue.dueDate && issue.dueDate > today).sort(compareIssueIdentifier);
+  return [
+    "",
+    "🗓️ 오늘 보기",
+    `- due Today: ${formatIssueIdentifiers(dueToday)}`,
+    `- overdue: ${formatIssueIdentifiers(overdue)}`,
+    `- next: ${formatIssueIdentifiers(next)}`,
+  ];
+}
+
+function formatIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatIssueIdentifiers(issues: Issue[]): string {
+  return issues.length ? issues.map((issue) => issue.identifier).join(", ") : "없음";
 }
 
 function groupSubIssuesByParent(issues: Issue[]): Map<string, Issue[]> {

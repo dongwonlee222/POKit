@@ -299,6 +299,56 @@ test("buildSessionBrief renders ASCII parent progress for cycle issues", async (
   assert.match(brief, /POKIT-73 대화형 ASCII 시각화\s+\[░\] 0\/1/);
 });
 
+test("buildSessionBrief renders Focus Run checklist groups from Linear labels", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-15T09:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-6", name: "Cycle 6: Focus Run Visual Grouping", number: 6 },
+      issues: [
+        { id: "issue-103", identifier: "POKIT-103", title: "Linear view rules", description: "done", labels: ["pokit:prd", "Focus Run / 6.1"], state: "Done" },
+        { id: "issue-107", identifier: "POKIT-107", title: "Numbering rules", description: "done", labels: ["pokit:criteria", "Focus Run / 6.1"], state: "Done" },
+        { id: "issue-104", identifier: "POKIT-104", title: "Brief checklist", description: "todo", labels: ["pokit:criteria", "Focus Run / 6.2"], state: "Todo" },
+        { id: "issue-105", identifier: "POKIT-105", title: "Status rules", description: "started", labels: ["pokit:criteria", "Focus Run / 6.2"], state: "In Progress" },
+      ],
+    },
+  });
+
+  assert.match(brief, /🎯 Focus Runs/);
+  assert.match(brief, /6\.1 \[완료\]/);
+  assert.match(brief, /\[x\] POKIT-103 Linear view rules/);
+  assert.match(brief, /\[x\] POKIT-107 Numbering rules/);
+  assert.match(brief, /✅ 6\.1 완료/);
+  assert.match(brief, /6\.2 \[진행\]/);
+  assert.match(brief, /\[ \] POKIT-104 Brief checklist/);
+  assert.match(brief, /\[ \] POKIT-105 Status rules/);
+  assert.match(brief, /진행도 \[░░\] 0\/2/);
+});
+
+test("buildSessionBrief renders due date focus summary", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-15T09:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-6", name: "Cycle 6", number: 6 },
+      issues: [
+        { id: "issue-104", identifier: "POKIT-104", title: "Brief checklist", description: "today", labels: ["pokit:criteria"], state: "Todo", dueDate: "2026-05-15" },
+        { id: "issue-105", identifier: "POKIT-105", title: "Status rules", description: "overdue", labels: ["pokit:criteria"], state: "Todo", dueDate: "2026-05-14" },
+        { id: "issue-106", identifier: "POKIT-106", title: "Due date rules", description: "next", labels: ["pokit:criteria"], state: "Todo", dueDate: "2026-05-20" },
+      ],
+    },
+  });
+
+  assert.match(brief, /🗓️ 오늘 보기/);
+  assert.match(brief, /due Today: POKIT-104/);
+  assert.match(brief, /overdue: POKIT-105/);
+  assert.match(brief, /next: POKIT-106/);
+});
+
 test("buildFlowDetail shows release inside the Cycle loop", async () => {
   const { buildFlowDetail } = await loadBriefModule();
 

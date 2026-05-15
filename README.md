@@ -211,8 +211,11 @@ API key가 chat, log, screenshot, commit에 노출되면 계속 진행하기 전
 Linear는 실제 backlog와 cycle 상태를 관리하는 기준 시스템으로 두고, 포킷은 매일 AI가 스크럼을 실행하는 운영 레이어로 사용합니다.
 
 - Linear Cycle: 보통 월요일에 시작하는 주간 스프린트 단위.
-- 포킷 Run: issue를 라우팅하고, 산출물 초안을 만들고, 실행 요약을 남기는 일일 점검.
+- Focus Run: 주간 Cycle 안에서 `6.1`, `6.2`, `6.3`처럼 계속 생성되는 실행 묶음. 하루 번호가 아니며, 같은 날 여러 개가 생길 수 있습니다.
+- 포킷 Run: issue를 라우팅하고, 산출물 초안을 만들고, 실행 요약을 남기는 점검/실행 흐름.
 - Linear 반영: 항상 실행 전 확인 계획으로 먼저 보여줍니다.
+
+Focus Run은 Linear에서 별도 Cycle로 만들지 않습니다. `Focus Run` label group, `6.1` 같은 label, due date, saved view를 조합해 시각적으로 묶고, POKit Brief는 이를 체크리스트로 보여줍니다.
 
 포킷은 `LINEAR_API_KEY`와 선택 값인 `POKIT_PROFILE`, `LINEAR_TEAM_ID`, `LINEAR_TEAM_KEY`로 아래 작업을 수행합니다.
 

@@ -157,6 +157,46 @@ All new durable work must follow the same funnel:
 
 Chat-only intent may produce analysis or a dry-run plan, but not durable project changes.
 
+## Weekly Cycle And Focus Runs
+
+Linear `Cycle` is POKit's weekly execution container. Do not create a separate Linear cycle for each day or each AI run.
+
+Inside a weekly Cycle, POKit may group issues into `Focus Run` bundles. A Focus Run is a visual and operational grouping, not a second source of truth.
+
+Naming:
+
+- Weekly Cycle: `Cycle N`, using Linear `cycle.number` as the canonical number.
+- Focus Run: `Cycle N.1`, `Cycle N.2`, `Cycle N.3`, shown compactly as `N.1`, `N.2`, `N.3`.
+- Focus Run numbers are sequential execution bundles inside the weekly Cycle. They are not dates, and multiple Focus Runs may happen on the same day.
+
+Linear visibility:
+
+- Use a Linear label group named `Focus Run`.
+- Use labels such as `6.1`, `6.2`, `6.3` under that group.
+- Use a saved view such as `POKit · Cycle 6 Focus Runs`.
+- Filter by the weekly Cycle and the `Focus Run` label group.
+- Group by label or label group so the user sees each Focus Run as a visual bundle.
+- Use `due date` only as a "today view" filter. Due date must not create or imply Focus Run numbering.
+
+POKit Brief visibility:
+
+```text
+6.2 [진행]
+[x] POKIT-106 Label group 구조 정의
+[ ] POKIT-107 Saved View 기준 정리
+[ ] POKIT-108 due date 필터 기준 정리
+진행도 [█░░] 1/3
+```
+
+Status rules:
+
+- `완료`: every issue in the Focus Run is Done.
+- `대기`: every issue is Todo or Backlog.
+- `진행`: at least one issue has started or completed and at least one issue remains.
+- `확인 필요`: custom/canceled states or unclear parent-child relations should remain visible in warnings instead of being silently treated as Done.
+
+Completion language should say `Focus Run 6.1 완료` or the compact `6.1 완료`. The weekly Cycle is not complete until its approved Cycle completion and release conditions are satisfied.
+
 When the user says "Cycle N 완료 상태를 확인하고 다음 후보를 묶어줘", interpret "다음 후보" as Cycle N+1 preparation. Do not add new work back into Cycle N unless the user explicitly says to reopen Cycle N.
 
 If definition is insufficient, stop and ask for the missing scope, policy, or acceptance criteria before implementing. Do not ask for mechanical substeps when the Cycle definition is already clear.
