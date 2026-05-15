@@ -2,12 +2,26 @@
 
 ## Unreleased
 
+No pending public release notes.
+
+## v0.4.4 - 2026-05-15
+
 ### Fixed
 
 - Use Linear cycle `number` as the canonical Cycle label in session brief and close next-action wording.
 - Warn when a Linear cycle name contains a different `Cycle N` than the canonical Linear cycle number.
 - Surface Linear API validation details, including user-presentable messages, fields, constraints, and summarized values.
 - Compact Linear cycle descriptions before writes to prevent known `description` max length API failures.
+
+### Docs / Policy
+
+- Documented the v0.4.4 hotfix scope in release notes before public release.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 135/135.
 
 ## v0.4.3 - 2026-05-15
 
