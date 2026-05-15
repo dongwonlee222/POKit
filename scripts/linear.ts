@@ -1,3 +1,4 @@
+import { assertExternalWriteAllowed, type ExternalWriteApplyOptions } from "./external-write/guard.ts";
 import { getActiveProfile, loadDotEnvOnce } from "./profile.ts";
 
 export type Plan = {
@@ -61,9 +62,7 @@ type AssignLabelToIssuePayload = {
 
 const LINEAR_CYCLE_DESCRIPTION_MAX_LENGTH = 255;
 
-export type ApplyOptions = {
-  approved?: boolean;
-};
+export type ApplyOptions = ExternalWriteApplyOptions;
 
 export type Issue = {
   id: string;
@@ -770,12 +769,7 @@ export async function planCreateIssue(input: IssueInput): Promise<Plan> {
 }
 
 export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
-  if (!options.approved) {
-    throw new Error("Refusing external write without explicit approval.");
-  }
-  if (!plan.idempotencyKey) {
-    throw new Error("Refusing external write without idempotency key.");
-  }
+  assertExternalWriteAllowed(plan, options);
   if (plan.writes.length !== 1 || plan.writes[0].type !== "create_issue") {
     throw new Error("Refusing create issue apply for unsupported plan shape.");
   }
@@ -849,12 +843,7 @@ export async function planAssignIssueToCycle(input: AssignIssueToCyclePayload): 
 }
 
 export async function applyAssignIssueToCycle(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
-  if (!options.approved) {
-    throw new Error("Refusing external write without explicit approval.");
-  }
-  if (!plan.idempotencyKey) {
-    throw new Error("Refusing external write without idempotency key.");
-  }
+  assertExternalWriteAllowed(plan, options);
   if (plan.writes.length !== 1 || plan.writes[0].type !== "update_issue") {
     throw new Error("Refusing cycle assignment apply for unsupported plan shape.");
   }
@@ -939,12 +928,7 @@ export async function planCreateHotfixCycle(input: HotfixCycleInput): Promise<Pl
 }
 
 export async function applyCreateCycle(plan: Plan, options: ApplyOptions = {}): Promise<Cycle> {
-  if (!options.approved) {
-    throw new Error("Refusing external write without explicit approval.");
-  }
-  if (!plan.idempotencyKey) {
-    throw new Error("Refusing external write without idempotency key.");
-  }
+  assertExternalWriteAllowed(plan, options);
   if (plan.writes.length !== 1 || plan.writes[0].type !== "create_cycle") {
     throw new Error("Refusing create cycle apply for unsupported plan shape.");
   }
@@ -1068,12 +1052,7 @@ export async function planUpdateCycle(input: CycleUpdateInput): Promise<Plan> {
 }
 
 export async function applyUpdateCycle(plan: Plan, options: ApplyOptions = {}): Promise<Cycle> {
-  if (!options.approved) {
-    throw new Error("Refusing external write without explicit approval.");
-  }
-  if (!plan.idempotencyKey) {
-    throw new Error("Refusing external write without idempotency key.");
-  }
+  assertExternalWriteAllowed(plan, options);
   if (plan.writes.length !== 1 || plan.writes[0].type !== "update_cycle") {
     throw new Error("Refusing update cycle apply for unsupported plan shape.");
   }
@@ -1132,12 +1111,7 @@ export async function planMissingLabels(labels: string[]): Promise<Plan> {
 }
 
 export async function applyCreateLabel(plan: Plan, options: ApplyOptions = {}): Promise<LinearLabel[]> {
-  if (!options.approved) {
-    throw new Error("Refusing external write without explicit approval.");
-  }
-  if (!plan.idempotencyKey) {
-    throw new Error("Refusing external write without idempotency key.");
-  }
+  assertExternalWriteAllowed(plan, options);
   if (!plan.writes.every((write) => write.type === "create_label")) {
     throw new Error("Refusing label create apply for unsupported plan shape.");
   }
@@ -1192,12 +1166,7 @@ export async function planAssignLabelToIssue(input: AssignLabelToIssuePayload): 
 }
 
 export async function applyAssignLabelToIssue(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
-  if (!options.approved) {
-    throw new Error("Refusing external write without explicit approval.");
-  }
-  if (!plan.idempotencyKey) {
-    throw new Error("Refusing external write without idempotency key.");
-  }
+  assertExternalWriteAllowed(plan, options);
   if (plan.writes.length !== 1 || plan.writes[0].type !== "update_issue") {
     throw new Error("Refusing label assignment apply for unsupported plan shape.");
   }

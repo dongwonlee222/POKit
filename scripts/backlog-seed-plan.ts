@@ -103,7 +103,7 @@ export async function applyBacklogSeedPlans(options: { approved?: boolean } = {}
   const plans = await buildBacklogSeedPlans();
   const created: Issue[] = [];
   for (const plan of plans) {
-    created.push(await applyCreateIssue(plan, { approved: true }));
+    created.push(await applyCreateIssue(plan, { approved: true, actor: "main_agent" }));
   }
   return created;
 }

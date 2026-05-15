@@ -57,3 +57,12 @@ hooks:
   assert.match(output, /full_tests\s+\[blocker\]\s+전체 테스트/);
   assert.match(output, /ignored_evidence_scan\s+\[warning\]\s+release에 안 들어가는 artifact만 증거로 삼는지 확인/);
 });
+
+test("hooks include executable validators for message, subagent, and external write contracts", async () => {
+  const content = await import("node:fs/promises").then((fs) => fs.readFile("workflows/hooks.yaml", "utf8"));
+
+  assert.match(content, /validate_message_catalog/);
+  assert.match(content, /validate_subagent_payload/);
+  assert.match(content, /validate_semantic_payload/);
+  assert.match(content, /require_external_write_entrypoint/);
+});

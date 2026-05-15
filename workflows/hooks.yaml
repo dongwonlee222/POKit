@@ -38,7 +38,9 @@ hooks:
 
   before_external_write:
     - require_dry_run_plan
+    - require_external_write_entrypoint
     - validate_semantic_payload
+    - validate_subagent_payload
     - require_user_approval
     - require_idempotency_key
 

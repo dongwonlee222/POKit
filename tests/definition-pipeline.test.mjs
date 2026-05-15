@@ -191,6 +191,11 @@ test("operating model fixes the main context and subagent call contract", async 
   assert.match(content, /대화형 문구는 message catalog id로 호출/);
   assert.match(content, /context handoff는 resume-brief와 artifact link 중심/);
   assert.match(content, /긴 원문 복사 금지/);
+  assert.match(content, /scripts\/subagent-payload-check\.ts/);
+  assert.match(content, /scripts\/external-write\/guard\.ts/);
+  assert.match(content, /actor: "main_agent"/);
+  assert.match(content, /semantic preflight/);
+  assert.match(content, /Contract violations/);
 });
 
 test("PRD and data contract templates include provider cost and copyright gates", async () => {

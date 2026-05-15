@@ -209,6 +209,16 @@ Main Context / Subagent Call Contract:
 - 외부 write 판단은 메인 에이전트만 가능하다. 서브에이전트는 외부 write를 실행하거나 최종 승인 여부를 판단하지 않고, 필요한 경우 dry-run 후보만 반환한다.
 - 대화형 문구는 message catalog id로 호출한다. 서브에이전트 출력도 사용자-facing 문구가 필요하면 `workflows/messages.yaml`의 id를 참조한다.
 - context handoff는 resume-brief와 artifact link 중심으로 유지한다. 긴 원문 복사 금지, 링크와 짧은 근거 중심으로 전달한다.
+- `scripts/subagent-payload-check.ts` validates subagent output before it is ingested into main context.
+- `scripts/external-write/guard.ts` is the external write entrypoint guard. Apply helpers must identify `actor: "main_agent"` and must reject subagent actors.
+- Release-bundle Linear issue writes require passing semantic preflight before apply. This moves target version, release bundle, and dry-run/write drift checks from review advice into a runtime guard.
+
+Contract violations:
+
+- A subagent output containing raw_context, full_text, or non-schema keys is invalid.
+- A subagent external_write_request other than `none` or `dry_run_only` is invalid.
+- A Linear apply call without `actor: "main_agent"` is invalid.
+- A release-bundle issue apply without semantic preflight is invalid.
 
 When the product has to choose between competing behaviors, use this order:
 

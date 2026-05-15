@@ -879,7 +879,7 @@ test("applyCreateIssue creates an issue only with approval and idempotency key",
     labels: ["pokit:criteria"],
   });
 
-  const issue = await applyCreateIssue(plan, { approved: true });
+  const issue = await applyCreateIssue(plan, { approved: true, actor: "main_agent" });
 
   assert.match(requestBody.query, /mutation CreateIssue/);
   assert.doesNotMatch(requestBody.query, /query /);
@@ -891,6 +891,18 @@ test("applyCreateIssue creates an issue only with approval and idempotency key",
   assert.deepEqual(requestBody.variables.input.labelIds, []);
   assert.equal(requestBody.variables.idempotencyKey, undefined);
   assert.equal(issue.identifier, "EVM-20");
+});
+
+test("applyCreateIssue refuses subagent external write actors", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  const { applyCreateIssue, planCreateIssue } = await loadLinearModule();
+  const plan = await planCreateIssue({ title: "Seed issue" });
+
+  await assert.rejects(
+    () => applyCreateIssue(plan, { approved: true, actor: "subagent" }),
+    /main agent/,
+  );
 });
 
 test("applyAssignIssueToCycle refuses without explicit approval", async () => {
@@ -940,7 +952,7 @@ test("applyAssignIssueToCycle updates cycle only with approval and idempotency k
     cycleId: "cycle-123",
   });
 
-  const issue = await applyAssignIssueToCycle(plan, { approved: true });
+  const issue = await applyAssignIssueToCycle(plan, { approved: true, actor: "main_agent" });
 
   assert.equal(plan.idempotencyKey, "linear:assign_cycle:EVM-5:cycle-123");
   assert.match(requestBody.query, /mutation UpdateIssue/);
@@ -1005,7 +1017,7 @@ test("applyCreateCycle creates a Linear cycle only with approval and idempotency
     releaseScope: "GitHub push/tag/release",
   });
 
-  const cycle = await applyCreateCycle(plan, { approved: true });
+  const cycle = await applyCreateCycle(plan, { approved: true, actor: "main_agent" });
 
   assert.match(requestBody.query, /mutation CreateCycle/);
   assert.equal(requestBody.variables.input.teamId, "team-123");
@@ -1050,7 +1062,7 @@ test("applyCreateCycle surfaces Linear validation details", async () => {
   });
 
   await assert.rejects(
-    () => applyCreateCycle(plan, { approved: true }),
+    () => applyCreateCycle(plan, { approved: true, actor: "main_agent" }),
     (error) => {
       assert.match(error.message, /Linear API error: Argument Validation Error/);
       assert.match(error.message, /description must be shorter than or equal to 255 characters\./);
@@ -1094,7 +1106,7 @@ test("applyCreateCycle prevents Linear cycle description maxLength errors locall
     releaseScope: "session-brief cycle display hotfix with a deliberately long scope that should be compacted before Linear API write",
   });
 
-  await applyCreateCycle(plan, { approved: true });
+  await applyCreateCycle(plan, { approved: true, actor: "main_agent" });
 
   assert.ok(requestBody.variables.input.description.length <= 255);
   assert.match(requestBody.variables.input.description, /targetVersion: v0\.4\.4/);
@@ -1181,7 +1193,7 @@ test("applyUpdateCycle updates a Linear cycle only with approval and idempotency
     completedAt: "2026-05-13T15:00:00.000Z",
   });
 
-  const cycle = await applyUpdateCycle(plan, { approved: true });
+  const cycle = await applyUpdateCycle(plan, { approved: true, actor: "main_agent" });
 
   assert.match(requestBody.query, /mutation UpdateCycle/);
   assert.equal(requestBody.variables.cycleId, "cycle-1");
@@ -1258,7 +1270,7 @@ test("applyCreateLabel creates missing label with approval", async () => {
   const { applyCreateLabel, planMissingLabels } = await loadLinearModule();
   const plan = await planMissingLabels(["pokit:criteria"]);
 
-  const labels = await applyCreateLabel(plan, { approved: true });
+  const labels = await applyCreateLabel(plan, { approved: true, actor: "main_agent" });
 
   assert.match(requestBody.query, /mutation CreateIssueLabel/);
   assert.equal(requestBody.variables.input.teamId, "team-123");
@@ -1296,7 +1308,7 @@ test("applyAssignLabelToIssue adds label id to issue with approval", async () =>
     labelName: "pokit:criteria",
   });
 
-  const issue = await applyAssignLabelToIssue(plan, { approved: true });
+  const issue = await applyAssignLabelToIssue(plan, { approved: true, actor: "main_agent" });
 
   assert.equal(plan.idempotencyKey, "linear:assign_label:EVM-5:pokit:criteria");
   assert.match(requestBody.query, /mutation UpdateIssue/);
