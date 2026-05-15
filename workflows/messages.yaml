@@ -14,10 +14,95 @@ messages:
     text: "추천 다음 행동"
     emoji: "💬"
 
+  resume_compaction.title:
+    surface: resume_compaction
+    text: "세션 복구 확인"
+    emoji: "🧭"
+
+  resume_compaction.loaded:
+    surface: resume_compaction
+    text: "오케스트레이터 기준을 다시 불러왔습니다"
+    emoji: "✅"
+
+  stage_progress.title:
+    surface: stage_progress
+    text: "POKit 진행도"
+    emoji: "📍"
+
+  stage_progress.current_step:
+    surface: stage_progress
+    text: "현재 단계"
+    emoji: "▶"
+
+  backlog_intake.title:
+    surface: backlog_intake
+    text: "Backlog 등록 사전 확인"
+    emoji: "🧺"
+
+  backlog_intake.linear_pending:
+    surface: backlog_intake
+    text: "실제 Linear write는 승인 대기"
+    emoji: "⏳"
+
+  backlog_outline.title_rule:
+    surface: backlog_outline
+    text: "제목은 한글 상태로 시작합니다"
+    emoji: "🏷️"
+
+  backlog_outline.description_rule:
+    surface: backlog_outline
+    text: "Linear 변수는 description에 분리합니다"
+    emoji: "🧾"
+
+  backlog_outline.local_memo:
+    surface: backlog_outline
+    text: "로컬 메모는 외부 write 전 사전 확인입니다"
+    emoji: "📝"
+
+  definition_gate.title:
+    surface: definition_gate
+    text: "정의 확인 필요"
+    emoji: "❓"
+
+  definition_gate.missing_info:
+    surface: definition_gate
+    text: "진행하려면 추가 기준이 필요합니다"
+    emoji: "⚠️"
+
+  local_work_done.title:
+    surface: local_work_done
+    text: "로컬 작업 완료"
+    emoji: "✅"
+
+  local_work_done.next_verification:
+    surface: local_work_done
+    text: "이제 검증 결과를 확인합니다"
+    emoji: "🧪"
+
+  verification.title:
+    surface: verification
+    text: "검증 결과"
+    emoji: "🧪"
+
+  verification.passed:
+    surface: verification
+    text: "검증 통과"
+    emoji: "✅"
+
+  verification.failed:
+    surface: verification
+    text: "검증 실패"
+    emoji: "🚨"
+
   external_write.confirmation_title:
     surface: external_write
     text: "사용자 확인"
     emoji: "🤔"
+
+  external_write.preflight_title:
+    surface: external_write
+    text: "외부 write 사전 확인"
+    emoji: "🔐"
 
   external_write.recommended_option:
     surface: external_write
@@ -29,6 +114,26 @@ messages:
     text: "대안 B"
     emoji: "↩️"
 
+  decision_choice.reason_label:
+    surface: decision_choice
+    text: "선택이 필요한 이유"
+    emoji: "🤔"
+
+  decision_choice.prompt:
+    surface: decision_choice
+    text: "A/B로 선택해 주세요"
+    emoji: "⌨️"
+
+  error_incident.title:
+    surface: error_incident
+    text: "문제 / 에러 검토"
+    emoji: "🚨"
+
+  error_incident.next_action:
+    surface: error_incident
+    text: "다음 조치"
+    emoji: "➡️"
+
   linear_backlog_create.title_prefix:
     surface: linear_backlog_create
     text: "{targetVersion} · {title}"
@@ -36,4 +141,3 @@ messages:
   linear_backlog_create.release_bundle_label:
     surface: linear_backlog_create
     text: "배포 묶음"
-

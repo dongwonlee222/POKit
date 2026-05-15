@@ -4,6 +4,32 @@
 
 No pending public release notes.
 
+## v0.7.0 - 2026-05-16
+
+### Added
+
+- Added architecture docs for glossary, document roles, backlog intake, cycle/version flow, release/non-release flow, versioning, visualization, conversation standards, backlog title/outline standards, and Linear structure standards.
+- Added deterministic renderers for conversation visuals, backlog outlines, sub-issue task checklists, and POKit run identity.
+- Added tests to lock user-facing copy, ASCII status blocks, Linear title/description structure, and POKit Circle identity.
+
+### Changed
+
+- Optimized session start output into a compact POKit Brief.
+- Clarified Linear Weekly Cycle vs POKit Version Run vs Release Bundle boundaries.
+- Standardized Korean-first backlog titles and separated machine variables into Linear descriptions.
+- Kept Sub-issue child work as Task Checklist items instead of creating deeper Linear sub-sub-issues by default.
+
+### Docs / Policy
+
+- Documented context-dilution guards for orchestrator recovery, conversation copy, backlog structure, and Linear hierarchy.
+- Documented when A/B choices, external write preflights, Problem/Error Review, and verification summaries appear.
+
+### Verification
+
+- Public safety scan passed.
+- Release preflight passed after CHANGELOG update.
+- Test suite passed: 194/194.
+
 ## v0.6.0 - 2026-05-15
 
 ### Added

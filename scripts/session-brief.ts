@@ -13,6 +13,7 @@ export type SessionBriefInput = {
   now?: Date;
   context: WorkingCycleContext | WorkingContext;
   rootDir?: string;
+  variant?: "dashboard" | "start";
 };
 
 type IssueCounts = {
@@ -64,9 +65,30 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     primarySource: resolved.primarySurface.source,
     cycleName: primaryCycleReference,
   });
+  const currentLabel = messageLabel(rootDir, "session_start.current_status_label", "📌 현재");
   const cycleLine = isOperationallyComplete(resolved.currentCounts)
     ? `✅ ${cycleDisplayName} 완료: ${formatCounts(resolved.currentCounts)}`
-    : `📌 현재: ${formatCounts(resolved.currentCounts)}`;
+    : `${currentLabel}: ${formatCounts(resolved.currentCounts)}`;
+
+  if (input.variant === "start") {
+    return [
+      "# POKit Brief",
+      "",
+      `📅 ${formatKoreanDate(now)} · ${cycleDisplayName}`,
+      `Profile: ${profile.name}${profile.linearTeamKey ? ` · Team Key: ${profile.linearTeamKey}` : ""}`,
+      "",
+      "POKit 진행도",
+      `${renderProgressBar({ current: 1, total: 10, width: 10 })} · 현재: 시작 브리프`,
+      "",
+      cycleLine,
+      "",
+      buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming, rootDir),
+      ...formatNumberedIssues(resolved.primaryCandidates),
+      "",
+      `${messageLabel(rootDir, "session_start.next_action_label", "💬 추천 다음 행동")}: ${recommendation.summary}`,
+      "",
+    ].join("\n");
+  }
 
   return [
     "# POKit Brief",
@@ -84,7 +106,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     ...formatFocusRunSection(currentSurface.issues),
     ...formatDueDateSection(currentSurface.issues, now),
     "",
-    buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming),
+    buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming, rootDir),
     ...formatNumberedIssues(resolved.primaryCandidates),
     ...formatBacklogSection(resolved.backlogCandidates),
     "",
@@ -767,15 +789,16 @@ function isFutureCycle(context: WorkingCycleContext, now: Date): boolean {
   return new Date(context.cycle.startsAt).getTime() > now.getTime();
 }
 
-function buildCandidateHeading(context: WorkingCycleContext, futureUpcoming: boolean): string {
+function buildCandidateHeading(context: WorkingCycleContext, futureUpcoming: boolean, rootDir = "."): string {
+  const label = messageLabel(rootDir, "session_start.next_candidates_label", "🧺 다음 후보");
   if (context.source !== "linear_upcoming") {
-    return "🧺 다음 후보";
+    return label;
   }
   const cycleName = formatCycleDisplayName(context.cycle);
   const suffix = futureUpcoming
     ? cycleStartsAtLabel(context.cycle.startsAt, true)
     : cycleStartsAtLabel(context.cycle.startsAt, false);
-  return suffix ? `🧺 다음 후보 (${cycleName}, ${suffix})` : `🧺 다음 후보 (${cycleName})`;
+  return suffix ? `${label} (${cycleName}, ${suffix})` : `${label} (${cycleName})`;
 }
 
 function cycleStartsAtLabel(startsAt: string | undefined, future: boolean): string | null {

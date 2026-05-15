@@ -313,7 +313,7 @@ artifacts/sprints/[cycle]/retro.md
 - [ ] Do not commit private customer data, credentials, contracts, or sensitive project details.
 - [ ] Keep `memory/`, `artifacts/`, and `.modu-harness/` local by default. Commit them only after explicit team policy and content review.
 
-## 9. Ready For Daily Use
+## 9. Ready For Version Run Use
 
 - [ ] Linear team id is set.
 - [ ] Label preflight is clean or approved.

@@ -12,17 +12,23 @@ type ContextMap = {
   readOrder: string[];
 };
 
+const ORCHESTRATOR_REQUIRED_READ_ORDER = [
+  "docs/architecture/01-document-roles.md",
+  "docs/architecture/11-visualization-and-incident-response.md",
+];
+
 export function buildSessionStart(input: SessionStartInput): string {
   const rootDir = input.rootDir ?? ".";
   const contextMap = readContextMap(rootDir);
   validateReadOrder(rootDir, contextMap.readOrder);
+  const orchestratorLoaded = validateOrchestratorReadOrder(contextMap.readOrder);
   const hooks = loadHookMap(join(rootDir, "workflows/hooks.yaml"));
-  const brief = buildSessionBrief(input);
+  const brief = buildSessionBrief({ ...input, variant: "start" });
   const cycle = resolveCycle(input.context);
   return [
     brief.trimEnd(),
     "",
-    `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} read_order=${contextMap.readOrder.length}`,
+    `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length}`,
     "",
   ].join("\n");
 }
@@ -51,6 +57,10 @@ function validateReadOrder(rootDir: string, readOrder: string[]): void {
       throw new Error(`Session start blocked: missing read_order file ${path}`);
     }
   }
+}
+
+function validateOrchestratorReadOrder(readOrder: string[]): boolean {
+  return ORCHESTRATOR_REQUIRED_READ_ORDER.every((path) => readOrder.includes(path));
 }
 
 function readYamlStringList(content: string, key: string): string[] {

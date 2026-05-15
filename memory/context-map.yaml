@@ -14,3 +14,8 @@ read_order:
   - memory/current-cycle.yaml
   - memory/current-cycle.md
   - memory/decision-log.yaml
+  - docs/architecture/01-document-roles.md
+  - docs/architecture/11-visualization-and-incident-response.md
+  - docs/architecture/12-conversation-standards.md
+  - docs/architecture/13-backlog-title-and-outline-standards.md
+  - docs/architecture/14-linear-structure-standards.md

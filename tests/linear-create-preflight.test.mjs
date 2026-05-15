@@ -91,6 +91,9 @@ test("renderLinearCreatePreflightAscii shows action groups, evidence, and idempo
 
   const ascii = renderLinearCreatePreflightAscii(preflight);
 
+  assert.match(ascii, /Linear Backlog 등록 사전 확인/);
+  assert.match(ascii, /\[████████░░\] 80%/);
+  assert.match(ascii, /⏳ 실제 Linear write는 승인 대기/);
   assert.match(ascii, /Linear Create Preflight/);
   assert.match(ascii, /CREATE\s+\(1\)/);
   assert.match(ascii, /SKIP\s+\(1\)/);

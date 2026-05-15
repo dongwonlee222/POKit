@@ -296,8 +296,8 @@ function buildCycleCompletionExperienceLines(resolved: ResolvedCloseContext): st
   }
   if (!isCycleReleaseComplete(resolved.surface)) {
     return [
-      "Daily Release Pending",
-      `일간 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${resolved.surface.cycle.name}`,
+      "Version Run Release Pending",
+      `Version Run 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${resolved.surface.cycle.name}`,
       "",
       "남은 완료 조건",
       "- Release preflight 재확인",

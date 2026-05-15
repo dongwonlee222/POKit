@@ -239,6 +239,23 @@ This means:
 
 The practical test is simple: if a step is only there to execute the approved goal, it belongs inside the intent. If the step changes outside state in a way the user would care about independently, it needs a separate ask.
 
+## Operating Units
+
+POKit separates tracking, execution, and release units. The canonical glossary lives in `docs/architecture/00-glossary.md`.
+
+- Linear Weekly Cycle: a Monday-starting weekly tracking container in Linear. It collects Version Runs, releases, deferrals, follow-ups, and later weekly review candidates.
+- POKit Version Run: the actual execution loop. It is scoped by `targetVersion` for public release work, or by `runId` for non-release work. It is not a daily time box.
+- Cycle Bundle: the issue bundle selected for a Version Run.
+- Release Bundle: the public release bundle for a specific `targetVersion`.
+- Non-release Run: a Version Run that closes without public release, such as local draft documents, approval packs, private artifacts, or Linear cleanup work.
+
+Architecture flow references:
+
+- `docs/architecture/07-backlog-intake-flow.md`
+- `docs/architecture/08-cycle-vs-linear-cycle.md`
+- `docs/architecture/09-release-and-non-release-flow.md`
+- `docs/architecture/10-versioning-policy.md`
+
 ## Cycle Steward Persona
 
 POKit uses a lightweight Cycle Steward persona when producing plans, completion reports, and next-action sentences.
@@ -263,9 +280,9 @@ The default execution unit is the whole current Cycle. Individual issue wording 
 All new durable work must follow the same funnel:
 
 1. Capture the idea as a Linear Backlog item.
-2. Group it into the current open or next Cycle bundle.
+2. Group it into a POKit Version Run through a Cycle Bundle.
 3. Run implementation only after the Cycle guard passes.
-4. Complete the Cycle flow through verification, commit, and Linear Done.
+4. Complete the Version Run through verification, commit when applicable, Linear Done when applicable, and release/non-release close.
 
 Chat-only intent may produce analysis or a dry-run plan, but not durable project changes.
 
@@ -425,14 +442,14 @@ Cycle completion celebration appears after release gate completion, not merely a
 
 Use a deterministic `stateKey` based on cycle id, issue completion states, run summary path, and retro path. If the previous celebration key matches the current `stateKey`, suppress the celebration.
 
-## Daily Release Contract
+## Version Run Release Contract
 
-POKit's default release cadence is daily. Weekly/Operating Cycle is a planning, grouping, and review container; it is not the default deployment batch size.
+POKit's default release unit is the Version Run. Linear Weekly Cycle is a planning, grouping, tracking, and review container; it is not the deployment batch size.
 
-Default daily release flow:
+Default Version Run release flow:
 
 ```text
-Daily work selected
+Version Run selected
 → local implementation/artifacts
 → tests and safety scans
 → local commit
@@ -440,18 +457,18 @@ Daily work selected
 → user approval
 → GitHub push/tag/release when public distribution changes
 → Linear Done/status sync after approval
-→ daily close note
+→ Version Run close note
 ```
 
-A day is operationally complete only when verified changes are committed and the approved public release boundary is either completed or explicitly deferred. Deferral must be visible in the close report as `Daily Release Deferred`, with the reason and the next release target.
+A public-release Version Run is operationally complete only when verified changes are committed when applicable and the approved public release boundary is either completed or explicitly deferred. Deferral must be visible in the close report as `Version Run Release Deferred`, with the reason and the next release target.
 
-Use weekly/Operating Cycle views to group Focus Runs such as `1.1`, `1.2`, and `1.3`, review carry-over, and decide priorities. Do not hold completed daily work until the end of the week by default.
+Use Linear Weekly Cycle views to group Version Runs, review carry-over, and decide priorities. Do not hold completed release-ready work until the end of the week by default.
 
 ## Release And Hotfix Cycles
 
 Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.
 
-Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the daily operating close condition. Daily work is not fully complete until verified changes are committed and the approved public release boundary is completed or explicitly deferred. If deployment or version release was omitted after a daily close should have shipped, treat that as release-pending work for the same Operating Cycle or prepare a Hotfix Cycle when the omission is urgent and the next normal work has already resumed.
+Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the Version Run close condition. Public-release Version Runs are not fully complete until verified changes are committed when applicable and the approved public release boundary is completed or explicitly deferred. If deployment or version release was omitted after a Version Run should have shipped, treat that as release-pending work for the same Version Run or prepare a Hotfix Cycle when the omission is urgent and the next normal work has already resumed.
 
 Hotfix Cycles are only for urgent correction after a Cycle was completed or should have been deployed. Use a Hotfix Cycle for:
 
@@ -547,14 +564,14 @@ Tracked `memory/` files are starter placeholders only. Real resume briefs, curre
 ## Roles
 
 - Linear issue: official task, priority, discussion, and weekly cycle placement.
-- POKit daily run: read-only AI check that routes issues, drafts artifacts, and writes a local Run Summary.
+- POKit Version Run: scoped execution loop that routes issues, drafts artifacts, verifies work, and closes through release or non-release evidence.
 - Session task list: temporary progress tracker for the current AI work session.
 - GitHub commit: durable implementation history.
 
 ## Weekly Rhythm
 
 1. Put work into a weekly Linear cycle.
-2. Run POKit daily with `node --experimental-strip-types scripts/sprint-runner.ts`.
+2. Run POKit Version Runs with `node --experimental-strip-types scripts/sprint-runner.ts` or the active Version Run command flow.
 3. Review the Run Summary.
 4. Approve or reject any proposed Linear write plan.
 5. Commit code/docs changes to GitHub.
@@ -643,6 +660,8 @@ The completion experience must be explicit enough that the user sees the Cycle b
 The same cycle completion message should not repeat unless the cycle state changes. Do not ask the user to copy a long execution sentence. When an external write or real product judgment choice is proposed, end the dry-run with an emoji-scannable recommendation block. Only show choices when a real decision is required; do not turn mechanical substeps into approvals.
 
 External write dry-runs are mandatory at approval boundaries. A completion response that says an external write was skipped is incomplete unless it also includes the executable dry-run or points to the already-rendered dry-run from the same turn.
+
+Before the choice block, render the external write preflight progress with `scripts/render/ascii.ts#renderPreflightStatusBlock`. A/B choice wording should come from `renderDecisionChoiceBlock` or match it exactly. This keeps emoji, ASCII bars, and approval language stable after session resume or context compaction.
 
 ```text
 사용자 확인

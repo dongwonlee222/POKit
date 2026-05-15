@@ -2,6 +2,28 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+test("document roles keep AGENTS focused on main-agent orchestration", async () => {
+  const agents = await readFile("AGENTS.md", "utf8");
+  const documentRoles = await readFile("docs/architecture/01-document-roles.md", "utf8");
+  const visualIncident = await readFile("docs/architecture/11-visualization-and-incident-response.md", "utf8");
+
+  assert.match(agents, /Main Agent Orchestration Contract/);
+  assert.match(agents, /orchestrates POKit work; it does not replace hooks, templates, scripts, or subagent contracts/);
+  assert.match(documentRoles, /AGENTS\.md/);
+  assert.match(documentRoles, /main-agent orchestration/);
+  assert.match(documentRoles, /workflows\/agent-roles\.yaml/);
+  assert.match(documentRoles, /workflows\/hooks\.yaml/);
+  assert.match(documentRoles, /templates\/definition-pipeline\//);
+  assert.match(documentRoles, /LLM은 필요한 판단 구간에서만 개입한다/);
+  assert.match(documentRoles, /docs\/architecture\/11-visualization-and-incident-response\.md/);
+  assert.match(visualIncident, /Stage Visualization/);
+  assert.match(visualIncident, /Incident Response/);
+  assert.match(visualIncident, /scripts\/cycle-progress\.ts/);
+  assert.match(visualIncident, /scripts\/problem-error-review\.ts/);
+  assert.match(visualIncident, /workflows\/hooks\.yaml/);
+  assert.match(visualIncident, /on_error/);
+});
+
 test("AGENTS documents minimal human intervention approval matrix", async () => {
   const content = await readFile("AGENTS.md", "utf8");
 
@@ -154,14 +176,14 @@ test("Cycle progress and one-time celebration contracts are documented", async (
   assert.match(agents, /Cycle 완료 직후 축하 메시지는 release gate 완료 후 1회만 표시한다/);
 });
 
-test("daily release is the default cadence while Operating Cycle stays a planning container", async () => {
+test("Version Run release is the default unit while Linear Weekly Cycle stays a tracking container", async () => {
   const agents = await readFile("AGENTS.md", "utf8");
   const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
 
-  assert.match(agents, /Daily release is default/);
-  assert.match(agents, /Weekly\/Operating Cycle is only a planning\/review container/);
-  assert.match(operatingModel, /Daily Release Contract/);
-  assert.match(operatingModel, /default release cadence is daily/);
-  assert.match(operatingModel, /Daily Release Deferred/);
-  assert.match(operatingModel, /Do not hold completed daily work until the end of the week by default/);
+  assert.match(agents, /Version Run release is default/);
+  assert.match(agents, /Linear Weekly Cycle is only a weekly tracking\/review container/);
+  assert.match(operatingModel, /Version Run Release Contract/);
+  assert.match(operatingModel, /default release unit is the Version Run/);
+  assert.match(operatingModel, /Version Run Release Deferred/);
+  assert.match(operatingModel, /Do not hold completed release-ready work until the end of the week by default/);
 });

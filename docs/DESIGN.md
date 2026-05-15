@@ -301,7 +301,26 @@ read_order:
   - "memory/current-cycle.md"
   - "artifacts/sprints/2026-W20-run-summary.md"
   - "memory/decision-log.yaml"
+  - "docs/architecture/01-document-roles.md"
+  - "docs/architecture/11-visualization-and-incident-response.md"
 ```
+
+### Orchestrator Recovery Contract
+
+세션 시작, context compaction, handoff 이후에도 메인 에이전트는 context 희석과 무관하게 같은 오케스트레이션 기준을 복구해야 한다. 이 복구는 장기 대화 기억에 의존하지 않고 `memory/context-map.yaml`과 `scripts/session-start.ts`의 실행 계약으로 확인한다.
+
+필수 복구 축은 다음과 같다.
+
+- `docs/architecture/01-document-roles.md`: `AGENTS.md`, hooks, scripts, templates, subagents, docs의 역할 경계
+- `docs/architecture/11-visualization-and-incident-response.md`: 단계별 시각화, `on_error`, Problem/Error Review, 장애 대응 흐름
+
+`session-start.ts`는 `read_order`에 이 문서들이 포함되어 있는지 확인하고, 부트 서명에 `orchestrator=loaded`를 표시한다. 이 서명이 없거나 `orchestrator=missing`이면 메인 에이전트는 POKit 실행을 계속하기 전에 오케스트레이터 복구 실패를 보고해야 한다.
+
+```text
+pokit:boot ok cycle=<cycle> hooks=loaded orchestrator=loaded read_order=<n>
+```
+
+이 계약의 목적은 `AGENTS.md`가 모든 세부 정책을 오래 들고 있지 않아도, 메인 에이전트가 세션 시작 때 필요한 역할 경계와 장애 대응 기준을 다시 읽고 실행할 수 있게 하는 것이다.
 
 PO 기준 context는 다음 여섯 종류로 관리한다.
 
@@ -390,6 +409,8 @@ Long-running run도 외부 write 권한은 갖지 않는다. 파일 산출물, r
 세션 시작 시 POKit은 자동 실행을 하지 않는다. `session_start`는 항상 표시되는 **State Brief**와, 상태 변화가 있을 때만 표시되는 **Action Nudge**로 나눈다.
 
 State Brief는 선택적 친절 문구가 아니라 POKit 세션의 필수 lifecycle hook이다. 모든 POKit 세션의 첫 응답은 반드시 짧은 state brief를 포함한다. Action Nudge는 같은 cycle 상태에서 반복하지 않는다. 새 issue, 새 clarification, 라벨 제안, cycle 종료, 승인 대기 같은 상태 변화가 있을 때만 표시한다.
+
+현재 실행 계약은 `node --experimental-strip-types scripts/session-start.ts`다. 이 명령은 context map, hook map, compact brief, bootstrap signature를 함께 검증한다. 출력 마지막 줄에는 `pokit:boot ok ... orchestrator=loaded`가 포함되어야 하며, 이 값은 세션 시작/컴팩션 이후 메인 에이전트가 오케스트레이션 역할 경계를 복구했다는 신호다.
 
 State Brief 표시 항목은 다음과 같다.
 

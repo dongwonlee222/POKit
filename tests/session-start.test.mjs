@@ -26,14 +26,19 @@ const context = {
 test("buildSessionStart renders brief with boot signature after reading context map", async () => {
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-session-start-"));
   await mkdir(join(tempDir, "memory"), { recursive: true });
+  await mkdir(join(tempDir, "docs/architecture"), { recursive: true });
   await mkdir(join(tempDir, "workflows"), { recursive: true });
   await writeFile(join(tempDir, "memory/resume-brief.md"), "# Resume Brief\n");
   await writeFile(join(tempDir, "memory/current-cycle.yaml"), "cycle:\n  id: cycle-1\n");
+  await writeFile(join(tempDir, "docs/architecture/01-document-roles.md"), "# Document Roles\n");
+  await writeFile(join(tempDir, "docs/architecture/11-visualization-and-incident-response.md"), "# Stage Visualization And Incident Response\n");
   await writeFile(join(tempDir, "workflows/hooks.yaml"), "hooks:\n  session_start:\n    - read_context_map\n");
   await writeFile(join(tempDir, "memory/context-map.yaml"), [
     "read_order:",
     "  - memory/resume-brief.md",
     "  - memory/current-cycle.yaml",
+    "  - docs/architecture/01-document-roles.md",
+    "  - docs/architecture/11-visualization-and-incident-response.md",
     "",
   ].join("\n"));
   const { buildSessionStart } = await loadSessionStartModule();
@@ -46,7 +51,14 @@ test("buildSessionStart renders brief with boot signature after reading context 
 
   assert.match(output, /# POKit Brief/);
   assert.match(output, /POKit Operating Cycle 1: Memory MVP Foundation/);
-  assert.match(output, /pokit:boot ok cycle=POKit Operating Cycle 1: Memory MVP Foundation hooks=loaded read_order=2/);
+  assert.match(output, /POKit 진행도\n\[█░░░░░░░░░\] 1\/10 · 현재: 시작 브리프/);
+  assert.match(output, /📌 현재: Todo 1 · 진행 0 · 완료 0/);
+  assert.match(output, /🧺 다음 후보/);
+  assert.match(output, /1\. POKIT-128 Session Bootstrap Contract · Todo · pokit:criteria/);
+  assert.match(output, /💬 추천 다음 행동: Operating Cycle 1 남은 Todo 전체 진행/);
+  assert.doesNotMatch(output, /2\. Cycle 기준 확인/);
+  assert.doesNotMatch(output, /📊 진행도/);
+  assert.match(output, /pokit:boot ok cycle=POKit Operating Cycle 1: Memory MVP Foundation hooks=loaded orchestrator=loaded read_order=4/);
 });
 
 test("buildSessionStart fails loudly when read_order files are missing", async () => {

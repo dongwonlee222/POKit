@@ -2,8 +2,17 @@ import { readFileSync } from "node:fs";
 
 export type MessageSurface =
   | "session_start"
+  | "resume_compaction"
+  | "stage_progress"
+  | "backlog_intake"
+  | "backlog_outline"
+  | "definition_gate"
+  | "local_work_done"
+  | "verification"
   | "completion_report"
   | "external_write"
+  | "decision_choice"
+  | "error_incident"
   | "linear_backlog_create";
 
 export type CatalogMessage = {
@@ -24,8 +33,17 @@ export type ValidationResult = {
 
 const ALLOWED_SURFACES = new Set<MessageSurface>([
   "session_start",
+  "resume_compaction",
+  "stage_progress",
+  "backlog_intake",
+  "backlog_outline",
+  "definition_gate",
+  "local_work_done",
+  "verification",
   "completion_report",
   "external_write",
+  "decision_choice",
+  "error_incident",
   "linear_backlog_create",
 ]);
 
@@ -126,4 +144,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exitCode = 1;
   }
 }
-

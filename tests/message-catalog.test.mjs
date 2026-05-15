@@ -12,7 +12,14 @@ test("loadMessageCatalog reads message ids and Korean user-facing text", async (
   const catalog = loadMessageCatalog("workflows/messages.yaml");
 
   assert.equal(getMessage(catalog, "session_start.next_action_label").text, "추천 다음 행동");
+  assert.equal(getMessage(catalog, "resume_compaction.title").text, "세션 복구 확인");
+  assert.equal(getMessage(catalog, "backlog_intake.title").emoji, "🧺");
+  assert.equal(getMessage(catalog, "backlog_outline.title_rule").text, "제목은 한글 상태로 시작합니다");
+  assert.equal(getMessage(catalog, "backlog_outline.description_rule").emoji, "🧾");
+  assert.equal(getMessage(catalog, "verification.failed").text, "검증 실패");
   assert.equal(getMessage(catalog, "external_write.confirmation_title").text, "사용자 확인");
+  assert.equal(getMessage(catalog, "decision_choice.prompt").text, "A/B로 선택해 주세요");
+  assert.equal(getMessage(catalog, "error_incident.title").emoji, "🚨");
   assert.equal(getMessage(catalog, "linear_backlog_create.title_prefix").text, "{targetVersion} · {title}");
 });
 

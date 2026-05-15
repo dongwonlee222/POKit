@@ -26,7 +26,7 @@ Quick read-only smoke test:
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => { const cycle = await m.getCurrentCycle(); const issues = await m.listIssues(cycle.id); console.log({ cycle, issueCount: issues.length }); })"
 ```
 
-Daily run context smoke test:
+Version Run context smoke test:
 
 ```bash
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(JSON.stringify(await m.getWorkingCycleContext(), null, 2)))"
@@ -187,7 +187,11 @@ Render an `on_error` Problem/Error Review and optionally write the local backlog
 node --experimental-strip-types scripts/hooks-runner.ts on_error --title "Hook detail missing" --problem "hooks detail request fell back silently" --cause "detail argument contract was incomplete" --prevention "Add runner and contract tests" --write-artifact --slug hook-detail-missing
 ```
 
-Conversation ASCII visuals are centralized in `scripts/render/ascii.ts`. Use `renderProgressBar`, `renderStatusBlock`, `renderProblemReview`, and `renderApprovalRequest` instead of hand-building bars in feature scripts.
+Conversation ASCII visuals are centralized in `scripts/render/ascii.ts`. Use `renderProgressBar`, `renderStatusBlock`, `renderPreflightStatusBlock`, `renderDecisionChoiceBlock`, `renderProblemReview`, and `renderApprovalRequest` instead of hand-building bars or A/B confirmation copy in feature scripts.
+
+Backlog memo and Linear issue title/outline rendering is centralized in `scripts/backlog-outline.ts`. Use it for Korean-first status titles and fixed Linear description headings instead of hand-building backlog dry-run markdown.
+
+POKit Circle / Version Run identity rendering is centralized in `scripts/pokit-run-identity.ts`. Track runs by `pokitRunId`, `linearCycleId`, `cycleBundleId`, and `targetVersion` or `runId`; do not rely on the title as the stable identifier.
 
 Print the completed issue archive dry-run contract:
 

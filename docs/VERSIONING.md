@@ -2,6 +2,8 @@
 
 This document is the canonical release version policy for POKit.
 
+Architecture examples and flow diagrams live in `docs/architecture/10-versioning-policy.md`. Terms such as Linear Weekly Cycle, POKit Version Run, Release Bundle, and Non-release Run are defined in `docs/architecture/00-glossary.md`.
+
 ## Release States
 
 - Before the first official release, POKit work is unreleased unless it is explicitly tagged as a pre-release.
@@ -13,11 +15,26 @@ This document is the canonical release version policy for POKit.
 
 POKit uses SemVer-style versioning after `v0.1.0`:
 
-- patch: bug fixes, safety guard fixes, documentation corrections, and compatible workflow refinements.
-- minor: new scripts, skills, artifacts, or workflow capabilities that remain backward compatible.
-- major: incompatible workflow, data layout, public distribution, or command behavior changes.
+- `MAJOR`: incompatible workflow, data layout, public distribution, or command behavior changes. Example: `v1.0.0`.
+- `MINOR`: new scripts, skills, artifacts, operating flows, or workflow capabilities that remain backward compatible. Example: `v0.8.0`.
+- `PATCH`: bug fixes, safety guard fixes, documentation corrections, and compatible workflow refinements. Example: `v0.8.1`.
 
 Because POKit is still early, pre-1.0 minor versions may carry meaningful behavior changes, but the changelog must call out migration impact plainly.
+
+Avoid using `v0.0.1` for normal POKit operating releases. Reserve it only for bootstrap or test-release situations. Normal early POKit release work should use the `v0.x.y` line.
+
+## Version Runs
+
+A public release-oriented POKit Version Run must have a SemVer `targetVersion`.
+
+Non-release Runs do not increment SemVer. They use an explicit `runId` and close with local evidence, approval status, and a reason for not entering public release.
+
+Examples:
+
+- public release: `v0.8.0`
+- patch or hotfix: `v0.8.1`
+- release candidate: `v0.8.0-rc.1`
+- non-release run: `docs-review-2026-05-16`
 
 ## Hotfixes
 

@@ -1,3 +1,5 @@
+import { renderPreflightStatusBlock } from "./render/ascii.ts";
+
 export type LinearState = "absent" | "open" | "done";
 export type LocalEvidenceState = "none" | "partial" | "complete";
 export type EvidenceStrength = "weak" | "medium" | "strong";
@@ -57,6 +59,17 @@ export function classifyLinearCreatePreflight(input: LinearCreatePreflightInput)
 
 export function renderLinearCreatePreflightAscii(preflight: LinearCreatePreflight): string {
   const lines = [
+    ...renderPreflightStatusBlock({
+      title: "Linear Backlog 등록 사전 확인",
+      percent: 80,
+      items: [
+        { state: "done", label: "로컬 후보/증거 분류 완료" },
+        { state: "done", label: "Linear issue 생성 payload 준비 완료" },
+        { state: "done", label: "idempotency key 확인 완료" },
+        { state: "pending", label: "실제 Linear write는 승인 대기" },
+      ],
+    }),
+    "",
     `Linear Create Preflight  (project: ${preflight.projectName})`,
     "┌─────────────────────────────────────────────────────────────────────┐",
   ];
