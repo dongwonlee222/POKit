@@ -163,7 +163,7 @@ function hookDescription(name: string): string {
     after_run: "실행 후 로컬 handoff 갱신",
     after_completion_report: "완료 보고 품질 확인",
     after_cycle_complete: "Cycle 완전 완료 후 마무리",
-    on_error: "오류 발생 시 실패 요약",
+    on_error: "오류 발생 시 Problem/Error Review 출력과 메모 작성",
   };
   return descriptions[name] ?? "";
 }

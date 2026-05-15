@@ -36,6 +36,9 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   });
 
   assert.match(brief, /# POKit Brief/);
+  assert.match(brief, /POKit 진행도\n\[█░░░░░░░░░\] 1\/10 · 현재: 시작 브리프/);
+  assert.match(brief, /4\. 작업 Gate 확인\s+⏳/);
+  assert.match(brief, /9\. 사용자 승인\s+⏳/);
   assert.match(brief, /📌 현재: Todo 3 · 진행 1 · 완료 2/);
   assert.match(brief, /⚠️ 주의: 라벨 필요 1 · 확인 필요 0 · 승인 대기 1/);
   assert.match(brief, /🧺 다음 후보/);
@@ -86,6 +89,7 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(backlogDetail, /생성 후보\n1\. EVM-20 LLM-first · Todo · pokit:criteria → criteria · artifacts\/criteria\/EVM-20\.md/);
   assert.match(backlogDetail, /라벨 필요\n1\. EVM-26 No label · Todo · no-label → pokit:criteria 제안/);
   assert.match(backlogDetail, /승인 대기\n1\. Suggest pokit:criteria for EVM-26/);
+  assert.match(backlogDetail, /Problem\/Error Review 메모\n- 없음/);
 
   const approvalDetail = buildApprovalDetail({
     now: new Date("2026-05-12T09:00:00+09:00"),
@@ -115,6 +119,29 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(candidateDetail, /# POKit Candidate Detail/);
   assert.match(candidateDetail, /1\. EVM-21 Team optional · Todo · pokit:criteria/);
   assert.match(candidateDetail, /env detail/);
+});
+
+test("buildBacklogDetail includes local Problem/Error Review backlog memos", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-backlog-problem-review-"));
+  await mkdir(join(tempDir, "artifacts/backlog"), { recursive: true });
+  await writeFile(
+    join(tempDir, "artifacts/backlog/linear-cleanup-schema-check-problem-review.md"),
+    "# 🚨 Problem / Error Review: Linear cleanup schema check 누락\n",
+  );
+  const { buildBacklogDetail } = await loadBriefModule();
+
+  const backlogDetail = buildBacklogDetail({
+    now: new Date("2026-05-12T09:00:00+09:00"),
+    rootDir: tempDir,
+    context: {
+      source: "team_backlog",
+      cycle: { id: "team-backlog", name: "Team Backlog" },
+      issues: [],
+    },
+  });
+
+  assert.match(backlogDetail, /Problem\/Error Review 메모/);
+  assert.match(backlogDetail, /1\. Linear Cleanup Schema Check · artifacts\/backlog\/linear-cleanup-schema-check-problem-review\.md/);
 });
 
 test("buildSessionBrief shows upcoming and backlog candidates when active cycle is operationally complete", async () => {
@@ -372,6 +399,12 @@ test("buildFlowDetail shows release inside the Cycle loop", async () => {
   assert.match(detail, /Cycle Complete/);
 });
 
+test("readDetailArg accepts hooks detail instead of silently falling back", async () => {
+  const { readDetailArg } = await loadBriefModule();
+
+  assert.equal(readDetailArg(["--detail", "hooks"]), "hooks");
+});
+
 test("buildHookDetail shows hooks and enforcement metadata", async () => {
   const { buildHookDetail } = await loadBriefModule();
 
@@ -586,4 +619,31 @@ test("buildSessionBrief warns when cycle name contains a different cycle number"
   assert.match(brief, /📅 .* · Cycle 6 · Cycle 5 Follow-up: Discovery Gate & Visual Communication/);
   assert.match(brief, /⚠️ Cycle 번호 확인: Linear number 6 · name contains Cycle 5/);
   assert.match(brief, /Roadmap: Cycle 5 → \[Cycle 6\] → Cycle 7/);
+});
+
+test("buildSessionBrief uses Operating Cycle order ahead of Linear backing number", async () => {
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-15T09:00:00+09:00"),
+    context: {
+      source: "linear_upcoming",
+      cycle: {
+        id: "cycle-8",
+        name: "POKit Operating Cycle 1: Memory MVP Foundation",
+        number: 8,
+        startsAt: "2026-05-31T15:00:00.000Z",
+      },
+      issues: [
+        { id: "issue-109", identifier: "POKIT-109", title: "POKit Memory MVP", description: "memory", labels: ["pokit:prd"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /📅 .* · POKit Operating Cycle 1: Memory MVP Foundation/);
+  assert.match(brief, /Roadmap: \[Operating Cycle 1\] → Operating Cycle 2/);
+  assert.doesNotMatch(brief, /Cycle 번호 확인/);
+  assert.doesNotMatch(brief, /Cycle 8 · POKit Operating Cycle 1/);
+  assert.match(brief, /👉 추천: Operating Cycle 1 남은 Todo 전체 진행/);
+  assert.match(brief, /💬 실행: “Operating Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
 });

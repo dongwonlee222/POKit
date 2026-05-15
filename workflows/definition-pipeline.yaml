@@ -335,3 +335,20 @@ gates:
       - dry_run
       - user_approval
       - idempotency_key
+
+linear_issue_creation_contract:
+  required:
+    - idempotency_key
+    - parent_child_when_applicable
+    - expected_artifact
+    - done_gate
+  relation_metadata:
+    required_when_known:
+      - Depends on
+      - Related
+      - Source
+      - Evidence
+    empty_value: none
+  external_write_boundary:
+    dry_run_first: true
+    user_approval_required: true

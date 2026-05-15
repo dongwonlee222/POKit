@@ -11,17 +11,16 @@ Default language: ko-KR.
 - 바깥 시스템을 바꾸기 전에는 dry-run 계획이 먼저다.
 - 사용자-facing 답변, 보고서, 로컬 artifact는 한국어를 기본으로 쓴다. API 이름, 파일명, 코드 식별자, 고유 product 용어만 영어를 허용한다.
 
-When a POKit session starts:
-1. Read `memory/context-map.yaml`.
-2. Read only the memory/artifact files listed in `read_order`.
-3. Show the compact POKit Brief dashboard.
-4. Include current cycle counts, numbered next cycle candidates with issue IDs/titles, one recommended bundle, and a compact user confirmation choice.
-5. Show at most one Action Nudge only when state changed.
+POKit session start contract:
 
-When the user says "POKit 시작해줘", "현재 상태 브리핑해줘", or "다음에 뭐 하면 돼?", run or emulate:
+- First run `node --experimental-strip-types scripts/session-start.ts`.
+- Do this again after any session resume, context compaction, or handoff before continuing POKit work.
+- The output must include `pokit:boot ok`. If the boot signature is missing, stop and report the bootstrap failure before doing any other POKit task.
+
+For "POKit 시작해줘", "현재 상태 브리핑해줘", or "다음에 뭐 하면 돼?", run/emulate:
 
 ```bash
-node --experimental-strip-types scripts/session-brief.ts
+node --experimental-strip-types scripts/session-start.ts
 ```
 
 For detail views, run or emulate:
@@ -33,7 +32,7 @@ node --experimental-strip-types scripts/session-brief.ts --detail approvals
 node --experimental-strip-types scripts/session-brief.ts --candidate 1
 ```
 
-If the user explicitly asks for a numbered detail such as "1번 자세히", map the number to the current brief candidates before answering. Do not suggest numbered or issue-only execution as the next action unless the user explicitly selects that issue.
+For numbered detail like "1번 자세히", map it to current brief candidates. Do not suggest issue-only execution unless explicitly selected.
 
 For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 
@@ -49,12 +48,13 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 - When a user asks to proceed, the default scope is the whole current Cycle, not a single issue. Treat local edits, verification, commit, and Linear Done as one Cycle-completion flow unless the user explicitly narrows the scope.
 - Do not ask the user to approve mechanical substeps like "commit this task" or "mark this task Done" after they approved progressing the Cycle. Pause only when definition is insufficient, or for destructive actions, public pushes/releases/tags, ambiguous scope, or policy changes outside the Cycle.
 - Use the Cycle Steward check before plans, completion reports, and next-action sentences: the next action should move the current Cycle forward, not isolate a single issue unless the user explicitly selected it.
-- When the user asks what remains, what is next, or what to do now, check both the current Cycle task state and the Cycle close/release state. Do not recommend new Backlog or next-Cycle work while the current Cycle is `Cycle Release Pending`.
-- When a procedure or Cycle task is complete, check whether the work followed the documented flow before reporting completion. Confirm the relevant flow name, required artifacts, naming/title conventions, verification, and any skipped steps or deviations.
-- Default next action wording must target the whole Cycle, such as "Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘". Show only one next action.
+- When the user asks what remains/next, check current Cycle task state and close/release state. Do not recommend Backlog or next-Cycle work while `Cycle Release Pending`.
+- Before reporting procedure/Cycle completion, confirm documented flow name, required artifacts, naming/title conventions, verification, and skipped steps.
+- Default next action wording must target the whole Cycle, e.g. "Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘". Show only one next action.
 - Forbidden next-action wording: standalone "커밋해줘", "Done 처리해줘", "테스트 돌려줘", or issue-only wording when the user did not explicitly select that issue.
 - When local work is complete and the next step is an external write, do not end with only "not done" or "approval required". Show the external write dry-run immediately, recommend one next action, and wait for approval.
-- Normal deployment and version release are part of Cycle completion; a Cycle is not fully complete until verified changes are committed, pushed, tagged, and released under the approved version.
+- When a confirmed error/blocker occurs, write a Korean Problem/Error Review memo under `artifacts/backlog/` before closing it. See `docs/OPERATING_MODEL.md#problemerror-review-memo-contract`.
+- Daily release is default. A day is not complete until verified changes are committed and public release is completed or explicitly deferred. Weekly/Operating Cycle is only a planning/review container.
 - Hotfix Cycle work must carry `sourceCycle`, `targetVersion`, `resumeCycle`, `releaseKind: hotfix`, and release scope. Before GitHub push/tag/release or another public deploy, run or emulate `scripts/cycle-guard.ts --operation external_release --release-kind hotfix ...`.
 - Before any public GitHub push/tag/release, run or emulate `node --experimental-strip-types scripts/public-safety-scan.ts`; private Linear workspace slugs, private cycle IDs, and live `memory/` state must not be published.
 - Model routing follows `docs/OPERATING_MODEL.md#model-tier-policy`: main agent owns judgment, integration, and final Done claims; lower-tier subagents only handle bounded file-owned work.
@@ -62,13 +62,15 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 
 Default completion response must be short; use structured reports only for Cycle close, external write results, failures, approval-pending work, or explicit report requests. Details live in `docs/OPERATING_MODEL.md#completion-report-contract`.
 
-When a Cycle is fully complete, the close report must also include the completion experience before the standard report sections:
+When a Cycle is fully complete, the close report must include this completion experience before standard sections:
 
 - `🎉 Cycle N 완료!`
 - `이번 Cycle 후 달라진 점`
 - `기대효과 / 가설`
 - `직접 사용해 볼 것`
 - `새 세션 추천`
+
+Cycle 완료 직후 축하 메시지는 release gate 완료 후 1회만 표시한다. 같은 `stateKey`는 반복하지 않는다.
 
 For unfinished or approval-pending items, include issue ID/title/status/reason. The next task is what POKit will do next, not a sentence for the user to copy back.
 

@@ -308,6 +308,64 @@ test("listTeams reads accessible Linear teams without requiring LINEAR_TEAM_ID",
   ]);
 });
 
+test("checkLinearIssueCleanupMutationSchema narrows cleanup mutation candidates", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  delete process.env.LINEAR_TEAM_ID;
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({
+      data: {
+        __schema: {
+          mutationType: {
+            fields: [
+              { name: "issueCreate" },
+              { name: "issueArchive" },
+              { name: "issueDelete" },
+            ],
+          },
+        },
+      },
+    }), { status: 200 });
+  };
+  const { checkLinearIssueCleanupMutationSchema } = await loadLinearModule();
+
+  const check = await checkLinearIssueCleanupMutationSchema();
+
+  assert.match(requestBody.query, /query LinearMutationSchemaForCleanup/);
+  assert.doesNotMatch(requestBody.query, /mutation /);
+  assert.deepEqual(check.candidates, ["issueArchive", "issueDelete"]);
+  assert.deepEqual(check.available, ["issueArchive", "issueDelete"]);
+  assert.equal(check.selected, "issueArchive");
+  assert.equal(check.canArchive, true);
+  assert.match(check.reason, /issueArchive/);
+});
+
+test("checkLinearIssueCleanupMutationSchema blocks cleanup when no candidate exists", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  delete process.env.LINEAR_TEAM_ID;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    data: {
+      __schema: {
+        mutationType: {
+          fields: [
+            { name: "issueCreate" },
+            { name: "issueUpdate" },
+          ],
+        },
+      },
+    },
+  }), { status: 200 });
+  const { checkLinearIssueCleanupMutationSchema } = await loadLinearModule();
+
+  const check = await checkLinearIssueCleanupMutationSchema(["issueArchive", "issueDelete"]);
+
+  assert.deepEqual(check.available, []);
+  assert.equal(check.selected, null);
+  assert.equal(check.canArchive, false);
+  assert.match(check.reason, /did not expose cleanup candidates/);
+});
+
 test("getWorkingContext returns active, upcoming, and backlog surfaces from one read", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";

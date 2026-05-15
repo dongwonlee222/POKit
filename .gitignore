@@ -24,3 +24,8 @@ artifacts/manifests/*
 !artifacts/sprints/
 artifacts/sprints/**
 !artifacts/sprints/README.md
+
+# Private/runtime memory MVP state. Publish sanitized examples elsewhere.
+memory/notes/
+memory/index.yaml
+collected/

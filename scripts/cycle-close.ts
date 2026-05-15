@@ -278,16 +278,16 @@ function buildCycleReleasePendingSection(context: WorkingCycleContext, completed
     return [];
   }
   return [
-    "## Cycle Release Pending",
+    "## Daily Release Pending",
     "",
-    `Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${cycleName(context)}`,
+    `일간 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${cycleName(context)}`,
     "",
     "### 남은 완료 조건",
     "",
     "- Release preflight 재확인",
     "- Commit",
     "- Push / Tag / GitHub Release",
-    "- Linear Cycle completion sync",
+    "- Linear Done/status sync",
   ];
 }
 

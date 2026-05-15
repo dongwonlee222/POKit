@@ -108,6 +108,90 @@ Backlog Memo
 
 Do not force every memo through full discovery. Apply Identity Fit only when a memo is being promoted toward a Linear candidate. Use Light Discovery for small or already-understood work, and Full Discovery Brief for parent-level changes, user-facing flow changes, external dependencies, identity-impacting ideas, or large bundles.
 
+## Problem/Error Review Memo Contract
+
+When POKit confirms an error, blocker, wrong assumption, failed external call, failed test, or incorrect assistant behavior, it must leave a local Backlog memo before closing the matter.
+
+Required location:
+
+```text
+artifacts/backlog/[short-kebab-problem]-problem-review.md
+```
+
+Required Korean headings:
+
+```text
+# 🚨 Problem / Error Review: [짧은 제목]
+
+## 1️⃣ 무엇이 문제인가?
+## 2️⃣ 언제 / 누구로 인하여 / 왜 발생했나?
+## 3️⃣ 근본 해결 방법 제안
+```
+
+The third section must propose a durable prevention mechanism, such as a script, hook, test, checklist, template, Backlog item, or canonical operating document update. A vague reminder like "다음부터 주의" is not enough.
+
+If the problem should become official Linear work, first write the local memo, then prepare a separate Linear Backlog dry-run with idempotency key and approval boundary. The local memo is mandatory even when Linear tracking will follow.
+
+## Session Bootstrap Contract
+
+POKit session continuity must not depend on long instruction memory. At session start, after context compaction, and after any handoff, POKit must run:
+
+```bash
+node --experimental-strip-types scripts/session-start.ts
+```
+
+The command is the executable contract for context loading, hook loading, brief rendering, and the bootstrap signature. The expected final line is:
+
+```text
+pokit:boot ok cycle=<cycle name> hooks=loaded read_order=<n>
+```
+
+If the signature is missing, the agent must stop POKit work and report the bootstrap failure. Conversational rules such as visualization, next-action wording, and hook behavior should be enforced by scripts/tests where possible, not by relying on compacted chat context.
+
+## POKit Memory MVP Contract
+
+POKit memory starts as local runtime state, not public product content. The goal is session continuity and traceability without publishing private memory or raw collected data.
+
+Private Memory Boundary:
+
+- Recent handoff state remains in `memory/resume-brief.md`, `memory/current-cycle.yaml`, `memory/current-cycle.md`, `memory/decision-log.yaml`, and `memory/context-map.yaml`.
+- Long-term private notes live in `memory/notes/*.md` and are ignored by git.
+- Location memory is a generated `memory/index.yaml`; regenerate it from notes instead of hand-editing it.
+- External/raw collection input lives under `collected/` and is ignored by git.
+- Public reusable examples must be sanitized and stored under `examples/`, not copied from private notes or `collected/`.
+
+Minimal Frontmatter Schema:
+
+```yaml
+id: mem-YYYY-MM-DD-short-topic
+kind: note
+scope: private
+source: POKIT-109
+updated_at: YYYY-MM-DD
+```
+
+Allowed `scope` values are `private` and `sanitized_example`. Public memory scope is not allowed in private memory notes.
+
+Validator:
+
+```bash
+node --experimental-strip-types scripts/memory-frontmatter-validator.ts memory/notes
+```
+
+Unified Memory Index:
+
+```bash
+node --experimental-strip-types scripts/memory-index.ts memory/notes > memory/index.yaml
+```
+
+Linear Issue Creation Contract:
+
+- Every generated Linear issue dry-run must include an idempotency key.
+- Parent and Child relationships must be explicit when the work is part of a larger issue.
+- Relationship metadata must include `Depends on`, `Related`, `Source`, and `Evidence` when known; use `none` rather than leaving the relation ambiguous.
+- Expected artifact and Done gate must be written in the issue description before external Linear write approval.
+- Local dry-runs are evidence, not external writes; Linear status, relation, label, and comment changes still require user approval.
+
 When the product has to choose between competing behaviors, use this order:
 
 1. Reduce approval noise.
@@ -260,18 +344,86 @@ Use visuals when structure, status, or trade-offs would otherwise require repeat
 
 Default patterns:
 
+- Cycle Step Progress: show the current Cycle execution stage with `[████░░░░░░] 4/10`, `현재: 작업 Gate 확인`, and line-level status icons. Approval stages must show `▶ 승인 필요`. Release flows should use a release 전용 progress bar instead of the normal implementation flow.
 - Brief Progress: show parent issues with child completion bars, such as `[██░░] 2/4`.
 - Structure Map: show nested scopes with indentation before explaining a complex plan.
 - Decision Flow: show the current decision point, recommended path, alternative path, and approval boundary.
 - Before/After ASCII: in Cycle close drafts, show what changed in the workflow before adding narrative detail.
+- Long Session Nudge: use the nudge emoji with an ASCII recommendation bar and current usage/status signals. This is a gentle continuity hint, not an error or approval gate.
 
 Keep conversational visuals compact. They should make the next Cycle action easier to see, not become a separate dashboard or a second source of truth.
+
+Long session nudge format:
+
+```text
+💡 새 세션 추천
+[████████░░] 권장
+
+현재 사용: 대화/상태 누적 많음 · 외부 write/테스트/오류 메모 다수 발생
+이유: 다음 작업이 실제 Cycle 실행이면 새 세션에서 추적이 더 깔끔함
+
+선택:
+1. 새 세션에서 "POKit 시작해줘"로 재개
+2. 이 세션에서 계속 진행
+```
+
+Use the filled bar as a qualitative recommendation level, not an exact token meter unless a runtime exposes a real context percentage. If exact usage is unknown, say `현재 사용: 대화/상태 누적 많음` or another observable status. Do not use `🚨` or `⚠️` for a normal long-session nudge; those are reserved for errors and risks.
+
+## Cycle Step Progress Contract
+
+Default Cycle execution progress has 10 steps:
+
+```text
+POKit 진행도
+[████░░░░░░] 4/10 · 현재: 작업 Gate 확인
+
+1. 시작 브리프        ✅
+2. Cycle 기준 확인    ✅
+3. Issue 묶음 확인    ✅
+4. 작업 Gate 확인     ▶ 진행 중
+5. 로컬 구현/문서     ⏳
+6. 테스트/검증        ⏳
+7. 완료 증거 정리     ⏳
+8. 외부 write dry-run ⏳
+9. 사용자 승인        ⏳
+10. 외부 반영/close   ⏳
+```
+
+When the current step is an approval boundary, the current marker is `▶ 승인 필요`. Release flows should render a release 전용 progress bar so release gate work is not confused with local implementation.
+
+## One-Time Cycle Celebration Contract
+
+Cycle completion celebration appears after release gate completion, not merely after local tests or issue Done evidence. It must include the celebration line, what changed, expected effect/hypothesis, what to try, and new-session recommendation. The same message must not repeat unless the cycle state changes.
+
+Use a deterministic `stateKey` based on cycle id, issue completion states, run summary path, and retro path. If the previous celebration key matches the current `stateKey`, suppress the celebration.
+
+## Daily Release Contract
+
+POKit's default release cadence is daily. Weekly/Operating Cycle is a planning, grouping, and review container; it is not the default deployment batch size.
+
+Default daily release flow:
+
+```text
+Daily work selected
+→ local implementation/artifacts
+→ tests and safety scans
+→ local commit
+→ release dry-run
+→ user approval
+→ GitHub push/tag/release when public distribution changes
+→ Linear Done/status sync after approval
+→ daily close note
+```
+
+A day is operationally complete only when verified changes are committed and the approved public release boundary is either completed or explicitly deferred. Deferral must be visible in the close report as `Daily Release Deferred`, with the reason and the next release target.
+
+Use weekly/Operating Cycle views to group Focus Runs such as `1.1`, `1.2`, and `1.3`, review carry-over, and decide priorities. Do not hold completed daily work until the end of the week by default.
 
 ## Release And Hotfix Cycles
 
 Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.
 
-Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the Cycle completion condition. A Cycle is not fully complete until verified changes are committed, pushed, tagged, and released under the approved version, unless the user explicitly approves a release deferral. If deployment or version release was omitted after a Cycle should have shipped, treat that as release-pending work for the same Cycle or prepare a Hotfix Cycle when the omission is urgent and the next normal Cycle has already resumed.
+Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the daily operating close condition. Daily work is not fully complete until verified changes are committed and the approved public release boundary is completed or explicitly deferred. If deployment or version release was omitted after a daily close should have shipped, treat that as release-pending work for the same Operating Cycle or prepare a Hotfix Cycle when the omission is urgent and the next normal work has already resumed.
 
 Hotfix Cycles are only for urgent correction after a Cycle was completed or should have been deployed. Use a Hotfix Cycle for:
 

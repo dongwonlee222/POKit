@@ -110,7 +110,7 @@ test("buildCycleCloseDraft includes completion celebration and usage nudge when 
   assert.match(markdown, /POKit 시작해줘/);
 });
 
-test("buildCycleCloseDraft shows release pending instead of completion before release gate", async () => {
+test("buildCycleCloseDraft shows daily release pending instead of completion before release gate", async () => {
   const { buildCycleCloseDraft } = await loadCycleCloseModule();
   const releasePendingContext = {
     ...cycle3Context,
@@ -123,8 +123,8 @@ test("buildCycleCloseDraft shows release pending instead of completion before re
     context: releasePendingContext,
   });
 
-  assert.match(markdown, /## Cycle Release Pending/);
-  assert.match(markdown, /Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
+  assert.match(markdown, /## Daily Release Pending/);
+  assert.match(markdown, /일간 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
   assert.match(markdown, /Push \/ Tag \/ GitHub Release/);
   assert.doesNotMatch(markdown, /🎉 Cycle 3 완료!/);
   assert.doesNotMatch(markdown, /Cycle 3 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);

@@ -127,7 +127,7 @@ test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is alrea
   assert.doesNotMatch(report, /EVM-1 old work/);
 });
 
-test("buildSessionCloseReport keeps all-done active Cycle release pending until release gate completes", async () => {
+test("buildSessionCloseReport keeps all-done active work daily release pending until release gate completes", async () => {
   const { buildSessionCloseReport } = await loadSessionCloseModule();
 
   const report = buildSessionCloseReport({
@@ -160,7 +160,8 @@ test("buildSessionCloseReport keeps all-done active Cycle release pending until 
   });
 
   assert.match(report, /📅 .* · Cycle 1/);
-  assert.match(report, /Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
+  assert.match(report, /Daily Release Pending/);
+  assert.match(report, /일간 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
   assert.match(report, /Cycle 1 release preflight부터 완료 조건까지 이어가줘/);
   assert.doesNotMatch(report, /🎉 Cycle 1 완료!/);
   assert.doesNotMatch(report, /EVM-32 next work/);
@@ -192,7 +193,7 @@ test("buildSessionCloseReport treats release evidence as Cycle completion when c
 
   assert.match(report, /🎉 Cycle 1 완료!/);
   assert.match(report, /Cycle 1 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
-  assert.doesNotMatch(report, /Cycle Release Pending/);
+  assert.doesNotMatch(report, /Daily Release Pending/);
 });
 
 test("buildSessionCloseReport uses Linear cycle number in next actions", async () => {
@@ -212,6 +213,29 @@ test("buildSessionCloseReport uses Linear cycle number in next actions", async (
   assert.match(report, /📅 .* · Hotfix v0\.4\.4: Cycle Number Display/);
   assert.match(report, /Cycle 10 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
   assert.doesNotMatch(report, /Hotfix v0\.4\.4: Cycle Number Display 남은 Todo/);
+});
+
+test("buildSessionCloseReport uses Operating Cycle order before Linear backing number", async () => {
+  const { buildSessionCloseReport } = await loadSessionCloseModule();
+
+  const report = buildSessionCloseReport({
+    now: new Date("2026-05-15T12:00:00+09:00"),
+    context: {
+      source: "linear_upcoming",
+      cycle: { id: "cycle-8", name: "POKit Operating Cycle 1: Memory MVP Foundation", number: 8 },
+      issues: [
+        { id: "issue-109", identifier: "POKIT-109", title: "POKit Memory MVP", description: "todo", labels: ["pokit:prd"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(report, /📅 .* · POKit Operating Cycle 1: Memory MVP Foundation/);
+  assert.match(report, /POKit 진행도\n\[███████░░░\] 7\/10 · 현재: 완료 증거 정리/);
+  assert.match(report, /8\. 외부 write dry-run\s+⏳/);
+  assert.match(report, /9\. 사용자 승인\s+⏳/);
+  assert.match(report, /Operating Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘/);
+  assert.match(report, /필요한 승인\/행동: Operating Cycle 1 남은 Todo 전체를 계속 진행할지 결정/);
+  assert.doesNotMatch(report, /Cycle 8 남은 Todo/);
 });
 
 test("buildResumeBrief keeps compact contract and Cycle-level next action", async () => {

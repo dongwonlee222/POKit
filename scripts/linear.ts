@@ -102,6 +102,14 @@ export type LinearLabel = {
   name: string;
 };
 
+export type LinearCleanupMutationSchemaCheck = {
+  candidates: string[];
+  available: string[];
+  selected: string | null;
+  canArchive: boolean;
+  reason: string;
+};
+
 export type WorkingCycleContext = {
   source: "linear_active" | "linear_upcoming" | "team_backlog";
   cycle: Cycle;
@@ -159,6 +167,10 @@ type LinearValidationError = {
   property?: string;
   value?: unknown;
   constraints?: Record<string, string>;
+};
+
+type LinearSchemaField = {
+  name: string;
 };
 
 type LinearIssueNode = {
@@ -630,6 +642,42 @@ export async function listTeams(): Promise<Team[]> {
     key: team.key,
     name: team.name,
   }));
+}
+
+export async function checkLinearIssueCleanupMutationSchema(
+  candidates: string[] = ["issueArchive", "issueDelete"],
+): Promise<LinearCleanupMutationSchemaCheck> {
+  const data = await linearGraphql<{
+    __schema: {
+      mutationType?: {
+        fields: LinearSchemaField[];
+      } | null;
+    };
+  }>(`
+    query LinearMutationSchemaForCleanup {
+      __schema {
+        mutationType {
+          fields {
+            name
+          }
+        }
+      }
+    }
+  `, {});
+  const fieldNames = new Set(data.__schema.mutationType?.fields.map((field) => field.name) ?? []);
+  const available = candidates.filter((candidate) => fieldNames.has(candidate));
+  const selected = available.includes("issueArchive")
+    ? "issueArchive"
+    : available[0] ?? null;
+  return {
+    candidates,
+    available,
+    selected,
+    canArchive: selected === "issueArchive",
+    reason: selected
+      ? `Linear mutation schema exposes ${selected}.`
+      : `Linear mutation schema did not expose cleanup candidates: ${candidates.join(", ")}.`,
+  };
 }
 
 export async function listIssues(cycleId: string): Promise<Issue[]> {

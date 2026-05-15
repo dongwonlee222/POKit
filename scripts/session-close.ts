@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
+import { renderCycleProgress } from "./cycle-progress.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { profileMemoryPath } from "./profile.ts";
 
@@ -71,6 +72,8 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
     "# POKit 완료보고",
     "",
     `📅 ${formatKoreanDate(input.now ?? new Date())} · ${resolved.surface.cycle.name}`,
+    "",
+    ...renderCycleProgress({ currentStep: 7 }),
     "",
     ...completionExperienceLines,
     ...(completionExperienceLines.length ? [""] : []),
@@ -288,7 +291,20 @@ function buildCycleNextAction(context: WorkingCycleContext, pendingCount: number
 }
 
 function cycleNameForAction(context: WorkingCycleContext): string {
+  const operatingCycleNumber = operatingCycleOrder(context.cycle.name);
+  if (operatingCycleNumber) {
+    return `Operating Cycle ${operatingCycleNumber}`;
+  }
   return context.cycle.number ? `Cycle ${context.cycle.number}` : context.cycle.name.match(/Cycle\s+\d+/i)?.[0] ?? context.cycle.name;
+}
+
+function operatingCycleOrder(name: string): number | null {
+  const match = name.match(/Operating Cycle\s+(\d+)/i);
+  if (!match) {
+    return null;
+  }
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
 }
 
 function formatIssueList(issues: Issue[]): string[] {
@@ -325,14 +341,14 @@ function buildCycleCompletionExperienceLines(resolved: ResolvedCloseContext): st
   }
   if (!isCycleReleaseComplete(resolved.surface)) {
     return [
-      "Cycle Release Pending",
-      `Cycle 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${resolved.surface.cycle.name}`,
+      "Daily Release Pending",
+      `일간 작업은 완료됐지만 release gate가 아직 남아 있습니다. 대상: ${resolved.surface.cycle.name}`,
       "",
       "남은 완료 조건",
       "- Release preflight 재확인",
       "- Commit",
       "- Push / Tag / GitHub Release",
-      "- Linear Cycle completion sync",
+      "- Linear Done/status sync",
     ];
   }
   return [

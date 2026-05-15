@@ -4,6 +4,33 @@
 
 No pending public release notes.
 
+## v0.6.0 - 2026-05-15
+
+### Added
+
+- Added executable session bootstrap with `scripts/session-start.ts` and a `pokit:boot ok` signature.
+- Added `on_error` Problem/Error Review runner and backlog memo writer.
+- Added shared conversational ASCII renderer helpers for progress bars, status blocks, problem reviews, and approval requests.
+- Added Memory MVP frontmatter validation and unified memory index helpers.
+
+### Changed
+
+- Centralized POKit progress visuals through the shared ASCII renderer.
+- Updated session and cycle close reports to use `Daily Release Pending` for daily release cadence.
+- Made daily release the default operating cadence while keeping Operating Cycle as a planning/review container.
+- Strengthened Linear issue creation, relation metadata, hook, and bootstrap contracts.
+
+### Docs / Policy
+
+- Documented the Session Bootstrap Contract, Daily Release Contract, Memory MVP boundary, Problem/Error Review memo contract, and issue creation relation rules.
+- Updated agent rules and script documentation so compact/resume flows rely on executable contracts instead of long context memory.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 162/162.
+
 ## v0.5.0 - 2026-05-15
 
 ### Added

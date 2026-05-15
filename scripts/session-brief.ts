@@ -1,9 +1,11 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "./archive-guardrail.ts";
+import { renderCycleProgress } from "./cycle-progress.ts";
 import { loadHookMap, renderHookMap } from "./hook-map.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { getActiveProfile, profileArtifactPath } from "./profile.ts";
+import { renderProgressBar } from "./render/ascii.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 
 export type SessionBriefInput = {
@@ -73,6 +75,8 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     ...(roadmapLine ? [roadmapLine] : []),
     ...(cycleNumberWarning ? [cycleNumberWarning] : []),
     "",
+    ...renderCycleProgress({ currentStep: 1 }),
+    "",
     cycleLine,
     formatWarningLine(dryRun, resolved.warningReviewCount),
     ...formatProgressSection(currentSurface.issues),
@@ -118,12 +122,14 @@ export function buildCycleDetail(input: SessionBriefInput): string {
 
 export function buildBacklogDetail(input: SessionBriefInput): string {
   const now = input.now ?? new Date();
+  const rootDir = input.rootDir ?? ".";
   const resolved = resolveSessionContext(input.context, now);
   const backlogSurface = resolved.backlogSurface ?? resolved.primarySurface;
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
     context: backlogSurface,
   });
+  const problemReviewMemos = listProblemReviewMemos(rootDir);
   return [
     "# POKit Backlog Detail",
     "",
@@ -142,6 +148,9 @@ export function buildBacklogDetail(input: SessionBriefInput): string {
     "",
     "승인 대기",
     ...formatNeedsApproval(dryRun),
+    "",
+    "Problem/Error Review 메모",
+    ...formatProblemReviewMemos(problemReviewMemos),
     "",
   ].join("\n");
 }
@@ -370,6 +379,41 @@ function formatNumberedIssues(issues: Issue[]): string[] {
   return issues.map((issue, index) => `${index + 1}. ${formatIssue(issue)}`);
 }
 
+function formatProblemReviewMemos(memos: Array<{ title: string; path: string }>): string[] {
+  if (!memos.length) {
+    return ["- 없음"];
+  }
+  return memos.map((memo, index) => `${index + 1}. ${memo.title} · ${memo.path}`);
+}
+
+function listProblemReviewMemos(rootDir: string): Array<{ title: string; path: string }> {
+  const backlogDir = join(rootDir, "artifacts", "backlog");
+  if (!existsSync(backlogDir)) {
+    return [];
+  }
+  return readdirSync(backlogDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .filter((name) => name.endsWith("problem-review.md"))
+    .sort()
+    .map((name) => {
+      const path = join("artifacts", "backlog", name);
+      return {
+        title: problemReviewTitleFromFilename(name),
+        path,
+      };
+    });
+}
+
+function problemReviewTitleFromFilename(name: string): string {
+  return name
+    .replace(/-problem-review\.md$/, "")
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function formatHierarchicalIssues(issues: Issue[], allIssues: Issue[]): string[] {
   const parentIssues = issues.filter((issue) => !issue.parent);
   if (!parentIssues.length) {
@@ -407,8 +451,7 @@ function formatParentProgress(parent: Issue, children: Issue[]): string {
   const units = children.length ? children : [parent];
   const done = units.filter((issue) => classifyIssueState(issue.state) === "done").length;
   const total = units.length;
-  const bar = "█".repeat(done) + "░".repeat(Math.max(total - done, 0));
-  return `- ${parent.identifier} ${parent.title} [${bar}] ${done}/${total}`;
+  return `- ${parent.identifier} ${parent.title} ${renderProgressBar({ current: done, total, width: total })}`;
 }
 
 function formatFocusRunSection(issues: Issue[]): string[] {
@@ -455,7 +498,6 @@ function formatFocusRun(runNumber: string, issues: Issue[]): string[] {
   const done = issues.filter((issue) => classifyIssueState(issue.state) === "done").length;
   const total = issues.length;
   const status = classifyFocusRunStatus(issues);
-  const bar = "█".repeat(done) + "░".repeat(Math.max(total - done, 0));
   const lines = [
     `${runNumber} [${status}]`,
     ...issues.map((issue) => `${classifyIssueState(issue.state) === "done" ? "[x]" : "[ ]"} ${issue.identifier} ${issue.title}`),
@@ -465,7 +507,7 @@ function formatFocusRun(runNumber: string, issues: Issue[]): string[] {
   } else if (status === "대기") {
     lines.push("대기");
   } else {
-    lines.push(`진행도 [${bar}] ${done}/${total}`);
+    lines.push(`진행도 ${renderProgressBar({ current: done, total, width: total })}`);
   }
   return lines;
 }
@@ -776,6 +818,12 @@ function buildRecommendation(input: {
 }
 
 function buildRoadmapLine(cycle: WorkingCycleContext["cycle"]): string | null {
+  const operatingCycleNumber = operatingCycleOrder(cycle.name);
+  if (operatingCycleNumber) {
+    return operatingCycleNumber === 1
+      ? "Roadmap: [Operating Cycle 1] → Operating Cycle 2"
+      : `Roadmap: Operating Cycle ${operatingCycleNumber - 1} → [Operating Cycle ${operatingCycleNumber}] → Operating Cycle ${operatingCycleNumber + 1}`;
+  }
   const current = cycle.number ?? cycle.name.match(/Cycle\s+(\d+)/i)?.[1];
   const cycleNumber = Number(current);
   if (!Number.isFinite(cycleNumber) || cycleNumber < 2) {
@@ -785,10 +833,17 @@ function buildRoadmapLine(cycle: WorkingCycleContext["cycle"]): string | null {
 }
 
 function formatCycleReference(cycle: WorkingCycleContext["cycle"]): string {
+  const operatingCycleNumber = operatingCycleOrder(cycle.name);
+  if (operatingCycleNumber) {
+    return `Operating Cycle ${operatingCycleNumber}`;
+  }
   return cycle.number ? `Cycle ${cycle.number}` : cycle.name;
 }
 
 function formatCycleDisplayName(cycle: WorkingCycleContext["cycle"]): string {
+  if (operatingCycleOrder(cycle.name)) {
+    return cycle.name;
+  }
   const reference = formatCycleReference(cycle);
   if (!cycle.number || cycle.name === reference) {
     return cycle.name;
@@ -797,7 +852,7 @@ function formatCycleDisplayName(cycle: WorkingCycleContext["cycle"]): string {
 }
 
 function buildCycleNumberWarning(cycle: WorkingCycleContext["cycle"]): string | null {
-  if (!cycle.number) {
+  if (!cycle.number || operatingCycleOrder(cycle.name)) {
     return null;
   }
   const nameCycleNumber = cycle.name.match(/Cycle\s+(\d+)/i)?.[1];
@@ -805,6 +860,15 @@ function buildCycleNumberWarning(cycle: WorkingCycleContext["cycle"]): string | 
     return null;
   }
   return `⚠️ Cycle 번호 확인: Linear number ${cycle.number} · name contains Cycle ${nameCycleNumber}`;
+}
+
+function operatingCycleOrder(name: string): number | null {
+  const match = name.match(/Operating Cycle\s+(\d+)/i);
+  if (!match) {
+    return null;
+  }
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
 }
 
 function classifyIssueState(state: string | undefined): "done" | "inProgress" | "todo" | "review" {
@@ -821,7 +885,7 @@ function classifyIssueState(state: string | undefined): "done" | "inProgress" | 
   return "review";
 }
 
-function readDetailArg(args: string[]): "cycle" | "backlog" | "approvals" | null {
+export function readDetailArg(args: string[]): "cycle" | "backlog" | "approvals" | "flow" | "hooks" | null {
   const detailIndex = args.findIndex((arg) => arg === "--detail");
   const detailValue = detailIndex >= 0 ? args[detailIndex + 1] : undefined;
   if (detailValue === "cycle" || args.includes("--cycle-detail")) {
@@ -832,6 +896,12 @@ function readDetailArg(args: string[]): "cycle" | "backlog" | "approvals" | null
   }
   if (detailValue === "approvals" || args.includes("--approval-detail")) {
     return "approvals";
+  }
+  if (detailValue === "flow") {
+    return "flow";
+  }
+  if (detailValue === "hooks") {
+    return "hooks";
   }
   return null;
 }

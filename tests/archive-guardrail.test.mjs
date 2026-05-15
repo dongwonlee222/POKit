@@ -48,5 +48,8 @@ test("buildArchivePlan creates local archive dry-run contract without Linear wri
   assert.equal(plan.writes[1].type, "write_archive_markdown");
   assert.equal(plan.linearCleanup.allowed, false);
   assert.equal(plan.linearCleanup.reason, "POKit never archives, deletes, or mutates Linear issues without explicit approval.");
+  assert.deepEqual(plan.linearCleanup.requiredSchemaCheck.candidates, ["issueArchive", "issueDelete"]);
+  assert.equal(plan.linearCleanup.requiredSchemaCheck.preferred, "issueArchive");
+  assert.match(plan.linearCleanup.requiredSchemaCheck.command, /archive-guardrail\.ts --check-linear-schema/);
   assert.deepEqual(plan.candidates.slice(0, 2).map((issue) => issue.identifier), ["EVM-1", "EVM-2"]);
 });

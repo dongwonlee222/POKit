@@ -1,4 +1,4 @@
-import { getWorkingCycleContext, type Issue } from "./linear.ts";
+import { checkLinearIssueCleanupMutationSchema, getWorkingCycleContext, type Issue } from "./linear.ts";
 import { profileArtifactPath } from "./profile.ts";
 
 export const COMPLETED_ISSUE_SOFT_LIMIT = 200;
@@ -27,6 +27,11 @@ export type ArchivePlan = {
   linearCleanup: {
     allowed: false;
     reason: string;
+    requiredSchemaCheck: {
+      candidates: string[];
+      preferred: string;
+      command: string;
+    };
   };
 };
 
@@ -69,11 +74,21 @@ export function buildArchivePlan(input: ArchiveGuardrailInput & { generatedAt?: 
     linearCleanup: {
       allowed: false,
       reason: "POKit never archives, deletes, or mutates Linear issues without explicit approval.",
+      requiredSchemaCheck: {
+        candidates: ["issueArchive", "issueDelete"],
+        preferred: "issueArchive",
+        command: "node --experimental-strip-types scripts/archive-guardrail.ts --check-linear-schema",
+      },
     },
   };
 }
 
 async function main(): Promise<void> {
+  if (process.argv.includes("--check-linear-schema")) {
+    const check = await checkLinearIssueCleanupMutationSchema();
+    console.log(renderLinearCleanupSchemaCheckMarkdown(check));
+    return;
+  }
   const context = await getWorkingCycleContext();
   const plan = buildArchivePlan({ issues: context.issues });
   console.log(renderArchivePlanMarkdown(plan));
@@ -133,6 +148,27 @@ function renderArchivePlanMarkdown(plan: ArchivePlan): string {
     ...plan.writes.map((write) => `- ${write.type}: ${write.target}`),
     "",
     `Linear cleanup: ${plan.linearCleanup.allowed ? "allowed" : "blocked"} · ${plan.linearCleanup.reason}`,
+    `Linear cleanup schema check: required · preferred ${plan.linearCleanup.requiredSchemaCheck.preferred} · candidates ${plan.linearCleanup.requiredSchemaCheck.candidates.join(", ")}`,
+    `Schema command: ${plan.linearCleanup.requiredSchemaCheck.command}`,
+    "",
+  ].join("\n");
+}
+
+function renderLinearCleanupSchemaCheckMarkdown(check: {
+  candidates: string[];
+  available: string[];
+  selected: string | null;
+  canArchive: boolean;
+  reason: string;
+}): string {
+  return [
+    "# Linear Cleanup Mutation Schema Check",
+    "",
+    `Candidates: ${check.candidates.join(", ")}`,
+    `Available: ${check.available.join(", ") || "none"}`,
+    `Selected: ${check.selected ?? "none"}`,
+    `Can archive: ${check.canArchive ? "yes" : "no"}`,
+    `Reason: ${check.reason}`,
     "",
   ].join("\n");
 }

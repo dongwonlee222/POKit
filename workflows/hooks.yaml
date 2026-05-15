@@ -83,5 +83,9 @@ hooks:
     - suggest_next_cycle_action
 
   on_error:
+    enforcement: script
+    runner: scripts/hooks-runner.ts
     - collect_error
-    - write_failure_summary
+    - render_problem_error_review
+    - write_problem_review_memo
+    - suggest_backlog_follow_up

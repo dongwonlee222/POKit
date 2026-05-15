@@ -72,7 +72,15 @@ node --experimental-strip-types scripts/cycle-close.ts
 
 This command reads Linear cycle state and local artifacts, then writes `artifacts/sprints/[cycle]/cycle-close.md`. It separates completed work, carry-over candidates, approval pending items, changelog candidates, and decision-log candidates. It does not write to Linear or GitHub.
 
-Print the compact session start brief:
+Print the session bootstrap brief with the `pokit:boot ok` signature:
+
+```bash
+node --experimental-strip-types scripts/session-start.ts
+```
+
+Use this for `POKit 시작해줘`, after context compaction, and after any handoff before continuing POKit work.
+
+Print the compact session brief only when the bootstrap contract has already passed:
 
 ```bash
 node --experimental-strip-types scripts/session-brief.ts
@@ -173,6 +181,14 @@ node --experimental-strip-types scripts/session-brief.ts --detail hooks
 node --experimental-strip-types scripts/session-brief.ts --detail flow
 ```
 
+Render an `on_error` Problem/Error Review and optionally write the local backlog memo:
+
+```bash
+node --experimental-strip-types scripts/hooks-runner.ts on_error --title "Hook detail missing" --problem "hooks detail request fell back silently" --cause "detail argument contract was incomplete" --prevention "Add runner and contract tests" --write-artifact --slug hook-detail-missing
+```
+
+Conversation ASCII visuals are centralized in `scripts/render/ascii.ts`. Use `renderProgressBar`, `renderStatusBlock`, `renderProblemReview`, and `renderApprovalRequest` instead of hand-building bars in feature scripts.
+
 Print the completed issue archive dry-run contract:
 
 ```bash
@@ -180,3 +196,11 @@ node --experimental-strip-types scripts/archive-guardrail.ts
 ```
 
 This command reads Linear cycle state and proposes local `artifacts/archive/` writes when completed issues pass the 200 soft limit. It does not archive, delete, or mutate Linear issues.
+
+Before any approved Linear cleanup/archive execution, narrow the supported mutation through Linear schema introspection:
+
+```bash
+node --experimental-strip-types scripts/archive-guardrail.ts --check-linear-schema
+```
+
+Prefer `issueArchive`. If neither `issueArchive` nor the approved fallback appears in the schema check, stop and report a Problem/Error Review before any cleanup write.
