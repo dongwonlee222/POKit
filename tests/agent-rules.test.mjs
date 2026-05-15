@@ -46,3 +46,15 @@ test("external write boundaries require actionable dry-run next steps", async ()
   assert.match(operatingModel, /print the external write dry-run/);
   assert.match(operatingModel, /A completion response that says an external write was skipped is incomplete/);
 });
+
+test("completion reports require a flow adherence check", async () => {
+  const agents = await readFile("AGENTS.md", "utf8");
+  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(agents, /When a procedure or Cycle task is complete/);
+  assert.match(agents, /followed the documented flow/);
+  assert.match(agents, /required artifacts, naming\/title conventions/);
+  assert.match(operatingModel, /Before any completion claim, run a flow adherence check/);
+  assert.match(operatingModel, /required artifacts were produced with the expected names and titles/);
+  assert.match(operatingModel, /skipped steps or deviations/);
+});

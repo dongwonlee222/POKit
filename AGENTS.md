@@ -49,6 +49,7 @@ For longer runs, use the goal loop in `docs/GOAL_LOOP.md`.
 - When a user asks to proceed, the default scope is the whole current Cycle, not a single issue. Treat local edits, verification, commit, and Linear Done as one Cycle-completion flow unless the user explicitly narrows the scope.
 - Do not ask the user to approve mechanical substeps like "commit this task" or "mark this task Done" after they approved progressing the Cycle. Pause only when definition is insufficient, or for destructive actions, public pushes/releases/tags, ambiguous scope, or policy changes outside the Cycle.
 - Use the Cycle Steward check before plans, completion reports, and next-action sentences: the next action should move the current Cycle forward, not isolate a single issue unless the user explicitly selected it.
+- When a procedure or Cycle task is complete, check whether the work followed the documented flow before reporting completion. Confirm the relevant flow name, required artifacts, naming/title conventions, verification, and any skipped steps or deviations.
 - Default next action wording must target the whole Cycle, such as "Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘". Show only one next action.
 - Forbidden next-action wording: standalone "커밋해줘", "Done 처리해줘", "테스트 돌려줘", or issue-only wording when the user did not explicitly select that issue.
 - When local work is complete and the next step is an external write, do not end with only "not done" or "approval required". Show the external write dry-run immediately, recommend one next action, and wait for approval.

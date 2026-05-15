@@ -446,6 +446,8 @@ Default completion response must be short. Use one or two sentences for ordinary
 
 Use structured completion reports only for Cycle close, external write result summaries, test failures, approval-pending work, or when the user explicitly asks for a report/summary.
 
+Before any completion claim, run a flow adherence check. Identify the relevant documented flow, confirm required artifacts were produced with the expected names and titles, confirm verification ran, and state any skipped steps or deviations. For short completion responses this can be one compact sentence; for structured reports include it under 검증 결과.
+
 When structured reporting is needed, use this order so the next step stays visible:
 
 1. ✅ 완료한 것
