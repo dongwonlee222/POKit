@@ -958,6 +958,52 @@ test("applyCreateCycle creates a Linear cycle only with approval and idempotency
   assert.equal(cycle.id, "cycle-hotfix");
 });
 
+test("applyCreateCycle surfaces Linear validation details", async () => {
+  process.env.LINEAR_API_KEY = "lin_api_test";
+  process.env.LINEAR_TEAM_ID = "team-123";
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    errors: [
+      {
+        message: "Argument Validation Error",
+        extensions: {
+          userPresentableMessage: "description must be shorter than or equal to 255 characters.",
+          validationErrors: [
+            {
+              property: "description",
+              value: "POKit Hotfix Cycle ".repeat(20),
+              constraints: {
+                maxLength: "description must be shorter than or equal to 255 characters",
+              },
+            },
+          ],
+        },
+      },
+    ],
+  }), { status: 200 });
+  const { applyCreateCycle, planCreateHotfixCycle } = await loadLinearModule();
+  const plan = await planCreateHotfixCycle({
+    name: "Hotfix vX.Y.Z",
+    startsAt: "2026-05-13T00:00:00.000Z",
+    endsAt: "2026-05-14T00:00:00.000Z",
+    sourceCycle: "Cycle N",
+    targetVersion: "vX.Y.Z",
+    resumeCycle: "Cycle N+1",
+    releaseScope: "GitHub push/tag/release",
+  });
+
+  await assert.rejects(
+    () => applyCreateCycle(plan, { approved: true }),
+    (error) => {
+      assert.match(error.message, /Linear API error: Argument Validation Error/);
+      assert.match(error.message, /description must be shorter than or equal to 255 characters\./);
+      assert.match(error.message, /field: description/);
+      assert.match(error.message, /maxLength: description must be shorter than or equal to 255 characters/);
+      assert.match(error.message, /value: POKit Hotfix Cycle/);
+      return true;
+    },
+  );
+});
+
 test("planUpdateCycle creates a dry-run cycle completion plan", async () => {
   process.env.LINEAR_API_KEY = "lin_api_test";
   process.env.LINEAR_TEAM_ID = "team-123";

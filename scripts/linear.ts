@@ -141,7 +141,21 @@ let workingContextInFlight:
 
 type LinearGraphqlResponse<T> = {
   data?: T;
-  errors?: Array<{ message: string }>;
+  errors?: LinearGraphqlError[];
+};
+
+type LinearGraphqlError = {
+  message: string;
+  extensions?: {
+    userPresentableMessage?: string;
+    validationErrors?: LinearValidationError[];
+  };
+};
+
+type LinearValidationError = {
+  property?: string;
+  value?: unknown;
+  constraints?: Record<string, string>;
 };
 
 type LinearIssueNode = {
@@ -225,7 +239,7 @@ async function linearGraphql<T>(query: string, variables: Record<string, unknown
   });
   const payload = await response.json() as LinearGraphqlResponse<T>;
   if (payload.errors?.length) {
-    throw new Error(`Linear API error: ${payload.errors.map((error) => error.message).join("; ")}`);
+    throw new Error(`Linear API error: ${payload.errors.map(formatLinearGraphqlError).join("; ")}`);
   }
   if (!response.ok) {
     throw new Error(`Linear API request failed with HTTP ${response.status}.`);
@@ -234,6 +248,38 @@ async function linearGraphql<T>(query: string, variables: Record<string, unknown
     throw new Error("Linear API returned no data.");
   }
   return payload.data;
+}
+
+function formatLinearGraphqlError(error: LinearGraphqlError): string {
+  const details = [
+    error.message,
+    error.extensions?.userPresentableMessage,
+    ...(error.extensions?.validationErrors ?? []).map(formatLinearValidationError),
+  ].filter(Boolean);
+  return details.join(" | ");
+}
+
+function formatLinearValidationError(error: LinearValidationError): string {
+  const parts = [
+    error.property ? `field: ${error.property}` : null,
+    error.constraints ? formatConstraints(error.constraints) : null,
+    error.value !== undefined ? `value: ${summarizeLinearValue(error.value)}` : null,
+  ].filter(Boolean);
+  return parts.join(" · ");
+}
+
+function formatConstraints(constraints: Record<string, string>): string {
+  return Object.entries(constraints)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+}
+
+function summarizeLinearValue(value: unknown): string {
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  if (!text) {
+    return String(value);
+  }
+  return text.length > 120 ? `${text.slice(0, 117)}...` : text;
 }
 
 function normalizeCycle(cycle: LinearCycleNode): Cycle {
