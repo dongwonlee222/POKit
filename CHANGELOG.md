@@ -4,6 +4,22 @@
 
 No pending public release notes.
 
+## v0.5.0 - 2026-05-15
+
+### Added
+
+- Added Focus Run checklist grouping to the session brief so Linear labels can surface compact execution bundles.
+
+### Docs / Policy
+
+- Documented Focus Run checklist behavior and Cycle-level operating guidance for the v0.5.0 release scope.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 138/138.
+
 ## v0.4.4 - 2026-05-15
 
 ### Fixed
