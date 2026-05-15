@@ -202,7 +202,9 @@ The main agent proposes the size after 아이디어 정리, then continues with 
 
 Before implementation, the pipeline must satisfy the size-specific gate in `workflows/definition-pipeline.yaml`. Before Linear writes, it still follows the external write boundary: dry-run, user approval, and idempotency key.
 
-For larger definition work, POKit may use 병렬 서브에이전트 only when all of these are true: size is `full`, at least two stages can run independently, output files do not overlap, and the user explicitly approves parallel agent work. The main agent owns final judgment, artifact integration, user confirmation, and every external write boundary. Subagents only produce bounded drafts such as 벤치마킹 정리, PRD 초안, 데이터 계약, TDD 계획, 하위 이슈 분해, or Dogfood 계획.
+For larger definition work, POKit may plan 병렬 서브에이전트 when all of these are true: size is `full`, at least two stages can run independently, and output files do not overlap. The main agent owns final judgment, artifact integration, user confirmation, and every external write boundary. Subagents only produce bounded drafts such as 벤치마킹 정리, PRD 초안, 데이터 계약, TDD 계획, 하위 이슈 분해, or Dogfood 계획.
+
+Runtime note: some agent runtimes require the user to explicitly request or approve spawning actual subagents. That is an execution constraint of the runtime, not a POKit product rule. If the runtime does not permit subagents, the same planned work must run sequentially with the same artifacts and gates.
 
 When an idea is decomposed for Linear, 하위 이슈 분해 must include a 병렬 실행 계획 and a Linear sub-issue dry-run. Each proposed sub-issue should name the responsible role, expected artifact, dependency, parallel eligibility, Done gate, public evidence path, external blocker, rollback plan, and idempotency key. The dry-run section in the artifact is the source for the user-facing Linear write preflight.
 

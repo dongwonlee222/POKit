@@ -147,6 +147,9 @@ test("operating model references the definition pipeline contract", async () => 
   assert.match(content, /기계가 읽는 id와 파일명은 영어/);
   assert.match(content, /사용자가 읽는 제목과 목차는 한국어/);
   assert.match(content, /병렬 서브에이전트/);
+  assert.match(content, /Runtime note/);
+  assert.match(content, /execution constraint of the runtime, not a POKit product rule/);
+  assert.match(content, /same planned work must run sequentially/);
   assert.match(content, /main agent/);
   assert.match(content, /workflows\/agent-roles.yaml/);
   assert.match(content, /Linear sub-issue/);
