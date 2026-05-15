@@ -2,7 +2,7 @@
 
 ## 기준 문서
 
-- 로컬 리뷰 응답: `artifacts/profiles/pokit/reviews/cycle6-opus-review-response.md`
+- 범위 조정 기준: 완료 Cycle 불변 원칙과 Cycle size 축소 결정
 - 실제 실행 Cycle: `Cycle 7: Backlog Intake & Linear Preflight Foundation`
 - Linear Cycle ID: `<cycle-id>`
 - 구현 커밋: `894b70b Add backlog intake and linear create preflight MVP`
@@ -23,7 +23,7 @@
 | 단계 | 결과 |
 |---|---|
 | Backlog 등록 | POKIT-93, POKIT-99 등록됨 |
-| 오퍼스 리뷰 반영 | 뉴스 dogfood를 다음 Cycle로 분리 |
+| 범위 조정 | 뉴스 dogfood를 다음 Cycle로 분리 |
 | Scope 축소 | POKIT-93 + POKIT-99만 Cycle 7 배정 |
 | Cycle 배정 dry-run | 사용자 승인 후 새 Cycle 생성 및 이슈 배정 |
 | 구현 | 두 개의 작은 script로 분리 |
@@ -34,7 +34,7 @@
 
 ## 기준과 달라진 점
 
-리뷰 응답 문서는 `Cycle 6`라는 표현을 유지한다. 하지만 기존 Cycle 6은 완료 상태였기 때문에 실제 실행은 새 `Cycle 7`로 옮겼다. 이 변경은 완료 Cycle 불변 원칙을 지키기 위한 조정이다.
+초기 후보는 `Cycle 6`라는 표현을 사용했지만, 기존 Cycle 6은 완료 상태였기 때문에 실제 실행은 새 `Cycle 7`로 옮겼다. 이 변경은 완료 Cycle 불변 원칙을 지키기 위한 조정이다.
 
 뉴스 관련 산출물은 이름에 `news`가 들어간 sample로만 남겼고, 실제 RSS/API/public page fetch 산출물은 만들지 않았다.
 
