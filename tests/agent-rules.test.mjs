@@ -58,3 +58,15 @@ test("completion reports require a flow adherence check", async () => {
   assert.match(operatingModel, /required artifacts were produced with the expected names and titles/);
   assert.match(operatingModel, /skipped steps or deviations/);
 });
+
+test("remaining-work answers require Cycle close and release-state checks", async () => {
+  const agents = await readFile("AGENTS.md", "utf8");
+  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(agents, /When the user asks what remains/);
+  assert.match(agents, /check both the current Cycle task state and the Cycle close\/release state/);
+  assert.match(agents, /Do not recommend new Backlog or next-Cycle work/);
+  assert.match(operatingModel, /must inspect the Cycle close\/release state, not only the brief task counts/);
+  assert.match(operatingModel, /Cycle Release Pending/);
+  assert.match(operatingModel, /Do not move to Backlog grooming or next-Cycle bundling/);
+});

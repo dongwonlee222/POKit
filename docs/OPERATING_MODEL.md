@@ -163,6 +163,8 @@ If definition is insufficient, stop and ask for the missing scope, policy, or ac
 
 Completion reports must show one next action only. The one action should move the whole current Cycle forward.
 
+When answering "what remains", "what is next", or "what should we do now", POKit must inspect the Cycle close/release state, not only the brief task counts. If all issues are Done but the release gate is incomplete, the answer is `Cycle Release Pending` and the next action is the release preflight/completion flow. Do not move to Backlog grooming or next-Cycle bundling until the current Cycle is fully closed or the user explicitly approves release deferral.
+
 Forbidden next-action patterns:
 
 - `커밋해줘`
