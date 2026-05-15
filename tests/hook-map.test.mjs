@@ -64,5 +64,6 @@ test("hooks include executable validators for message, subagent, and external wr
   assert.match(content, /validate_message_catalog/);
   assert.match(content, /validate_subagent_payload/);
   assert.match(content, /validate_semantic_payload/);
+  assert.match(content, /validate_resume_brief/);
   assert.match(content, /require_external_write_entrypoint/);
 });

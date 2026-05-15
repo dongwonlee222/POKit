@@ -131,6 +131,15 @@ test("OPERATING_MODEL documents Memory MVP boundary, frontmatter, index, and Lin
   assert.match(gitignore, /collected\//);
 });
 
+test("OPERATING_MODEL documents executable resume-brief validation", async () => {
+  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(operatingModel, /Resume Brief Contract/);
+  assert.match(operatingModel, /scripts\/resume-brief-validator\.ts/);
+  assert.match(operatingModel, /command-only handoff is not enough/);
+  assert.match(operatingModel, /raw context/);
+});
+
 test("Cycle progress and one-time celebration contracts are documented", async () => {
   const agents = await readFile("AGENTS.md", "utf8");
   const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");

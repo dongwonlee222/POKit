@@ -67,6 +67,7 @@ hooks:
     - write_run_summary
     - update_current_cycle
     - update_context_map
+    - validate_resume_brief
     - update_resume_brief
 
   after_completion_report:

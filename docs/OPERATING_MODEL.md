@@ -512,7 +512,15 @@ Rules:
 - Use one Cycle-level next action, not a mechanical substep.
 - Mention pending issue IDs only as context inside the Cycle bundle.
 - Link to commands or canonical docs instead of copying long policy text.
+- Include an artifact, doc, template, or workflow link in `## 참조`; command-only handoff is not enough.
+- Do not include raw context, full transcripts, or long original text blocks.
 - Refuse stale overwrites when the file content hash changed; mark the write as `Needs Approval`.
+
+Validator:
+
+```bash
+node --experimental-strip-types scripts/resume-brief-validator.ts memory/resume-brief.md
+```
 
 ## Distribution Model
 

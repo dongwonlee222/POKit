@@ -27,5 +27,6 @@ artifacts/sprints/**
 
 # Private/runtime memory MVP state. Publish sanitized examples elsewhere.
 memory/notes/
+memory/profiles/
 memory/index.yaml
 collected/

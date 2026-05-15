@@ -5,6 +5,11 @@ import { dirname, join } from "node:path";
 import { renderCycleProgress } from "./cycle-progress.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { profileMemoryPath } from "./profile.ts";
+import {
+  validateNextAction,
+  validateResumeBriefContract,
+  type ResumeBriefValidationResult,
+} from "./resume-brief-validator.ts";
 
 export type VerificationResult = {
   command: string;
@@ -39,13 +44,6 @@ type ResolvedCloseContext = {
   completed: Issue[];
   pending: Issue[];
 };
-
-const REQUIRED_RESUME_SECTIONS = [
-  "## 어디서 멈췄나",
-  "## 다음에 무엇을 하나",
-  "## 차단된 것",
-  "## 참조",
-];
 
 export function buildSessionCloseReport(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
@@ -124,56 +122,13 @@ export function buildResumeBrief(input: SessionCloseInput): string {
     "## 참조",
     "- `node --experimental-strip-types scripts/session-brief.ts`",
     "- `node --experimental-strip-types scripts/session-close.ts`",
+    "- `docs/OPERATING_MODEL.md#resume-brief-contract`",
     "",
   ].join("\n");
 }
 
-export function validateResumeBriefContract(content: string): { valid: boolean; reasons: string[] } {
-  const reasons: string[] = [];
-  for (const section of REQUIRED_RESUME_SECTIONS) {
-    if (!content.includes(section)) {
-      reasons.push(`missing ${section}`);
-    }
-  }
-  if (Buffer.byteLength(content, "utf8") > 2048) {
-    reasons.push("resume brief exceeds 2048 bytes");
-  }
-  const nextActionLine = content.split(/\r?\n/).find((line) => line.includes("Cycle ") && line.includes("완료까지 진행해줘"));
-  if (!nextActionLine) {
-    reasons.push("missing Cycle-level next action");
-  } else {
-    const nextActionCheck = validateNextAction(nextActionLine);
-    if (!nextActionCheck.valid) {
-      reasons.push(`invalid next action: ${nextActionCheck.reason}`);
-    }
-  }
-  return {
-    valid: reasons.length === 0,
-    reasons,
-  };
-}
-
-export function validateNextAction(
-  nextAction: string,
-  options: { explicitIssueSelection?: boolean } = {},
-): { valid: boolean; reason: string | null } {
-  if (/커밋해줘|Done 처리해줘|테스트 돌려줘/.test(nextAction)) {
-    return {
-      valid: false,
-      reason: "mechanical next action",
-    };
-  }
-  if (!options.explicitIssueSelection && /\b[A-Z]+-\d+\b/.test(nextAction) && !/\bCycle\s+\d+\b/i.test(nextAction)) {
-    return {
-      valid: false,
-      reason: "issue-only next action without explicit selection",
-    };
-  }
-  return {
-    valid: true,
-    reason: null,
-  };
-}
+export { validateNextAction, validateResumeBriefContract };
+export type { ResumeBriefValidationResult };
 
 export function hashContent(content: string): string {
   return createHash("sha256").update(content).digest("hex");
