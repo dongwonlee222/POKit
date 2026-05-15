@@ -1,0 +1,39 @@
+messages:
+  session_start.current_status_label:
+    surface: session_start
+    text: "현재"
+    emoji: "📌"
+
+  session_start.next_candidates_label:
+    surface: session_start
+    text: "다음 후보"
+    emoji: "🧺"
+
+  session_start.next_action_label:
+    surface: session_start
+    text: "추천 다음 행동"
+    emoji: "💬"
+
+  external_write.confirmation_title:
+    surface: external_write
+    text: "사용자 확인"
+    emoji: "🤔"
+
+  external_write.recommended_option:
+    surface: external_write
+    text: "추천안 A"
+    emoji: "✅"
+
+  external_write.alternative_option:
+    surface: external_write
+    text: "대안 B"
+    emoji: "↩️"
+
+  linear_backlog_create.title_prefix:
+    surface: linear_backlog_create
+    text: "{targetVersion} · {title}"
+
+  linear_backlog_create.release_bundle_label:
+    surface: linear_backlog_create
+    text: "배포 묶음"
+

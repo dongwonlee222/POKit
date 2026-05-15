@@ -2,6 +2,7 @@ hooks:
   session_start:
     - resolve_today
     - resolve_weather_best_effort
+    - validate_message_catalog
     - read_context_map
     - summarize_state_brief
     - detect_state_change
@@ -37,6 +38,7 @@ hooks:
 
   before_external_write:
     - require_dry_run_plan
+    - validate_semantic_payload
     - require_user_approval
     - require_idempotency_key
 

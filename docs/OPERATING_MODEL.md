@@ -190,7 +190,16 @@ Linear Issue Creation Contract:
 - Parent and Child relationships must be explicit when the work is part of a larger issue.
 - Relationship metadata must include `Depends on`, `Related`, `Source`, and `Evidence` when known; use `none` rather than leaving the relation ambiguous.
 - Expected artifact and Done gate must be written in the issue description before external Linear write approval.
+- Release-bundle candidates must include a target version and release bundle in both the title or preflight summary and the issue description.
+- User-facing Linear issue titles should be Korean-first. English is allowed for version tags, API names, file paths, and established product terms.
 - Local dry-runs are evidence, not external writes; Linear status, relation, label, and comment changes still require user approval.
+
+Message Catalog Contract:
+
+- User-facing fixed labels, emoji section markers, and recurring confirmation phrases live in `workflows/messages.yaml`.
+- `scripts/message-catalog-check.ts` validates message ids, allowed surfaces, and Korean-first user-facing text.
+- Session start, completion reports, external write confirmations, and Linear Backlog creation should use message ids instead of scattered hard-coded copy when the text is part of the operating contract.
+- `before_external_write` should run semantic preflight for user-facing Linear writes: Korean title, target version, release bundle, dry-run/write payload match, and no Cycle/Release bundle terminology confusion.
 
 When the product has to choose between competing behaviors, use this order:
 

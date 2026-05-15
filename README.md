@@ -129,7 +129,8 @@ Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행�
 1. POKIT-20 LLM-first Quickstart · Todo · pokit:criteria
 2. POKIT-21 Team optional · Todo · pokit:criteria
 3. POKIT-25 Session brief · Todo · pokit:criteria
-💬 실행: “Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
+💬 추천 다음 행동: Cycle N 남은 Todo 전체 진행
+“Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”
 ```
 
 Linear 반영은 조용히 실행되지 않습니다. label, issue, comment, cycle, status 변경은 먼저 실행 전 확인으로 보여주고, 명시적으로 승인받은 뒤 진행합니다.

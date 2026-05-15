@@ -45,8 +45,8 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(brief, /1\. EVM-20 LLM-first · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-21 Team optional · Todo · pokit:criteria/);
   assert.match(brief, /3\. EVM-26 No label · Todo · no-label/);
-  assert.match(brief, /👉 추천: Cycle 1 남은 Todo 전체 진행/);
-  assert.match(brief, /💬 실행: “Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
+  assert.match(brief, /💬 추천 다음 행동: Cycle 1 남은 Todo 전체 진행/);
+  assert.match(brief, /“Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
   assert.doesNotMatch(brief, /⚡ 빠른 명령/);
   assert.doesNotMatch(brief, /“1번 자세히 보여줘”/);
   assert.match(brief, /“Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
@@ -191,8 +191,8 @@ test("buildSessionBrief shows upcoming and backlog candidates when active cycle 
   assert.match(brief, /1\. EVM-32 Model tier · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-33 Resume brief · Todo · pokit:criteria/);
   assert.match(brief, /3\. EVM-34 Session close · Todo · pokit:prd/);
-  assert.match(brief, /👉 추천: Cycle 2 남은 Todo 전체 진행/);
-  assert.match(brief, /💬 실행: “Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
+  assert.match(brief, /💬 추천 다음 행동: Cycle 2 남은 Todo 전체 진행/);
+  assert.match(brief, /“Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
   assert.match(brief, /🗂️ 백로그/);
   assert.match(brief, /- EVM-35 ICE-lite · Backlog · pokit:criteria/);
   assert.doesNotMatch(brief, /새 후보 issue를 백로그에 담기/);
@@ -498,8 +498,8 @@ test("buildSessionBrief uses review-oriented wording when upcoming cycle starts 
   });
 
   assert.match(brief, /시작 예정/);
-  assert.match(brief, /👉 추천: Cycle 2 남은 Todo 전체 검토/);
-  assert.match(brief, /💬 실행: “Cycle 2 남은 Todo 전체를 검토하고 다음 Cycle 준비해줘”/);
+  assert.match(brief, /💬 추천 다음 행동: Cycle 2 남은 Todo 전체 검토/);
+  assert.match(brief, /“Cycle 2 남은 Todo 전체를 검토하고 다음 Cycle 준비해줘”/);
 });
 
 test("buildSessionBrief recommends adding new backlog work only when there are no upcoming or backlog candidates", async () => {
@@ -527,8 +527,8 @@ test("buildSessionBrief recommends adding new backlog work only when there are n
     },
   });
 
-  assert.match(brief, /👉 추천: 새 후보를 Backlog에 정리/);
-  assert.match(brief, /💬 실행: “새 후보를 Backlog에 정리하고 다음 Cycle 후보를 묶어줘”/);
+  assert.match(brief, /💬 추천 다음 행동: 새 후보를 Backlog에 정리/);
+  assert.match(brief, /“새 후보를 Backlog에 정리하고 다음 Cycle 후보를 묶어줘”/);
 });
 
 test("buildSessionBrief shows backlog candidates when only an empty upcoming cycle exists", async () => {
@@ -560,8 +560,8 @@ test("buildSessionBrief shows backlog candidates when only an empty upcoming cyc
   assert.match(brief, /🧺 다음 후보/);
   assert.match(brief, /1\. POKIT-53 Brief fallback · Backlog · pokit:criteria/);
   assert.match(brief, /2\. POKIT-54 Visual layer · Backlog · pokit:prd/);
-  assert.match(brief, /👉 추천: Backlog 후보를 다음 Cycle 후보로 묶기/);
-  assert.match(brief, /💬 실행: “Backlog 후보를 다음 Cycle 후보로 묶어줘”/);
+  assert.match(brief, /💬 추천 다음 행동: Backlog 후보를 다음 Cycle 후보로 묶기/);
+  assert.match(brief, /“Backlog 후보를 다음 Cycle 후보로 묶어줘”/);
   assert.doesNotMatch(brief, /새 후보를 Backlog에 정리/);
 });
 
@@ -598,8 +598,8 @@ test("buildSessionBrief uses Linear cycle number as the canonical cycle label", 
 
   assert.match(brief, /📅 .* · Cycle 10 · Hotfix v0\.4\.4: Cycle Number Display/);
   assert.match(brief, /Roadmap: Cycle 9 → \[Cycle 10\] → Cycle 11/);
-  assert.match(brief, /👉 추천: Cycle 10 남은 Todo 전체 진행/);
-  assert.match(brief, /💬 실행: “Cycle 10 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
+  assert.match(brief, /💬 추천 다음 행동: Cycle 10 남은 Todo 전체 진행/);
+  assert.match(brief, /“Cycle 10 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
 });
 
 test("buildSessionBrief warns when cycle name contains a different cycle number", async () => {
@@ -644,6 +644,6 @@ test("buildSessionBrief uses Operating Cycle order ahead of Linear backing numbe
   assert.match(brief, /Roadmap: \[Operating Cycle 1\] → Operating Cycle 2/);
   assert.doesNotMatch(brief, /Cycle 번호 확인/);
   assert.doesNotMatch(brief, /Cycle 8 · POKit Operating Cycle 1/);
-  assert.match(brief, /👉 추천: Operating Cycle 1 남은 Todo 전체 진행/);
-  assert.match(brief, /💬 실행: “Operating Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
+  assert.match(brief, /💬 추천 다음 행동: Operating Cycle 1 남은 Todo 전체 진행/);
+  assert.match(brief, /“Operating Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
 });

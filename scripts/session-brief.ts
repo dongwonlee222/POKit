@@ -6,6 +6,7 @@ import { loadHookMap, renderHookMap } from "./hook-map.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { getActiveProfile, profileArtifactPath } from "./profile.ts";
 import { renderProgressBar } from "./render/ascii.ts";
+import { loadMessageCatalog, renderMessage } from "./message-catalog.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 
 export type SessionBriefInput = {
@@ -87,8 +88,8 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     ...formatNumberedIssues(resolved.primaryCandidates),
     ...formatBacklogSection(resolved.backlogCandidates),
     "",
-    `👉 추천: ${recommendation.summary}`,
-    `💬 실행: “${recommendation.command}”`,
+    `${messageLabel(rootDir, "session_start.next_action_label", "💬 추천 다음 행동")}: ${recommendation.summary}`,
+    `“${recommendation.command}”`,
     "",
     `✅ 최근 완료: ${resolved.recentDone.length ? resolved.recentDone.map((issue) => issue.identifier).join(", ") : "없음"}`,
     ...(archiveGuardrail.briefLine ? [archiveGuardrail.briefLine] : []),
@@ -96,6 +97,19 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     `Retro: ${retroPath ?? "없음"}`,
     "",
   ].join("\n");
+}
+
+function messageLabel(rootDir: string, id: string, fallback: string): string {
+  const path = join(rootDir, "workflows/messages.yaml");
+  if (!existsSync(path)) {
+    return fallback;
+  }
+  const catalog = loadMessageCatalog(path);
+  const message = catalog.messages[id];
+  if (!message) {
+    return fallback;
+  }
+  return `${message.emoji ? `${message.emoji} ` : ""}${renderMessage(catalog, id)}`;
 }
 
 export function buildCycleDetail(input: SessionBriefInput): string {
