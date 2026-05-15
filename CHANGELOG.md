@@ -4,6 +4,26 @@
 
 No pending public release notes.
 
+## v0.7.1 - 2026-05-16
+
+### Added
+
+- Added release completion evidence rendering so GitHub push/tag completion can feed the POKit close flow.
+
+### Fixed
+
+- Documented and guarded the missing post-release step between GitHub push/tag and Cycle Completion Experience.
+- Standardized the release completion evidence block that triggers the final celebration message.
+
+### Docs / Policy
+
+- Updated release/non-release flow and operating model docs to require release completion evidence before close celebration.
+
+### Verification
+
+- Release completion evidence tests passed.
+- Release flow documentation tests passed.
+
 ## v0.7.0 - 2026-05-16
 
 ### Added

@@ -45,3 +45,23 @@ test("scanIgnoredEvidenceReferences warns when public files reference ignored ar
     },
   ]);
 });
+
+test("renderReleaseCompletionEvidence standardizes post-push close evidence and celebration trigger", async () => {
+  const { renderReleaseCompletionEvidence } = await loadPreflightModule();
+
+  const evidence = renderReleaseCompletionEvidence({
+    targetVersion: "v0.7.0",
+    commit: "a1a988b",
+    tag: "v0.7.0",
+    branch: "main",
+    remote: "origin",
+    releaseUrl: "https://github.com/dongwonlee222/POKit/releases/tag/v0.7.0",
+  });
+
+  assert.match(evidence, /## Release Completion Evidence/);
+  assert.match(evidence, /targetVersion: v0\.7\.0/);
+  assert.match(evidence, /GitHub push\/tag\/release: completed/);
+  assert.match(evidence, /release preflight: passed/);
+  assert.match(evidence, /celebrationTrigger: ready/);
+  assert.match(evidence, /## Cycle Completion Experience Trigger/);
+});

@@ -16,7 +16,9 @@ flowchart TD
   G --> H["Release Gate"]
   H --> I["사용자 승인"]
   I --> J["GitHub push / tag / release"]
-  J --> K["Released Close"]
+  J --> P["Release Completion Evidence"]
+  P --> Q["Cycle Completion Experience"]
+  Q --> K["Released Close"]
 
   F -- "없음" --> L["Non-release Close"]
   L --> M{"External write 있음?"}
@@ -47,6 +49,37 @@ Release gate는 최소 다음을 확인한다.
 - release preflight 통과
 - `memory/`, private artifacts, credentials가 public release에 포함되지 않음
 - GitHub push, tag, release 각각 사용자 승인 필요
+
+## Release Completion Evidence
+
+GitHub push/tag/release가 끝나면 release gate 통과만으로 close하지 않는다. 배포 완료 evidence를 생성하고, 그 evidence가 Cycle Completion Experience를 트리거해야 한다.
+
+표준 evidence:
+
+```md
+## Release Completion Evidence
+
+targetVersion: v0.7.0
+commit: a1a988b
+tag: v0.7.0
+branch: main
+remote: origin
+releaseUrl: https://github.com/dongwonlee222/POKit/releases/tag/v0.7.0
+release preflight: passed
+GitHub push/tag/release: completed
+
+## Cycle Completion Experience Trigger
+
+celebrationTrigger: ready
+reason: release gate completed and public release boundary was applied.
+```
+
+정본 renderer:
+
+- `scripts/release-preflight.ts#renderReleaseCompletionEvidence`
+- `tests/release-preflight.test.mjs`
+
+이 evidence가 없으면 배포 명령이 성공해도 POKit close renderer는 release complete로 판단하지 못할 수 있다.
 
 ## Non-release Work
 

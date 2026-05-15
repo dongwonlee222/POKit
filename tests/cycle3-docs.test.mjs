@@ -76,3 +76,14 @@ test("architecture index documents Linear structure standards", async () => {
   assert.match(structure, /renderSubIssueTaskChecklist/);
   assert.match(contextMap, /docs\/architecture\/14-linear-structure-standards\.md/);
 });
+
+test("release flow documents completion evidence before celebration", async () => {
+  const releaseFlow = await readFile("docs/architecture/09-release-and-non-release-flow.md", "utf8");
+  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(releaseFlow, /Release Completion Evidence/);
+  assert.match(releaseFlow, /Cycle Completion Experience/);
+  assert.match(releaseFlow, /renderReleaseCompletionEvidence/);
+  assert.match(operatingModel, /release completion evidence/);
+  assert.match(operatingModel, /Cycle Completion Experience/);
+});

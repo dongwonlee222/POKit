@@ -23,6 +23,15 @@ export type ReleasePreflightReport = {
   results: ReleaseGateResult[];
 };
 
+export type ReleaseCompletionEvidenceInput = {
+  targetVersion: string;
+  commit: string;
+  tag: string;
+  branch: string;
+  remote: string;
+  releaseUrl?: string;
+};
+
 type PublicFile = {
   path: string;
   content: string;
@@ -71,6 +80,27 @@ export function renderReleasePreflight(report: ReleasePreflightReport): string {
   lines.push("+--------------------------------------------------+");
   lines.push(failedBlockers.length ? "-> Release Blocked" : "-> Cycle Release Pending");
   return lines.join("\n");
+}
+
+export function renderReleaseCompletionEvidence(input: ReleaseCompletionEvidenceInput): string {
+  return [
+    "## Release Completion Evidence",
+    "",
+    `targetVersion: ${input.targetVersion}`,
+    `commit: ${input.commit}`,
+    `tag: ${input.tag}`,
+    `branch: ${input.branch}`,
+    `remote: ${input.remote}`,
+    `releaseUrl: ${input.releaseUrl ?? "none"}`,
+    "release preflight: passed",
+    "GitHub push/tag/release: completed",
+    "",
+    "## Cycle Completion Experience Trigger",
+    "",
+    "celebrationTrigger: ready",
+    "reason: release gate completed and public release boundary was applied.",
+    "",
+  ].join("\n");
 }
 
 function gateDescription(id: string): string {

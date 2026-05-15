@@ -456,11 +456,15 @@ Version Run selected
 → release dry-run
 → user approval
 → GitHub push/tag/release when public distribution changes
+→ release completion evidence
+→ Cycle Completion Experience
 → Linear Done/status sync after approval
 → Version Run close note
 ```
 
 A public-release Version Run is operationally complete only when verified changes are committed when applicable and the approved public release boundary is either completed or explicitly deferred. Deferral must be visible in the close report as `Version Run Release Deferred`, with the reason and the next release target.
+
+After GitHub push/tag/release succeeds, render `Release Completion Evidence` with `scripts/release-preflight.ts#renderReleaseCompletionEvidence`. The final response must then render or summarize the Cycle Completion Experience; otherwise the Version Run can be publicly released but still appear unfinished to the POKit close flow.
 
 Use Linear Weekly Cycle views to group Version Runs, review carry-over, and decide priorities. Do not hold completed release-ready work until the end of the week by default.
 
