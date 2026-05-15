@@ -166,6 +166,35 @@ test("buildSessionCloseReport keeps all-done active Cycle release pending until 
   assert.doesNotMatch(report, /EVM-32 next work/);
 });
 
+test("buildSessionCloseReport treats release evidence as Cycle completion when completedAt is unavailable", async () => {
+  const { buildSessionCloseReport } = await loadSessionCloseModule();
+
+  const report = buildSessionCloseReport({
+    now: new Date("2026-05-15T12:00:00+09:00"),
+    context: {
+      source: "linear_active",
+      cycle: {
+        id: "cycle-1",
+        name: "Cycle 1",
+        completedAt: null,
+        description: [
+          "POKit operational completion after approved release gate.",
+          "targetVersion: v0.4.2",
+          "releaseUrl: https://github.com/example/repo/releases/tag/v0.4.2",
+          "reason: 5/5 issues Done; v0.4.2 GitHub release published; release preflight passed.",
+        ].join("\n"),
+      },
+      issues: [
+        { id: "issue-1", identifier: "EVM-1", title: "release evidence work", description: "done", labels: ["pokit:criteria"], state: "Done" },
+      ],
+    },
+  });
+
+  assert.match(report, /🎉 Cycle 1 완료!/);
+  assert.match(report, /Cycle 1 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
+  assert.doesNotMatch(report, /Cycle Release Pending/);
+});
+
 test("buildResumeBrief keeps compact contract and Cycle-level next action", async () => {
   const { buildResumeBrief, validateResumeBriefContract } = await loadSessionCloseModule();
 

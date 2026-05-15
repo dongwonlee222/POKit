@@ -292,7 +292,21 @@ function buildCycleReleasePendingSection(context: WorkingCycleContext, completed
 }
 
 function isCycleReleaseComplete(context: WorkingCycleContext): boolean {
-  return Boolean(context.cycle.completedAt);
+  return Boolean(context.cycle.completedAt || hasReleaseCompletionEvidence(context));
+}
+
+function hasReleaseCompletionEvidence(context: WorkingCycleContext): boolean {
+  const evidenceText = [
+    context.cycle.description,
+    ...context.issues.map((issue) => issue.description),
+  ].filter(Boolean).join("\n");
+
+  if (!evidenceText) {
+    return false;
+  }
+
+  return /release gate completed|GitHub release published|GitHub push\/tag\/release:\s*completed|release preflight:\s*passed/i.test(evidenceText)
+    && /targetVersion:\s*v\d+\.\d+\.\d+/i.test(evidenceText);
 }
 
 function isCompletedIssue(issue: Issue): boolean {

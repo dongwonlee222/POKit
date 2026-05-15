@@ -130,6 +130,32 @@ test("buildCycleCloseDraft shows release pending instead of completion before re
   assert.doesNotMatch(markdown, /Cycle 3 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
 });
 
+test("buildCycleCloseDraft accepts release evidence when completedAt is unavailable", async () => {
+  const { buildCycleCloseDraft } = await loadCycleCloseModule();
+  const context = {
+    ...cycle3Context,
+    cycle: {
+      ...cycle3Context.cycle,
+      completedAt: null,
+      description: [
+        "POKit operational completion after approved release gate.",
+        "targetVersion: v0.4.2",
+        "releaseUrl: https://github.com/example/repo/releases/tag/v0.4.2",
+        "reason: 7/7 issues Done; v0.4.2 GitHub release published; release preflight passed.",
+      ].join("\n"),
+    },
+    issues: cycle3Context.issues.map((issue) => ({ ...issue, state: "Done" })),
+  };
+
+  const markdown = buildCycleCloseDraft({
+    context,
+    completedAt: new Date("2026-05-13T12:00:00+09:00"),
+  });
+
+  assert.match(markdown, /🎉 Cycle 3 완료!/);
+  assert.doesNotMatch(markdown, /Cycle Release Pending/);
+});
+
 test("buildAfterCycleCompleteMessage shows once per complete cycle state", async () => {
   const { buildAfterCycleCompleteMessage } = await loadCycleCloseModule();
 

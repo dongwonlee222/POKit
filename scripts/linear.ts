@@ -82,6 +82,7 @@ export type Cycle = {
   id: string;
   name: string;
   number?: number;
+  description?: string;
   startsAt?: string;
   endsAt?: string;
   completedAt?: string;
@@ -163,6 +164,7 @@ type LinearCycleNode = {
   id: string;
   name?: string | null;
   number?: number;
+  description?: string | null;
   startsAt?: string;
   endsAt?: string;
   completedAt?: string;
@@ -242,6 +244,9 @@ function normalizeCycle(cycle: LinearCycleNode): Cycle {
     startsAt: cycle.startsAt,
     endsAt: cycle.endsAt,
   };
+  if (cycle.description !== undefined && cycle.description !== null) {
+    normalized.description = cycle.description;
+  }
   if (cycle.completedAt !== undefined) {
     normalized.completedAt = cycle.completedAt;
   }
@@ -407,6 +412,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             id
             name
             number
+            description
             startsAt
             endsAt
             completedAt
@@ -417,6 +423,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             id
             name
             number
+            description
             startsAt
             endsAt
             completedAt
@@ -448,6 +455,7 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
               id
               name
               number
+              description
               startsAt
               endsAt
               completedAt
