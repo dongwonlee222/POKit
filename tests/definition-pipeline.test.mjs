@@ -55,6 +55,20 @@ test("definition pipeline supports full, focused, and patch sizes", async () => 
   assert.match(content, /acceptance_criteria/);
 });
 
+test("parallel agent planning is not gated by POKit product approval", async () => {
+  const content = await readFile("workflows/definition-pipeline.yaml", "utf8");
+  const conditionsBlock =
+    content.match(/\nparallel_agent_conditions:\n([\s\S]*?)\nroles:/)?.[1] ?? "";
+
+  assert.match(conditionsBlock, /size_full/);
+  assert.match(conditionsBlock, /two_or_more_independent_stages/);
+  assert.match(conditionsBlock, /non_overlapping_output_files/);
+  assert.doesNotMatch(conditionsBlock, /user_approval/);
+  assert.match(conditionsBlock, /runtime_supports_parallel_spawn_or_sequential_fallback/);
+  assert.match(conditionsBlock, /explicit_spawn_approval_when_required_by_runtime/);
+  assert.match(conditionsBlock, /same_artifacts_and_gates/);
+});
+
 test("definition pipeline assigns parallel subagent roles under main agent ownership", async () => {
   const content = await readFile("workflows/definition-pipeline.yaml", "utf8");
 

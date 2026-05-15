@@ -52,7 +52,10 @@ parallel_agent_conditions:
     - size_full
     - two_or_more_independent_stages
     - non_overlapping_output_files
-    - user_approval
+    - runtime_supports_parallel_spawn_or_sequential_fallback
+  runtime:
+    explicit_spawn_approval: explicit_spawn_approval_when_required_by_runtime
+    fallback: same_artifacts_and_gates
 
 roles:
   main_agent:
