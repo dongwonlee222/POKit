@@ -2,6 +2,40 @@ name: agent_roles
 version: 1
 language: ko-KR
 
+main_context_subagent_call_contract:
+  main_context_keeps:
+    - main_keeps_latest_user_intent
+    - approval_boundary
+    - final_judgment
+  subagent_input_rules:
+    - bounded_input_only
+    - include_owned_files_or_responsibility
+    - include_expected_artifact
+    - include_done_gate
+    - exclude_long_raw_context
+  subagent_output_rules:
+    - schema_only_output
+    - no_external_write_decision
+    - message_catalog_id_required
+    - korean_user_facing_summary
+  external_write_rule: main_agent_only_external_write_decision
+  handoff_rule: resume_brief_and_artifact_links_only
+  subagent_output_schema:
+    role: string
+    summary_ko: string
+    artifact_links:
+      - path: string
+        purpose: string
+    decisions_needed:
+      - question_ko: string
+        owner: main_agent
+    external_write_request:
+      allowed_values:
+        - none
+        - dry_run_only
+    message_catalog_ids:
+      - string
+
 roles:
   main_agent:
     title: 메인 에이전트
@@ -140,4 +174,3 @@ roles:
       Parent issue와 sub-issue 후보를 산출물 단위로 나누고,
       각 sub-issue에 담당 role, 병렬 가능 여부, 의존성, Done gate를 적는다.
       Linear write는 dry-run으로만 작성한다.
-

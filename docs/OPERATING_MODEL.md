@@ -201,6 +201,15 @@ Message Catalog Contract:
 - Session start, completion reports, external write confirmations, and Linear Backlog creation should use message ids instead of scattered hard-coded copy when the text is part of the operating contract.
 - `before_external_write` should run semantic preflight for user-facing Linear writes: Korean title, target version, release bundle, dry-run/write payload match, and no Cycle/Release bundle terminology confusion.
 
+Main Context / Subagent Call Contract:
+
+- 메인 에이전트는 최신 사용자 의도, 승인 경계, 최종 판단만 유지한다.
+- 서브에이전트는 bounded input만 받는다: 담당 파일이나 책임, 기대 산출물, Done gate, 필요한 artifact link만 포함한다.
+- 출력은 정해진 schema로만 반환한다. 기본 schema는 role, summary_ko, artifact_links, decisions_needed, external_write_request, message_catalog_ids다.
+- 외부 write 판단은 메인 에이전트만 가능하다. 서브에이전트는 외부 write를 실행하거나 최종 승인 여부를 판단하지 않고, 필요한 경우 dry-run 후보만 반환한다.
+- 대화형 문구는 message catalog id로 호출한다. 서브에이전트 출력도 사용자-facing 문구가 필요하면 `workflows/messages.yaml`의 id를 참조한다.
+- context handoff는 resume-brief와 artifact link 중심으로 유지한다. 긴 원문 복사 금지, 링크와 짧은 근거 중심으로 전달한다.
+
 When the product has to choose between competing behaviors, use this order:
 
 1. Reduce approval noise.

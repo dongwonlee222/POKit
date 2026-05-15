@@ -93,6 +93,17 @@ test("agent role templates define reusable subagent prompts and Linear dry-run c
   const content = await readFile("workflows/agent-roles.yaml", "utf8");
 
   assert.match(content, /name: agent_roles/);
+  assert.match(content, /main_context_subagent_call_contract:/);
+  assert.match(content, /main_keeps_latest_user_intent/);
+  assert.match(content, /bounded_input_only/);
+  assert.match(content, /schema_only_output/);
+  assert.match(content, /main_agent_only_external_write_decision/);
+  assert.match(content, /message_catalog_id_required/);
+  assert.match(content, /resume_brief_and_artifact_links_only/);
+  assert.match(content, /subagent_output_schema:/);
+  assert.match(content, /summary_ko/);
+  assert.match(content, /artifact_links/);
+  assert.match(content, /external_write_request/);
   assert.match(content, /benchmark_agent:/);
   assert.match(content, /title: 벤치마킹 에이전트/);
   assert.match(content, /prompt_template:/);
@@ -167,6 +178,19 @@ test("operating model references the definition pipeline contract", async () => 
   assert.match(content, /main agent/);
   assert.match(content, /workflows\/agent-roles.yaml/);
   assert.match(content, /Linear sub-issue/);
+});
+
+test("operating model fixes the main context and subagent call contract", async () => {
+  const content = await readFile("docs/OPERATING_MODEL.md", "utf8");
+
+  assert.match(content, /Main Context \/ Subagent Call Contract/);
+  assert.match(content, /메인 에이전트는 최신 사용자 의도, 승인 경계, 최종 판단만 유지/);
+  assert.match(content, /서브에이전트는 bounded input만 받는다/);
+  assert.match(content, /출력은 정해진 schema로만 반환/);
+  assert.match(content, /외부 write 판단은 메인 에이전트만 가능/);
+  assert.match(content, /대화형 문구는 message catalog id로 호출/);
+  assert.match(content, /context handoff는 resume-brief와 artifact link 중심/);
+  assert.match(content, /긴 원문 복사 금지/);
 });
 
 test("PRD and data contract templates include provider cost and copyright gates", async () => {
