@@ -4,6 +4,22 @@
 
 No pending public release notes.
 
+## v0.4.2 - 2026-05-15
+
+### Docs / Policy
+
+- Added Backlog Intake and Linear Create Preflight MVP examples for Cycle 7 preparation.
+- Clarified that Opus/private review notes are not part of the public intake flow.
+- Clarified that parallel subagent planning is a POKit workflow capability while runtime spawn approval is a runtime constraint.
+- Required flow adherence checks before completion claims.
+- Required remaining-work answers to check Cycle close and release state before recommending Backlog or next-Cycle work.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 127/127.
+
 ## v0.4.1 - 2026-05-15
 
 ### Fixed
