@@ -4,6 +4,19 @@
 
 No pending public release notes.
 
+## v0.4.3 - 2026-05-15
+
+### Fixed
+
+- Recognize release completion evidence in `cycle-close` and `session-close` when Linear cycle `completedAt` is unavailable.
+- Preserve Linear cycle descriptions in working context so release evidence can be evaluated locally.
+
+### Verification
+
+- Release Markdown audit passed.
+- Public safety scan passed.
+- Test suite passed: 129/129.
+
 ## v0.4.2 - 2026-05-15
 
 ### Docs / Policy
