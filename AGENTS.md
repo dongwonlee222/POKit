@@ -41,3 +41,7 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 - [docs/_details/visualization.md](docs/_details/visualization.md) — ASCII/Mermaid usage
 - [docs/_details/cli-internals.md](docs/_details/cli-internals.md) — verb → node mapping (debugging escape hatch)
 - [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md) — index + anchor stubs
+
+## 단계 정의 규칙
+
+단계 정의(단계명·순서·라벨·설명·approvalBoundary)는 `docs/_details/cycle-steps.json`에만 둔다. 코드(`scripts/cli/*`)는 렌더 전용 — 단계 정의를 코드에 박지 않는다.
