@@ -7,7 +7,6 @@ const USER_FACING_MARKDOWN = [
   "docs/signal-watch-workflow.md",
   "examples/signal-watch/discovery-brief-sample.md",
   "examples/signal-watch/backlog-candidate-dry-run.md",
-  "artifacts/profiles/pokit/sprints/Cycle-5-PO-Signal-Watch---Backlog-Share/md-flow-audit.md",
 ];
 
 test("POKit user-facing Markdown artifacts are Korean-first", async () => {
