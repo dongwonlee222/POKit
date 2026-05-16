@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.15.0 - 2026-05-17
+
+### Added
+
+- session-brief 라벨 명확화 + 다음 스프린트 target version 노출 [POKIT-163]:
+  - `scripts/cli/session-brief.ts` — `스프린트(배포 버전)` → `마지막 스프린트 배포 버전` 라벨 변경.
+  - 신규 라인 `다음 스프린트 target version: <value>` 추가 (active cycle manifest `targetVersion` 참조, 없으면 `(미정)`).
+  - `scripts/internal/manifest-lookup.ts` `getActiveCycleTargetVersion()` 함수 추가.
+  - `tests/session-brief.test.mjs`, `tests/session-start.test.mjs` 케이스 갱신.
+- 정보 탐색 자동 위임 — research-gate [POKIT-165]:
+  - `docs/_details/subagent-contract.md` `## research-gate` 섹션 신규 — 읽기 전용 탐색은 Haiku/Explore 위임, 메인은 schema-only 응답.
+  - `skills/plan-gate/SKILL.md` `--mode research|build` 옵션 추가.
+  - `scripts/internal/intent-classifier.ts` 신규 — `classifyIntent()` 키워드 기반 분류.
+  - `tests/research-gate.test.mjs` 신규 (7 케이스).
+- Collected Data Sweep 리포트 [POKIT-118]:
+  - `scripts/cli/collected-sweep.ts` 신규 — `artifacts/profiles/*/collected/raw/` 스캔. retention_until 지남·sidecar 없음·PII raw 30일 이상 리포트만 출력. 자동 삭제 절대 없음.
+  - `--json` 플래그 지원.
+  - `scripts/internal/verb-dispatch.ts` `sweep` verb 등록.
+  - `tests/collected-sweep.test.mjs` 신규 (10 케이스).
+
+### Changed
+
+- 워크플로 변화 없음. 모든 변경은 호환 유지 (라벨 텍스트 변경은 사용자-facing 출력만).
+
 ## v0.14.0 - 2026-05-17
 
 ### Added

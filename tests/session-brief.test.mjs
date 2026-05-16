@@ -647,3 +647,103 @@ test("buildSessionBrief uses Operating Cycle order ahead of Linear backing numbe
   assert.match(brief, /💬 추천 다음 행동: Operating Cycle 1 남은 Todo 전체 진행/);
   assert.match(brief, /“Operating Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
 });
+
+test("buildSessionBrief start variant shows last sprint label", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-brief-start-label-"));
+  await mkdir(join(tempDir, "artifacts/cycles"), { recursive: true });
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-17T09:00:00+09:00"),
+    rootDir: tempDir,
+    variant: "start",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        { id: "issue-1", identifier: "POKIT-1", title: "Some work", description: "desc", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /마지막 스프린트 배포 버전:/);
+  assert.doesNotMatch(brief, /스프린트\(배포 버전\):/);
+});
+
+test("buildSessionBrief start variant shows target version line", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-brief-start-target-"));
+  await mkdir(join(tempDir, "artifacts/cycles"), { recursive: true });
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-17T09:00:00+09:00"),
+    rootDir: tempDir,
+    variant: "start",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        { id: "issue-1", identifier: "POKIT-1", title: "Some work", description: "desc", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /다음 스프린트 target version:/);
+});
+
+test("buildSessionBrief start variant shows undefined target version as (미정)", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-brief-start-no-target-"));
+  await mkdir(join(tempDir, "artifacts/cycles"), { recursive: true });
+  await writeFile(join(tempDir, "artifacts/cycles/cycle-1.yaml"), [
+    "cycle_name: Cycle 1",
+    "started_at: '2026-05-01T00:00:00Z'",
+    "closed_at: null",
+    "release_version: null",
+    "included_issue_ids: []",
+  ].join("\n"));
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-17T09:00:00+09:00"),
+    rootDir: tempDir,
+    variant: "start",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        { id: "issue-1", identifier: "POKIT-1", title: "Some work", description: "desc", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /다음 스프린트 target version: \(미정\)/);
+});
+
+test("buildSessionBrief start variant shows targetVersion from cycle manifest", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-brief-start-with-target-"));
+  await mkdir(join(tempDir, "artifacts/cycles"), { recursive: true });
+  await writeFile(join(tempDir, "artifacts/cycles/cycle-2.yaml"), [
+    "cycle_name: Cycle 2",
+    "started_at: '2026-05-10T00:00:00Z'",
+    "closed_at: null",
+    "release_version: null",
+    "targetVersion: v1.0.0",
+    "included_issue_ids: []",
+  ].join("\n"));
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-17T09:00:00+09:00"),
+    rootDir: tempDir,
+    variant: "start",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-2", name: "Cycle 2" },
+      issues: [
+        { id: "issue-1", identifier: "POKIT-1", title: "Some work", description: "desc", labels: ["pokit:criteria"], state: "Todo" },
+      ],
+    },
+  });
+
+  assert.match(brief, /다음 스프린트 target version: v1\.0\.0/);
+});

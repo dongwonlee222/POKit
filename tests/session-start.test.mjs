@@ -51,7 +51,8 @@ test("buildSessionStart renders brief with boot signature after reading context 
 
   assert.match(output, /🪧 POKit 시작 Brief/);
   assert.match(output, /· Team POKIT/);
-  assert.match(output, /- 스프린트\(배포 버전\): v\d+\.\d+\.\d+|- 스프린트\(배포 버전\): v0\.0\.0/);
+  assert.match(output, /- 마지막 스프린트 배포 버전: v\d+\.\d+\.\d+/);
+  assert.match(output, /- 다음 스프린트 target version: /);
   assert.match(output, /📋 Linear 우선순위 Top 3/);
   assert.match(output, /1\. POKIT-128 Session Bootstrap Contract · (Urgent|High|Medium|Low|No priority)/);
   assert.match(output, /💬 추천 다음 행동: /);

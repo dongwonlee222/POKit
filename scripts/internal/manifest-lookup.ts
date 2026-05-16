@@ -7,6 +7,7 @@ export type CycleManifest = {
   started_at: string;
   closed_at: string | null;
   release_version: string | null;
+  targetVersion?: string;
   included_issue_ids: string[];
   notes?: string;
 };
@@ -55,9 +56,10 @@ function parseCycleManifest(content: string): CycleManifest | null {
   const started_at = parseStringField(content, "started_at") ?? "";
   const closed_at = parseNullableStringField(content, "closed_at");
   const release_version = parseNullableStringField(content, "release_version");
+  const targetVersion = parseNullableStringField(content, "targetVersion") ?? undefined;
   const included_issue_ids = parseStringList(content, "included_issue_ids");
   const notes = parseStringField(content, "notes") ?? undefined;
-  return { cycle_name, started_at, closed_at, release_version, included_issue_ids, notes };
+  return { cycle_name, started_at, closed_at, release_version, targetVersion, included_issue_ids, notes };
 }
 
 function parseReleaseManifest(content: string): ReleaseManifest | null {
@@ -140,4 +142,12 @@ export function findOpenCycleManifest(rootDir = process.cwd()): CycleManifest | 
     }
   }
   return null;
+}
+
+/**
+ * Returns the targetVersion from the active (open) cycle manifest, or undefined if not set.
+ */
+export function getActiveCycleTargetVersion(rootDir = process.cwd()): string | undefined {
+  const manifest = findOpenCycleManifest(rootDir);
+  return manifest?.targetVersion;
 }

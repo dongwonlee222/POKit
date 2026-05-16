@@ -44,10 +44,30 @@ trigger_phrases:
 | **Sonnet 4.6** | 코드 구현·TDD·hook 작성·리팩터링 |
 | **Haiku 4.5** | 단순 검증·정형 출력·포맷 변환 |
 
+## Modes
+
+`--mode` 옵션으로 동작을 제어한다.
+
+### --mode research (읽기 전용 탐색)
+
+- 승인 게이트 생략. 사용자 확인 없이 즉시 실행한다.
+- 읽기 전용 서브에이전트(Haiku / Explore)만 사용한다.
+- 외부 write 0건, 파일 변경 0건이 보장되어야 한다.
+- 메인은 schema-only 응답만 컨텍스트에 적재한다.
+- 탐색 결과는 `{ role, summary_ko, artifact_links, decisions_needed }` schema로만 반환한다.
+- 적합 요청: "어디에 있어?", "폴더 역할 뭐야?", "정책 찾아줘", "이슈 메타 보여줘"
+
+### --mode build (기본값, 현재 동작)
+
+- 승인 게이트 필수. 표 출력 후 PO 승인 대기.
+- 외부 write 또는 파일 변경이 있으면 반드시 이 모드를 사용한다.
+- 적합 요청: "만들어줘", "구현해줘", "수정해줘", "추가해줘", "배포해줘"
+
+모드가 명시되지 않으면 기본값은 `--mode build`다.
+
 ## Flow
 
 1. 요청 분석 — 필요한 task 목록과 의존 관계 파악
-2. 각 task에 모델·worktree·병렬 그룹 배정
-3. 표 + 승인 게이트 출력
-4. PO 승인 대기
-5. 승인 수신 → 서브에이전트 spawn
+2. 모드 판단 (`--mode research` 또는 `--mode build`)
+3. **research 모드**: 읽기 전용 서브에이전트 spawn → schema 응답 반환 (승인 게이트 없음)
+4. **build 모드**: 각 task에 모델·worktree·병렬 그룹 배정 → 표 + 승인 게이트 출력 → PO 승인 대기 → spawn

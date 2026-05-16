@@ -25,6 +25,7 @@ export const VERB_ROUTES: Record<string, VerbRoute> = {
   end:        { path: "scripts/cli/session-close.ts" },
   safety:     { path: "scripts/cli/public-safety-scan.ts" },
   "role-check": { path: "scripts/cli/role-map-check.ts" },
+  sweep:      { path: "scripts/cli/collected-sweep.ts" },
 };
 
 export type DispatchInput = {

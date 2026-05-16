@@ -92,6 +92,15 @@ Use stronger models where judgment matters, and cheaper models where the contrac
 
 The optimization goal is simple: spend expensive reasoning on choices and verification, not on repeatable edits.
 
+## research-gate (읽기 전용 탐색 자동 위임)
+
+읽기 전용 탐색 작업(파일 위치 파악·정책 인용·폴더 역할 파악·이슈 메타 조회 등)은 Opus 메인이 직접 grep/Read하지 않는다. Haiku 또는 Explore 서브에이전트에 위임하고, 메인은 schema-only 응답만 컨텍스트에 적재한다.
+
+판단 주체: Opus 메인 (사용자 의도 파싱). 모호 시 1줄 질문 ("탐색만? 변경까지?").
+
+build-gate(plan-gate 기본): 외부 write 또는 파일 변경 발생 → 승인 게이트 적용.
+research-gate: 외부 write 0건 + 파일 변경 0건 → 승인 게이트 생략, schema 응답만.
+
 ## Cross-Provider Subagent Policy
 
 Operator는 같은 lineage 내에서 subagent를 호출하는 것을 기본으로 한다 (Claude operator → Claude subagent, Codex operator → Codex subagent).

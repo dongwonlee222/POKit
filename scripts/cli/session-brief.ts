@@ -9,6 +9,7 @@ import { getActiveProfile, profileArtifactPath } from "../internal/profile.ts";
 import { renderProgressBar } from "../internal/render/ascii.ts";
 import { loadMessageCatalog, renderMessage } from "../internal/message-catalog.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
+import { getActiveCycleTargetVersion } from "../internal/manifest-lookup.ts";
 
 export type SessionBriefInput = {
   now?: Date;
@@ -73,6 +74,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
 
   if (input.variant === "start") {
     const version = readReleaseVersion(rootDir);
+    const targetVersion = getActiveCycleTargetVersion(rootDir) ?? "(미정)";
     const teamLabel = profile.linearTeamKey ?? "POKIT";
     const resumeNext = readResumeBriefNextAction(rootDir);
     const nextActionText = resumeNext ?? recommendation.summary;
@@ -81,7 +83,8 @@ export function buildSessionBrief(input: SessionBriefInput): string {
       "🪧 POKit 시작 Brief",
       `📅 ${formatKoreanDate(now)} · Team ${teamLabel}`,
       "",
-      `- 스프린트(배포 버전): ${version}`,
+      `- 마지막 스프린트 배포 버전: ${version}`,
+      `- 다음 스프린트 target version: ${targetVersion}`,
       `- 💬 추천 다음 행동: ${nextActionText}`,
       "",
       "📋 Linear 우선순위 Top 3",
