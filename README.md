@@ -286,10 +286,10 @@ Linear, 일일 포킷 Run, 세션 작업 목록, GitHub commit 사이의 작업 
 
 ## 2일차 실행 시뮬레이션
 
-Linear나 GitHub를 호출하지 않고 기본 실행 흐름을 확인하려면 `examples/day2-dry-run/linear-cycle-fixture.yaml`을 사용합니다.
+Linear나 GitHub를 호출하지 않고 기본 실행 흐름을 확인하려면 `tests/fixtures/day2-dry-run/linear-cycle-fixture.yaml`을 사용합니다.
 
 예상 예시 산출물:
 
-- `examples/dogfood/prds/POKIT-18.md`
-- `examples/dogfood/criteria/POKIT-22.md`
-- `examples/dogfood/sprints/2026-W20-dry-run-simulation.md`
+- `dogfood/prds/POKIT-18.md`
+- `dogfood/criteria/POKIT-22.md`
+- `dogfood/sprints/2026-W20-dry-run-simulation.md`

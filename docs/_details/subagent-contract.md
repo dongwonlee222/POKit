@@ -141,6 +141,6 @@ Runtime note: some agent runtimes require the user to explicitly request or appr
 
 When an idea is decomposed for Linear, 하위 이슈 분해 must include a 병렬 실행 계획 and a Linear sub-issue dry-run. Each proposed sub-issue should name the responsible role, expected artifact, dependency, parallel eligibility, Done gate, public evidence path, external blocker, rollback plan, and idempotency key. The dry-run section in the artifact is the source for the user-facing Linear write preflight.
 
-Definition artifacts under `artifacts/profiles/{profile}/...` are local drafts and may be ignored. Release-facing evidence must point to a public-safe redacted path such as `examples/definition/{issue}/...`.
+Definition artifacts under `artifacts/profiles/{profile}/...` are local drafts and may be ignored. Release-facing evidence must point to a public-safe redacted path such as `examples/definition-pipeline-sample/...`.
 
 Features that depend on external content or providers must define provider/cost/limit, copyright/raw-content storage, privacy, rollback, and observability decisions before implementation.
