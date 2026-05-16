@@ -2,6 +2,10 @@
 
 Default language: ko-KR. 사용자-facing 답변, 보고서, 로컬 artifact는 한국어를 기본으로 쓴다. API 이름, 파일명, 코드 식별자, 고유 product 용어만 영어를 허용한다.
 
+## Core Principle
+
+모든 구조 결정은 **LLM 명확성**을 최우선으로 한다. 폴더·문서·메모리 위치는 매 세션 cold start 작업자가 즉시 인식 가능한 형태로 유지한다. 가벼움의 기준은 분량이 아니라 작업자 LLM이 헷갈리지 않는 구조다.
+
 ## Main Agent Orchestration Contract
 
 The main agent orchestrates POKit work; it does not replace hooks, templates, scripts, or subagent contracts.
