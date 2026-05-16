@@ -30,6 +30,7 @@ export function buildSessionStart(input: SessionStartInput): string {
     "",
     `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length}`,
     "",
+    "<!-- AGENT: output above verbatim, no summary, no interpretation -->",
   ].join("\n");
 }
 
