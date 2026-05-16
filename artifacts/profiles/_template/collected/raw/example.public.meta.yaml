@@ -1,0 +1,10 @@
+# Sidecar metadata for a collected artifact.
+# This file MUST accompany every file in raw/ or digest/.
+# Filename convention: <original-filename>.meta.yaml
+# Public example — uses .public. in name so it is git-tracked (see .gitignore).
+
+sensitivity: low
+contains_pii: false
+retention_until: "2027-01-01"
+license: "internal-only"
+source: "example — replace with actual origin URL, tool name, or dataset identifier"
