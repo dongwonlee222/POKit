@@ -113,7 +113,7 @@ flowchart TD
   A["Error / blocker confirmed"] --> B["작업 중단 또는 영향 범위 제한"]
   B --> C["문제와 원인 수집"]
   C --> D["Problem/Error Review 렌더링"]
-  D --> E["artifacts/backlog/*-problem-review.md 저장"]
+  D --> E["memory/problem-reviews/*-problem-review.md 저장"]
   E --> F{"Linear 추적 필요?"}
   F -- "필요" --> G["Linear Backlog dry-run<br/>idempotency key + 승인"]
   F -- "불필요" --> H["로컬 memo로 close"]
@@ -125,7 +125,7 @@ flowchart TD
 - hook: `workflows/hooks.yaml`의 `on_error`
 - user-facing renderer: `scripts/problem-error-review.ts`
 - runner: `scripts/hooks-runner.ts`
-- memo path: `artifacts/backlog/[short-kebab-problem]-problem-review.md`
+- memo path: `memory/problem-reviews/[short-kebab-problem]-problem-review.md`
 - policy: `docs/OPERATING_MODEL.md#problemerror-review-memo-contract`
 - tests: `tests/problem-error-review.test.mjs`, `tests/hooks-runner.test.mjs`, `tests/hooks-contract.test.mjs`
 

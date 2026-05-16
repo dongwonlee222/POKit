@@ -61,7 +61,7 @@ The following H2 anchors are preserved for backward compatibility with existing 
 
 When POKit confirms an error, blocker, wrong assumption, failed external call, failed test, or incorrect assistant behavior, it must leave a local Backlog memo before closing the matter.
 
-Required location: `artifacts/backlog/[short-kebab-problem]-problem-review.md`
+Required location: `memory/problem-reviews/[short-kebab-problem]-problem-review.md`
 
 Required Korean headings:
 

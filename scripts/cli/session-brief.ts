@@ -485,7 +485,7 @@ function formatProblemReviewMemos(memos: Array<{ title: string; path: string }>)
 }
 
 function listProblemReviewMemos(rootDir: string): Array<{ title: string; path: string }> {
-  const backlogDir = join(rootDir, "artifacts", "backlog");
+  const backlogDir = join(rootDir, "memory", "problem-reviews");
   if (!existsSync(backlogDir)) {
     return [];
   }
@@ -495,7 +495,7 @@ function listProblemReviewMemos(rootDir: string): Array<{ title: string; path: s
     .filter((name) => name.endsWith("problem-review.md"))
     .sort()
     .map((name) => {
-      const path = join("artifacts", "backlog", name);
+      const path = join("memory", "problem-reviews", name);
       return {
         title: problemReviewTitleFromFilename(name),
         path,

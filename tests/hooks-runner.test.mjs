@@ -30,7 +30,7 @@ test("runOnErrorHook renders a Problem/Error Review and can write the memo artif
 
   assert.match(result.output, /🚨 Problem \/ Error Review/);
   assert.match(result.output, /on_error runner missing/);
-  assert.ok(result.artifactPath?.endsWith("artifacts/backlog/on-error-runner-missing-problem-review.md"));
+  assert.ok(result.artifactPath?.endsWith("memory/problem-reviews/on-error-runner-missing-problem-review.md"));
 
   const artifact = await readFile(result.artifactPath, "utf8");
   assert.match(artifact, /hooks-runner와 contract test/);

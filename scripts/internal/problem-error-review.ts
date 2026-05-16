@@ -62,7 +62,7 @@ export function renderProblemReviewMemo(review: ProblemErrorReviewInput): string
 }
 
 export function buildProblemReviewMemoPath(rootDir: string, slug: string): string {
-  return join(rootDir, "artifacts", "backlog", `${slug}-problem-review.md`);
+  return join(rootDir, "memory", "problem-reviews", `${slug}-problem-review.md`);
 }
 
 export function writeProblemReviewMemo(input: {
@@ -70,7 +70,7 @@ export function writeProblemReviewMemo(input: {
   slug: string;
   review: ProblemErrorReviewInput;
 }): string {
-  const artifactDir = join(input.rootDir, "artifacts", "backlog");
+  const artifactDir = join(input.rootDir, "memory", "problem-reviews");
   mkdirSync(artifactDir, { recursive: true });
   const artifactPath = buildProblemReviewMemoPath(input.rootDir, input.slug);
   writeFileSync(artifactPath, renderProblemReviewMemo(input.review), "utf8");

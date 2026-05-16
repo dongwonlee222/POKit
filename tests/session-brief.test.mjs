@@ -123,9 +123,9 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
 
 test("buildBacklogDetail includes local Problem/Error Review backlog memos", async () => {
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-backlog-problem-review-"));
-  await mkdir(join(tempDir, "artifacts/backlog"), { recursive: true });
+  await mkdir(join(tempDir, "memory/problem-reviews"), { recursive: true });
   await writeFile(
-    join(tempDir, "artifacts/backlog/linear-cleanup-schema-check-problem-review.md"),
+    join(tempDir, "memory/problem-reviews/linear-cleanup-schema-check-problem-review.md"),
     "# 🚨 Problem / Error Review: Linear cleanup schema check 누락\n",
   );
   const { buildBacklogDetail } = await loadBriefModule();
@@ -141,7 +141,7 @@ test("buildBacklogDetail includes local Problem/Error Review backlog memos", asy
   });
 
   assert.match(backlogDetail, /Problem\/Error Review 메모/);
-  assert.match(backlogDetail, /1\. Linear Cleanup Schema Check · artifacts\/backlog\/linear-cleanup-schema-check-problem-review\.md/);
+  assert.match(backlogDetail, /1\. Linear Cleanup Schema Check · memory\/problem-reviews\/linear-cleanup-schema-check-problem-review\.md/);
 });
 
 test("buildSessionBrief shows upcoming and backlog candidates when active cycle is operationally complete", async () => {

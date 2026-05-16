@@ -74,7 +74,7 @@ When local work is complete and the next step is an external write, Show the ext
 
 ## Error and Blocker Handling
 
-When a confirmed error/blocker occurs, write a Korean Problem/Error Review memo under `artifacts/backlog/` before closing it. See `docs/OPERATING_MODEL.md#problemerror-review-memo-contract`.
+When a confirmed error/blocker occurs, write a Korean Problem/Error Review memo under `memory/problem-reviews/` before closing it. See `docs/OPERATING_MODEL.md#problemerror-review-memo-contract`.
 
 ## Default Session Close Behavior
 

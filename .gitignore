@@ -18,15 +18,14 @@ artifacts/prds/*
 !artifacts/criteria/
 artifacts/criteria/*
 !artifacts/criteria/.gitkeep
-!artifacts/manifests/
-artifacts/manifests/*
-!artifacts/manifests/.gitkeep
 !artifacts/sprints/
 artifacts/sprints/**
 !artifacts/sprints/README.md
 
 # Private/runtime memory MVP state. Publish sanitized examples elsewhere.
 memory/notes/
+memory/manifests/
+memory/problem-reviews/
 memory/profiles/
 memory/index.yaml
 memory/resume-brief.md

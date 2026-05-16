@@ -21,7 +21,7 @@ test("isKnownVerb identifies all 11 verbs", async () => {
 test("dispatchVerb rejects unknown verbs with ASCII error and artifact", async () => {
   const { dispatchVerb } = await loadModule();
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-dispatch-unknown-"));
-  await mkdir(join(tempDir, "artifacts/backlog"), { recursive: true });
+  await mkdir(join(tempDir, "memory/problem-reviews"), { recursive: true });
 
   const result = await dispatchVerb({ verb: "nonsense", args: [], rootDir: tempDir });
 
@@ -47,7 +47,7 @@ test("dispatchVerb catches subprocess failure and renders ASCII with mapping", a
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-dispatch-fail-"));
   await mkdir(join(tempDir, "scripts/cli"), { recursive: true });
   await mkdir(join(tempDir, "scripts/internal"), { recursive: true });
-  await mkdir(join(tempDir, "artifacts/backlog"), { recursive: true });
+  await mkdir(join(tempDir, "memory/problem-reviews"), { recursive: true });
 
   await writeFile(
     join(tempDir, "scripts/cli/session-start.ts"),
@@ -71,7 +71,7 @@ test("dispatchVerb falls back when no specific mapping matches", async () => {
   const { dispatchVerb } = await loadModule();
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-dispatch-fallback-"));
   await mkdir(join(tempDir, "scripts/cli"), { recursive: true });
-  await mkdir(join(tempDir, "artifacts/backlog"), { recursive: true });
+  await mkdir(join(tempDir, "memory/problem-reviews"), { recursive: true });
 
   await writeFile(
     join(tempDir, "scripts/cli/cycle-close.ts"),

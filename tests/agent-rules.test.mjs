@@ -109,10 +109,10 @@ test("confirmed errors require local Problem/Error Review backlog memos", async 
   const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
 
   assert.match(approvalFlow, /When a confirmed error\/blocker occurs/);
-  assert.match(approvalFlow, /write a Korean Problem\/Error Review memo under `artifacts\/backlog\/`/);
+  assert.match(approvalFlow, /write a Korean Problem\/Error Review memo under `memory\/problem-reviews\/`/);
   assert.match(approvalFlow, /docs\/OPERATING_MODEL\.md#problemerror-review-memo-contract/);
   assert.match(operatingModel, /Problem\/Error Review Memo Contract/);
-  assert.match(operatingModel, /artifacts\/backlog\/\[short-kebab-problem\]-problem-review\.md/);
+  assert.match(operatingModel, /memory\/problem-reviews\/\[short-kebab-problem\]-problem-review\.md/);
   assert.match(operatingModel, /무엇이 문제인가\?/);
   assert.match(operatingModel, /언제 \/ 누구로 인하여 \/ 왜 발생했나\?/);
   assert.match(operatingModel, /근본 해결 방법 제안/);
