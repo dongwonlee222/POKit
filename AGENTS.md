@@ -18,9 +18,9 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 
 ## Verbs
 
-`pokit help` for the full list. Primary verbs: `start`, `brief`, `run`, `close`, `retro`, `hotfix`, `audit`, `guard`, `progress`, `end`, `safety`.
+`pokit help` for the full list. Primary verbs: `start`, `brief`, `run`, `close`, `retro`, `hotfix`, `audit`, `guard`, `progress`, `end`, `safety`. 모든 verb는 `scripts/internal/verb-dispatch.ts`를 경유해 on_error 자동 처리.
 
-작업 분류(Inline Fix vs hotfix vs 백로그) 기준: [docs/_details/release-flow.md](docs/_details/release-flow.md)
+작업 분류(Inline Fix vs hotfix vs 백로그) 기준: [docs/_details/release-flow.md](docs/_details/release-flow.md). 일회성 ad-hoc 스크립트는 dispatcher 미경유 — 직접 try/catch + console.error로 종료, 재사용 흐름이면 `cli/`로 승격.
 
 ## Detailed Policies
 

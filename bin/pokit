@@ -8,67 +8,34 @@ VERB="${1:-}"
 
 usage() {
   cat <<EOF
-pokit — POKit CLI Wrapper (v0.8.0)
+pokit — POKit CLI Wrapper (v0.9.0)
 
 Usage: pokit <verb> [args...]
 
 Available verbs:
-  start     Start a POKit session (runs scripts/cli/session-start.ts)
-  brief     Show session brief / detail view (runs scripts/internal/session-brief.ts)
-  run       Run sprint cycle — generate PRD/criteria artifacts (runs scripts/cli/sprint-runner.ts)
-  close     Close a cycle — finalize run summary and retro (runs scripts/cli/cycle-close.ts)
-  retro     Generate retrospective summary (runs scripts/cli/retro-summary.ts)
-  hotfix    Plan a hotfix cycle (runs scripts/cli/hotfix-cycle-plan.ts)
-  audit     Run release MD audit (runs scripts/ci/release-md-audit.ts)
-  guard     Run cycle guard checks (runs scripts/ci/cycle-guard.ts)
-  progress  Show cycle progress visualization (runs scripts/cli/cycle-progress.ts)
-  end       Close a session — write resume brief (runs scripts/cli/session-close.ts)
-  safety    Run public safety scan before GitHub push/tag (runs scripts/ci/public-safety-scan.ts)
+  start     Start a POKit session
+  brief     Show session brief / detail view
+  run       Run sprint cycle — generate PRD/criteria artifacts
+  close     Close a cycle — finalize run summary and retro
+  retro     Generate retrospective summary
+  hotfix    Plan a hotfix cycle
+  audit     Run release MD audit
+  guard     Run cycle guard checks
+  progress  Show cycle progress visualization
+  end       Close a session — write resume brief
+  safety    Run public safety scan before GitHub push/tag
   help      Show this help message
 
+All verbs go through scripts/internal/verb-dispatch.ts.
+Errors produce ASCII Problem/Error Review + artifacts/backlog/*-problem-review.md.
 EOF
 }
 
 case "$VERB" in
-  start)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/session-start.ts" "${@:2}"
-    ;;
-  brief)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/internal/session-brief.ts" "${@:2}"
-    ;;
-  run)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/sprint-runner.ts" "${@:2}"
-    ;;
-  close)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/cycle-close.ts" "${@:2}"
-    ;;
-  retro)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/retro-summary.ts" "${@:2}"
-    ;;
-  hotfix)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/hotfix-cycle-plan.ts" "${@:2}"
-    ;;
-  audit)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/ci/release-md-audit.ts" "${@:2}"
-    ;;
-  guard)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/ci/cycle-guard.ts" "${@:2}"
-    ;;
-  progress)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/cycle-progress.ts" "${@:2}"
-    ;;
-  end)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/cli/session-close.ts" "${@:2}"
-    ;;
-  safety)
-    exec node --experimental-strip-types "$PROJECT_ROOT/scripts/ci/public-safety-scan.ts" "${@:2}"
-    ;;
   help|-h|--help|"")
     usage
     exit 0
     ;;
-  *)
-    echo "Unknown verb: $VERB. Run 'pokit help' for available verbs." >&2
-    exit 1
-    ;;
 esac
+
+exec node --experimental-strip-types "$PROJECT_ROOT/scripts/internal/verb-dispatch.ts" "$@"
