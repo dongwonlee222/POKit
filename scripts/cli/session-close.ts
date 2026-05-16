@@ -164,6 +164,7 @@ async function main(): Promise<void> {
   const context = await getWorkingContext();
   const report = buildSessionCloseReport({ context });
   console.log(report);
+  console.log("\n<!-- AGENT: output above verbatim, no summary, no interpretation -->");
   if (args.includes("--write-resume-brief")) {
     const path = join(process.cwd(), profileMemoryPath("resume-brief.md"));
     const expectedHash = readExpectedHash(args) ?? (existsSync(path) ? hashContent(readFileSync(path, "utf8")) : undefined);

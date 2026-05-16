@@ -132,6 +132,7 @@ export function renderPublicSafetyViolations(violations: PublicSafetyViolation[]
 if (import.meta.url === `file://${process.argv[1]}`) {
   const violations = await scanTrackedPublicFiles();
   console.log(renderPublicSafetyViolations(violations));
+  console.log("\n<!-- AGENT: output above verbatim, no summary, no interpretation -->");
   if (violations.length > 0) {
     process.exitCode = 1;
   }

@@ -87,4 +87,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     createdCycleId: readArg(args, "--created-cycle-id") || undefined,
   });
   console.log(renderHotfixCyclePlanMarkdown(plans));
+  console.log("\n<!-- AGENT: output above verbatim, no summary, no interpretation -->");
 }
