@@ -132,7 +132,7 @@ POKit 진행도
 
 When the current step is an approval boundary, the current marker is `▶ 승인 필요`. Release flows should render a release 전용 progress bar so release gate work is not confused with local implementation.
 
-Step 4 작업 Gate에서 메인 에이전트는 **Operator Pre-task Judgment**를 사용자에게 공개한다 (모델 선택 · 병렬화 · 외부 write 예상). 자세한 절차와 판단 기준은 [`docs/_details/subagent-contract.md`](./subagent-contract.md#operator-pre-task-judgment) 참조. 이 게이트를 건너뛰면 Step 5(구현)로 진입할 수 없다.
+Step 4 작업 Gate에서 메인 에이전트는 **Operator Pre-task Judgment**를 사용자에게 공개한다 (모델 선택 · 병렬화 · 외부 write 예상 · **정책 전제**). 정책 전제가 미충족이면 본 작업은 시작하지 않고 선행 정책 정의 작업으로 전환한다. 자세한 절차와 판단 기준은 [`docs/_details/subagent-contract.md`](./subagent-contract.md#operator-pre-task-judgment) 및 [`Policy Precondition Gate`](./subagent-contract.md#policy-precondition-gate) 참조. 이 게이트를 건너뛰면 Step 5(구현)로 진입할 수 없다.
 
 ## One-Time Cycle Celebration Contract
 
