@@ -4,6 +4,23 @@
 
 No pending public release notes.
 
+## v0.11.0 - 2026-05-16
+
+### Added
+
+- Linear 이슈 `priority` 필드 GraphQL 연동 (POKIT-152). 후보 이슈 정렬에 실제 Linear priority(1=Urgent ~ 4=Low) 반영.
+- `scripts/cli/session-close.ts`에 `--next-action` 플래그 추가 — 대화 컨텍스트 기반 다음 행동을 명시적으로 전달 가능.
+- `scripts/cli/session-start.ts` boot 시그니처에 `linear=api-key` 추가 — Linear 연결 방식(.env API key)을 매 세션 명시.
+
+### Changed
+
+- `selectNextCandidates()` 정렬 기준을 identifier 번호 → Linear priority로 변경 (POKIT-152). priority 없는 이슈(`0` 또는 미설정)는 후순위로.
+- session-brief 후보 섹션 레이블 "🧺 다음 후보" → "Linear 우선순위 Top 3" 통일 (POKIT-153). `workflows/messages.yaml` 동기화.
+
+### Fixed
+
+- 없음.
+
 ## v0.10.0 - 2026-05-16
 
 ### Added
