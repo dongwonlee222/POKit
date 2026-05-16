@@ -15,10 +15,10 @@ async function loadDispatchModule() {
 // loadSkillManifests
 // ──────────────────────────────────────────────
 
-test("loadSkillManifests loads all 11 SKILL manifests", async () => {
+test("loadSkillManifests loads all 12 SKILL manifests", async () => {
   const { loadSkillManifests } = await loadDispatchModule();
   const manifests = loadSkillManifests(SKILLS_DIR);
-  assert.equal(manifests.length, 11, `Expected 11 manifests, got ${manifests.length}`);
+  assert.equal(manifests.length, 12, `Expected 12 manifests, got ${manifests.length}`);
 });
 
 test("loadSkillManifests: each manifest has required fields", async () => {
@@ -39,13 +39,14 @@ test("loadSkillManifests: each manifest has required fields", async () => {
   }
 });
 
-test("loadSkillManifests: all 10 expected skill names are present", async () => {
+test("loadSkillManifests: all 11 expected skill names are present", async () => {
   const { loadSkillManifests } = await loadDispatchModule();
   const manifests = loadSkillManifests(SKILLS_DIR);
   const names = manifests.map((m) => m.name);
   const EXPECTED = [
     "acceptance-criteria-author",
-    "backlog-manager",
+    "backlog-memo",
+    "linear-backlog-manager",
     "backlog-router",
     "history-maintainer",
     "pokit-end",

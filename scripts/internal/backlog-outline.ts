@@ -15,6 +15,13 @@ export type BacklogTitleInput = {
   targetVersion?: string;
 };
 
+export type ResponsibleAgents = {
+  design?: string;
+  build?: string;
+  review?: string;
+  timeline?: string;
+};
+
 export type LinearBacklogDescriptionInput = {
   purpose: string;
   userVisibleChange: string;
@@ -33,6 +40,10 @@ export type LinearBacklogDescriptionInput = {
     source: "chat" | "problem_review" | "retro" | "signal" | "linear" | string;
     idempotencyKey: string;
   };
+  asIs?: string;
+  toBe?: string;
+  successVerification?: string;
+  responsibleAgents?: ResponsibleAgents;
 };
 
 export type LocalBacklogMemoInput = {
@@ -95,6 +106,18 @@ export function renderLinearBacklogDescription(input: LinearBacklogDescriptionIn
     "## idempotency key",
     input.linearVariables.idempotencyKey,
     "",
+    "## AS-IS (문제 정의)",
+    fallback(input.asIs ?? ""),
+    "",
+    "## TO-BE (해결)",
+    fallback(input.toBe ?? ""),
+    "",
+    "## 성공 검증",
+    fallback(input.successVerification ?? ""),
+    "",
+    "## 담당 에이전트",
+    renderResponsibleAgents(input.responsibleAgents),
+    "",
   ].join("\n");
 }
 
@@ -131,6 +154,18 @@ export function renderSubIssueTaskChecklist(input: SubIssueTaskChecklistInput): 
     ...renderTaskLines(input.tasks),
     "",
   ].join("\n");
+}
+
+function renderResponsibleAgents(agents?: ResponsibleAgents): string {
+  if (!agents || Object.keys(agents).length === 0) {
+    return "_미정_";
+  }
+  const lines: string[] = [];
+  if (agents.design) lines.push(`design: ${agents.design}`);
+  if (agents.build) lines.push(`build: ${agents.build}`);
+  if (agents.review) lines.push(`review: ${agents.review}`);
+  if (agents.timeline) lines.push(`timeline: ${agents.timeline}`);
+  return lines.length > 0 ? lines.join("\n") : "_미정_";
 }
 
 function titleStatusLabel(status: BacklogTitleStatus, targetVersion?: string): string {

@@ -145,7 +145,7 @@ POKit은 A/B test 설계, before/after 비교표, 페르소나 기반 사용자 
 
 사용자가 AI에 "백로그에 X 추가"라고 말한다.
 
-backlog-manager skill이 트리거되고, AI는 필요한 최소 정보만 확인한 뒤 Linear issue 생성 계획을 만든다. 먼저 dry-run으로 제목, 설명, 라벨, cycle, idempotency key를 보여준다. 사용자가 승인하면 scripts/linear.ts가 Linear에 issue를 생성한다.
+linear-backlog-manager skill이 트리거되고, AI는 필요한 최소 정보만 확인한 뒤 Linear issue 생성 계획을 만든다. 먼저 dry-run으로 제목, 설명, 라벨, cycle, idempotency key를 보여준다. 사용자가 승인하면 scripts/linear.ts가 Linear에 issue를 생성한다.
 
 ### 시나리오 B - Cycle 일괄 실행
 
@@ -279,7 +279,7 @@ flowchart TD
     ZC --> A
     ZD --> A
     ZE --> A
-    B -->|"백로그 추가"| C["backlog-manager"]
+    B -->|"백로그 추가"| C["linear-backlog-manager"]
     B -->|"이번 cycle 실행"| D["sprint-runner"]
     B -->|"우선순위 정리"| V["prioritizer"]
     B -->|"A/B test 설계 (Day 3+)"| X["abtest-planner"]

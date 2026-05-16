@@ -65,6 +65,70 @@ test("renderLinearBacklogDescription uses fixed Korean headings and explicit var
   assert.match(description, /labels: pokit:criteria, type:standardization/);
   assert.match(description, /## idempotency key/);
   assert.match(description, /linear:create_issue:backlog-title-standard/);
+  // 4섹션은 optional이므로 fallback 값(-) 이 나와야 한다
+  assert.match(description, /## AS-IS \(문제 정의\)/);
+  assert.match(description, /## TO-BE \(해결\)/);
+  assert.match(description, /## 성공 검증/);
+  assert.match(description, /## 담당 에이전트/);
+});
+
+test("renderLinearBacklogDescription includes 4-section content when provided", async () => {
+  const { renderLinearBacklogDescription } = await loadOutlineModule();
+
+  const description = renderLinearBacklogDescription({
+    purpose: "테스트 목적",
+    userVisibleChange: "테스트 변화",
+    doneCondition: "테스트 완료 조건",
+    scope: "테스트 범위",
+    outOfScope: "테스트 제외",
+    evidence: [],
+    release: { kind: "none" },
+    linearVariables: {
+      state: "Backlog",
+      labels: [],
+      source: "chat",
+      idempotencyKey: "test-key",
+    },
+    asIs: "현재 4섹션이 없어서 맥락 파악이 어렵다.",
+    toBe: "4섹션 추가로 AS-IS/TO-BE/성공 검증/담당 에이전트를 명시한다.",
+    successVerification: "npx tsc --noEmit PASS + node --test PASS",
+    responsibleAgents: {
+      design: "claude-sonnet-4-6",
+      build: "codex",
+    },
+  });
+
+  assert.match(description, /현재 4섹션이 없어서 맥락 파악이 어렵다\./);
+  assert.match(description, /4섹션 추가로 AS-IS\/TO-BE\/성공 검증\/담당 에이전트를 명시한다\./);
+  assert.match(description, /npx tsc --noEmit PASS/);
+  assert.match(description, /design: claude-sonnet-4-6/);
+  assert.match(description, /build: codex/);
+});
+
+test("renderLinearBacklogDescription shows placeholder when 4-section fields are empty", async () => {
+  const { renderLinearBacklogDescription } = await loadOutlineModule();
+
+  const description = renderLinearBacklogDescription({
+    purpose: "테스트",
+    userVisibleChange: "",
+    doneCondition: "",
+    scope: "",
+    outOfScope: "",
+    evidence: [],
+    release: { kind: "none" },
+    linearVariables: {
+      state: "Backlog",
+      labels: [],
+      source: "chat",
+      idempotencyKey: "test-key-2",
+    },
+    // asIs, toBe, successVerification, responsibleAgents 모두 생략
+  });
+
+  assert.match(description, /## AS-IS \(문제 정의\)\n-/);
+  assert.match(description, /## TO-BE \(해결\)\n-/);
+  assert.match(description, /## 성공 검증\n-/);
+  assert.match(description, /## 담당 에이전트\n_미정_/);
 });
 
 test("renderLocalBacklogMemo keeps dry-run memo outline distinct from Linear description", async () => {
