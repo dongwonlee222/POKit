@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { buildSessionBrief, type SessionBriefInput } from "./session-brief.ts";
 import { loadHookMap } from "../internal/hook-map.ts";
 import { getWorkingContext, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
+import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 
 export type SessionStartInput = SessionBriefInput & {
   rootDir?: string;
@@ -25,8 +26,13 @@ export function buildSessionStart(input: SessionStartInput): string {
   const hooks = loadHookMap(join(rootDir, "workflows/hooks.yaml"));
   const brief = buildSessionBrief({ ...input, variant: "start" });
   const cycle = resolveCycle(input.context);
+  const openCycle = findOpenCycleManifest(rootDir);
+  const manifestLine = openCycle
+    ? `- Cycle manifest: ${openCycle.cycle_name}${openCycle.release_version ? ` · ${openCycle.release_version}` : ""} · ${openCycle.included_issue_ids.length}개 이슈`
+    : null;
   return [
     brief.trimEnd(),
+    ...(manifestLine ? [manifestLine] : []),
     "",
     `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length} linear=api-key`,
     "",

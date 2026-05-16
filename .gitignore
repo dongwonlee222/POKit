@@ -21,6 +21,16 @@ artifacts/criteria/*
 !artifacts/sprints/
 artifacts/sprints/**
 !artifacts/sprints/README.md
+!artifacts/profiles/
+artifacts/profiles/*
+!artifacts/profiles/_template/
+artifacts/profiles/_template/*
+!artifacts/profiles/_template/cycles/
+!artifacts/profiles/_template/cycles/.gitkeep
+!artifacts/profiles/_template/cycles/example-cycle.yaml
+!artifacts/profiles/_template/releases/
+!artifacts/profiles/_template/releases/.gitkeep
+!artifacts/profiles/_template/releases/example-v0.13.0.yaml
 
 # Private/runtime memory MVP state. Publish sanitized examples elsewhere.
 memory/notes/
