@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.13.0 - 2026-05-17
+
+### Fixed
+
+- Top 3 정렬 결함 수정 (`session-brief.ts`):
+  - `[배포대상]`·`[정의필요]` prefix 이슈가 일반 priority=3 이슈보다 앞에 정렬되도록 `issueTier()` 도입.
+  - 동일 parent를 가진 sub-issue는 Top 3 안에서 1건만 노출되도록 `selectNextCandidates()` dedup 로직 추가.
+  - `buildRecommendation`의 `candidateNumbers` / Top 3 list는 이미 `selectNextCandidates` 단일 소스 사용 중 (분기 없음 확인).
+
+### Added
+
+- `tests/select-next-candidates.test.mjs` 신규 — 3룰 unit test 6개:
+  - 룰1: `[배포대상]`·`[정의필요]` prefix가 priority=3보다 앞에 정렬됨.
+  - 룰2: 동일 parent sub-issue는 Top 3 안에서 1건만 포함됨.
+  - 룰3: buildSessionBrief Top 3 첫 ID == 최우선 후보 ID.
+- `issueTier`, `selectNextCandidates`, `compareIssuePriority` 함수 export 추가.
+
 ## v0.12.2 - 2026-05-16
 
 ### Added
