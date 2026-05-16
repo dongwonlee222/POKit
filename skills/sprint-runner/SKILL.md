@@ -22,15 +22,16 @@ The user should not need to run Node commands directly. Treat natural-language r
 
 ## Flow
 
-1. Show or refresh the POKit Brief when useful.
-2. Confirm the selected Linear task bundle before implementation.
-3. Read `memory/context-map.yaml`.
-4. Run label preflight.
-5. Route `pokit:prd` and `pokit:criteria` issues.
-6. Mark missing labels as `Needs Label`.
-7. Mark missing required context as `Needs Clarification`.
-8. Write Run Summary with "AI가 하지 않은 것" first.
-9. Mark completed Linear tasks Done only after verification.
+1. plan-gate 호출 → 사용자 승인 받음 (task 분할·모델 매핑 표 출력 후 "승인하시면 즉시 N개 서브에이전트를 spawn합니다" 출력)
+2. Show or refresh the POKit Brief when useful.
+3. Confirm the selected Linear task bundle before implementation.
+4. Read `memory/context-map.yaml`.
+5. Run label preflight.
+6. Route `pokit:prd` and `pokit:criteria` issues.
+7. Mark missing labels as `Needs Label`.
+8. Mark missing required context as `Needs Clarification`.
+9. Write Run Summary with "AI가 하지 않은 것" first.
+10. Mark completed Linear tasks Done only after verification.
 
 ## Decision Log Rule
 

@@ -5,9 +5,10 @@ import test from "node:test";
 // POKIT-124: AGENTS.md size regression guard.
 // v0.8.0 slimmed AGENTS.md from 92 to ~35 lines by moving detail to docs/_details/.
 // v0.10.0 added Core Principle (LLM 명확성 박제, ~4 lines). Ceiling raised to 45.
+// v0.13.0 POKIT-157: 단계 정의 규칙 섹션 추가 (~3 lines). Ceiling raised to 50.
 // This test prevents future regressions that re-bloat the main-agent context.
 
-const AGENTS_MD_MAX_LINES = 45;
+const AGENTS_MD_MAX_LINES = 50;
 
 test("AGENTS.md stays under main-agent context line budget", async () => {
   const content = await readFile("AGENTS.md", "utf8");

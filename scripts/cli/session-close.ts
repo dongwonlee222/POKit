@@ -226,8 +226,75 @@ export async function writeResumeBrief(input: {
   };
 }
 
+export type UncommittedFile = {
+  status: string;
+  path: string;
+};
+
+export function detectUncommittedChanges(rootDir?: string): UncommittedFile[] {
+  try {
+    const output = execSync("git status --porcelain", {
+      cwd: rootDir ?? process.cwd(),
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+    if (!output) return [];
+    return output.split("\n").map((line) => {
+      const match = line.match(/^([ MADRCU?!]{1,2})\s+(.*)/);
+      const status = (match?.[1] ?? line.slice(0, 2)).trim();
+      const path = (match?.[2] ?? line.slice(3)).trim();
+      return { status, path };
+    });
+  } catch {
+    return [];
+  }
+}
+
+function formatDirtyWarn(files: UncommittedFile[]): string {
+  const lines = [
+    "⚠️  Release Gate WARN: 미커밋 변경 감지됨",
+    "",
+    "미커밋 파일 목록:",
+    ...files.map((f) => `  ${f.status.padEnd(2)} ${f.path}`),
+    "",
+    "자동 커밋·푸시하지 않음 — 수동으로 커밋 후 재실행하거나 --force / --ignore-dirty 플래그로 우회하세요.",
+  ];
+  return lines.join("\n");
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+  const isDry = args.includes("--dry");
+  const force = args.includes("--force") || args.includes("--ignore-dirty");
+
+  const dirtyFiles = detectUncommittedChanges(process.cwd());
+
+  if (dirtyFiles.length > 0 && !force) {
+    console.error(formatDirtyWarn(dirtyFiles));
+    if (isDry) {
+      process.exitCode = 1;
+      return;
+    }
+    process.exitCode = 1;
+    return;
+  }
+
+  if (dirtyFiles.length === 0) {
+    if (isDry) {
+      console.log("✅ Release Gate: 미커밋 변경 없음 (clean)");
+      return;
+    }
+  } else {
+    // force flag active — show warn but continue
+    console.error(formatDirtyWarn(dirtyFiles));
+    console.error("⚠️  --force / --ignore-dirty 플래그로 우회합니다.");
+  }
+
+  if (isDry) {
+    return;
+  }
+
   const context = await getWorkingContext();
   const nextAction = readNextAction(args);
   const hypothesis = readHypothesis(args);

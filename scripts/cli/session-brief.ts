@@ -431,17 +431,31 @@ function countIssues(issues: Issue[]): IssueCounts {
   return counts;
 }
 
-function selectNextCandidates(issues: Issue[]): Issue[] {
-  return issues
-    .filter((issue) => {
-      const state = classifyIssueState(issue.state);
-      return state === "todo";
-    })
-    .sort(compareIssuePriority)
-    .slice(0, 3);
+export function issueTier(issue: Issue): 0 | 1 {
+  if (/^\[(배포대상|정의필요)/.test(issue.title)) return 0;
+  return 1;
 }
 
-function compareIssuePriority(left: Issue, right: Issue): number {
+export function selectNextCandidates(issues: Issue[]): Issue[] {
+  const sorted = issues
+    .filter((issue) => classifyIssueState(issue.state) === "todo")
+    .sort(compareIssuePriority);
+  const selected: Issue[] = [];
+  const seenParentIds = new Set<string>();
+  for (const issue of sorted) {
+    if (selected.length >= 3) break;
+    const parentId = issue.parent?.id;
+    if (parentId && seenParentIds.has(parentId)) continue;
+    if (parentId) seenParentIds.add(parentId);
+    selected.push(issue);
+  }
+  return selected;
+}
+
+export function compareIssuePriority(left: Issue, right: Issue): number {
+  const leftTier = issueTier(left);
+  const rightTier = issueTier(right);
+  if (leftTier !== rightTier) return leftTier - rightTier;
   // Linear priority: 1=Urgent, 2=High, 3=Medium, 4=Low, 0=None
   // 0 (No priority) goes last
   const leftP = left.priority === 0 || left.priority === undefined ? Number.MAX_SAFE_INTEGER : left.priority;

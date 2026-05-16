@@ -11,6 +11,11 @@ trigger_phrases:
 
 # prd-author
 
+## Flow
+
+1. plan-gate 호출 → 사용자 승인 받음 (task 분할·모델 매핑 표 출력 후 "승인하시면 즉시 N개 서브에이전트를 spawn합니다" 출력)
+2. 승인 수신 후 PRD 초안 생성 진행
+
 ## Trigger
 
 Use for issues labeled `pokit:prd`.

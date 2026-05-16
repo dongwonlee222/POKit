@@ -1,0 +1,75 @@
+{
+  "title": "POKit 진행도",
+  "steps": [
+    {
+      "order": 1,
+      "label": "시작",
+      "title": "시작 브리프",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 2,
+      "label": "기준확인",
+      "title": "Cycle 기준 확인",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 3,
+      "label": "Issue묶음",
+      "title": "Issue 묶음/우선순위 확인",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 4,
+      "label": "Gate",
+      "title": "작업 Gate 확인",
+      "description": "Operator Pre-task Judgment 공개 단계. 정책 전제 미충족 시 본 작업 진입 불가.",
+      "approvalBoundary": false
+    },
+    {
+      "order": 5,
+      "label": "구현",
+      "title": "로컬 구현/문서/산출물 작성",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 6,
+      "label": "검증",
+      "title": "테스트/검증",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 7,
+      "label": "증거",
+      "title": "완료 증거 정리",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 8,
+      "label": "dry-run",
+      "title": "외부 write dry-run",
+      "description": "",
+      "approvalBoundary": false
+    },
+    {
+      "order": 9,
+      "label": "승인",
+      "title": "사용자 승인",
+      "description": "",
+      "approvalBoundary": true
+    },
+    {
+      "order": 10,
+      "label": "반영",
+      "title": "외부 반영/close",
+      "description": "",
+      "approvalBoundary": false
+    }
+  ]
+}

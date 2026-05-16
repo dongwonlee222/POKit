@@ -1,0 +1,202 @@
+# Role Map — POKit 단일 출처 (POKIT-147)
+# Phase 1 생성. Phase 2에서 분산 정의에 이 파일 참조 안내 추가 예정.
+#
+# 출처 구분:
+#   [doc-roles] — docs/architecture/01-document-roles.md Role Map 테이블에서 추출
+#   [added]     — 파일시스템 인벤토리 기반 추가 (01-document-roles.md 미포함 경로)
+#
+# source_of_truth: true  — 해당 경로의 정의가 최종본. 다른 곳에 복사 금지.
+# source_of_truth: false — 색인/안내/렌더링 전용. 정의는 다른 곳에 있음.
+# max_lines: N           — 파일이 지정 줄 수를 초과하면 role-check WARN 발생.
+
+paths:
+  # ── 에이전트 계약 ────────────────────────────────────────────────
+  - path: "AGENTS.md"
+    role: "메인 에이전트 오케스트레이션 계약 진입점·링크맵"
+    source_of_truth: true
+    max_lines: 40
+    notes: "[doc-roles] 세션 부트스트랩 명령, 승인 경계, 고신호 런타임 힌트, 세부 위임 위치"
+
+  # ── 운영 정책 ────────────────────────────────────────────────────
+  - path: "docs/OPERATING_MODEL.md"
+    role: "정책 색인 — 운영 규칙 앵커 스텁"
+    source_of_truth: false
+    notes: "[doc-roles] 내구성 있는 규칙·승인 모델·외부 쓰기 정책. 역사적 근거·일회성 예시는 architecture docs로"
+
+  - path: "docs/VERSIONING.md"
+    role: "버전 정책 단일 출처 — SemVer 규칙, 릴리스 상태, hotfix/pre-release"
+    source_of_truth: true
+    notes: "[doc-roles] 백로그 상세·오케스트레이션 흐름 제외"
+
+  # ── 세부 정책 ────────────────────────────────────────────────────
+  - path: "docs/_details/"
+    role: "주제별 상세 정책 최종본"
+    source_of_truth: true
+    notes: "[added] approval-flow, cycle-flow, release-flow, subagent-contract, memory-contract, completion-report 등"
+
+  - path: "docs/_details/approval-flow.md"
+    role: "쓰기 안전성·외부 쓰기 규칙·에러/블로커 처리"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/cycle-flow.md"
+    role: "Cycle Steward·진행 계약·완료 기념·잔여/다음"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/release-flow.md"
+    role: "버전 스프린트·위클리 서클·hotfix 흐름"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/subagent-contract.md"
+    role: "메인/서브에이전트 분리, 모델 티어, definition pipeline"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/memory-contract.md"
+    role: "resume brief·메모리 MVP·frontmatter 스키마"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/completion-report.md"
+    role: "흐름 준수·완료 구조·dry-run 규칙"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/visualization.md"
+    role: "ASCII/Mermaid 사용 기준"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/cli-internals.md"
+    role: "verb → node 매핑 (디버깅 탈출구)"
+    source_of_truth: false
+    notes: "[added]"
+
+  - path: "docs/_details/source-registry.md"
+    role: "외부 데이터 소스 레지스트리"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/signal-watch.md"
+    role: "시그널 감시 정책"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/cross-runtime-diff.md"
+    role: "크로스 런타임 차이 계약"
+    source_of_truth: true
+    notes: "[added]"
+
+  - path: "docs/_details/session-output-contract.md"
+    role: "세션 시작/종료 출력 계약"
+    source_of_truth: true
+    notes: "[added]"
+
+  # ── 아키텍처 설명 ────────────────────────────────────────────────
+  - path: "docs/architecture/"
+    role: "아키텍처 설명·흐름 다이어그램·예시"
+    source_of_truth: false
+    notes: "[doc-roles] 용어집, 파일 역할, 컨텍스트 흐름, 백로그/릴리스 다이어그램. 스크립트가 직접 집행할 실행 정책은 제외"
+
+  # ── 워크플로우 ───────────────────────────────────────────────────
+  - path: "workflows/hooks.yaml"
+    role: "라이프사이클 게이트 레지스트리"
+    source_of_truth: true
+    notes: "[doc-roles] hook 이름·러너·집행 메타데이터·게이트. 산문 정책·사용자 리포트 텍스트 제외"
+
+  - path: "workflows/agent-roles.yaml"
+    role: "서브에이전트 역할 계약"
+    source_of_truth: true
+    notes: "[doc-roles] 제한된 역할 정의·소유 아티팩트·프롬프트 템플릿·출력 스키마. 최종 판단·외부 쓰기 권한 제외"
+
+  - path: "workflows/definition-pipeline.yaml"
+    role: "머신 가독 정의 워크플로우"
+    source_of_truth: true
+    notes: "[doc-roles] 스테이지 ID·필수 아티팩트·크기 게이트·역할 매핑. 긴 서술적 근거 제외"
+
+  - path: "workflows/messages.yaml"
+    role: "재사용 사용자-facing 고정 문구"
+    source_of_truth: true
+    notes: "[doc-roles] 섹션 레이블·반복 확인 텍스트·이모지 마커. 일회성 대화 산문 제외"
+
+  # ── 템플릿 ───────────────────────────────────────────────────────
+  - path: "templates/"
+    role: "아티팩트 형태 정의"
+    source_of_truth: true
+    notes: "[doc-roles] 헤딩·필수 섹션·표준 필드. docs/tests로 뒷받침 안 된 정책 결정 제외"
+
+  - path: "templates/definition-pipeline/"
+    role: "definition pipeline 아티팩트 템플릿"
+    source_of_truth: true
+    notes: "[doc-roles]"
+
+  # ── 스크립트 ─────────────────────────────────────────────────────
+  - path: "scripts/"
+    role: "결정론적 실행 전용 — 렌더링·검증·dry-run·게이트·apply 헬퍼"
+    source_of_truth: false
+    notes: "[doc-roles] LLM 판단·숨겨진 외부 쓰기 제외"
+
+  - path: "scripts/cli/"
+    role: "정책 렌더링 전용 (정의 박지 말 것)"
+    source_of_truth: false
+    notes: "[added]"
+
+  - path: "scripts/internal/"
+    role: "내부 유틸리티·verb-dispatch·에러 매핑"
+    source_of_truth: false
+    notes: "[added]"
+
+  - path: "scripts/ci/"
+    role: "CI 검증 스크립트 — release audit·cycle guard·preflight"
+    source_of_truth: false
+    notes: "[added]"
+
+  # ── 테스트 ───────────────────────────────────────────────────────
+  - path: "tests/"
+    role: "회귀 가드 — 정책 계약·렌더링 기대값·안전 경계"
+    source_of_truth: false
+    notes: "[doc-roles] 구현 근거 제외"
+
+  # ── 스킬 ─────────────────────────────────────────────────────────
+  - path: "skills/"
+    role: "스킬 매니페스트·실행 규칙"
+    source_of_truth: true
+    notes: "[added]"
+
+  # ── 메모리 ───────────────────────────────────────────────────────
+  - path: "memory/"
+    role: "장기·위치·작업 기억 저장소 — 로컬 런타임 상태"
+    source_of_truth: false
+    notes: "[doc-roles] 공개 제품 정책·비공개 원시 데이터 제외"
+
+  # ── 아티팩트 ─────────────────────────────────────────────────────
+  - path: "artifacts/"
+    role: "로컬 드래프트·증거 산출물"
+    source_of_truth: false
+    notes: "[doc-roles] 생성 드래프트·실행 요약·회고·문제 리뷰 메모. 정제 후 examples/ 이동 전까지 공개 정식 문서 금지"
+
+  # ── 예시 ─────────────────────────────────────────────────────────
+  - path: "examples/"
+    role: "공개 안전 샘플·편집된 예시·픽스처"
+    source_of_truth: false
+    notes: "[doc-roles] 라이브 사용자 메모리·비공개 워크스페이스 ID·인증정보 제외"
+
+  # ── CLI 진입점 ───────────────────────────────────────────────────
+  - path: "bin/"
+    role: "CLI 진입점 — pokit 래퍼 스크립트"
+    source_of_truth: false
+    notes: "[added] verb-dispatch.ts를 통해 실행"
+
+  # ── 설정 ─────────────────────────────────────────────────────────
+  - path: "pokit.config.yaml"
+    role: "프로젝트 설정 — 환경·팀·통합 설정"
+    source_of_truth: true
+    notes: "[added]"
+
+  # ── 독푸드 ───────────────────────────────────────────────────────
+  - path: "dogfood/"
+    role: "POKit 자체 사용 기록·독푸드 스프린트·히스토리"
+    source_of_truth: false
+    notes: "[added]"

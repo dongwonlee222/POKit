@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { execSync } from "node:child_process";
 import test from "node:test";
 
 async function loadSessionCloseModule() {
@@ -301,4 +303,59 @@ test("writeResumeBrief refuses stale overwrite when expected hash changed", asyn
   assert.equal(result.status, "needs_approval");
   assert.match(result.reason, /content hash changed/);
   assert.equal(await readFile(path, "utf8"), "# Resume Brief\n\nchanged elsewhere\n");
+});
+
+// ---------------------------------------------------------------------------
+// detectUncommittedChanges — Release Gate dirty check
+// ---------------------------------------------------------------------------
+
+test("detectUncommittedChanges returns empty array in a clean git repo", async () => {
+  const { detectUncommittedChanges } = await loadSessionCloseModule();
+
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-clean-repo-"));
+  execSync("git init", { cwd: tempDir, stdio: "ignore" });
+  execSync("git config user.email test@example.com", { cwd: tempDir, stdio: "ignore" });
+  execSync("git config user.name Test", { cwd: tempDir, stdio: "ignore" });
+  // Create an initial commit so HEAD exists
+  execSync("git commit --allow-empty -m init", { cwd: tempDir, stdio: "ignore" });
+
+  const result = detectUncommittedChanges(tempDir);
+
+  assert.deepEqual(result, []);
+});
+
+test("detectUncommittedChanges detects modified and untracked files", async () => {
+  const { detectUncommittedChanges } = await loadSessionCloseModule();
+
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-dirty-repo-"));
+  execSync("git init", { cwd: tempDir, stdio: "ignore" });
+  execSync("git config user.email test@example.com", { cwd: tempDir, stdio: "ignore" });
+  execSync("git config user.name Test", { cwd: tempDir, stdio: "ignore" });
+
+  // Commit a file so we can modify it
+  await writeFile(join(tempDir, "tracked.txt"), "original\n");
+  execSync("git add tracked.txt", { cwd: tempDir, stdio: "ignore" });
+  execSync("git commit -m init", { cwd: tempDir, stdio: "ignore" });
+
+  // Modify the tracked file (M)
+  await writeFile(join(tempDir, "tracked.txt"), "modified\n");
+
+  // Add an untracked file (??)
+  await writeFile(join(tempDir, "untracked.txt"), "new file\n");
+
+  const result = detectUncommittedChanges(tempDir);
+
+  assert.ok(result.length >= 2, `expected at least 2 dirty entries, got ${result.length}`);
+
+  const paths = result.map((f) => f.path);
+  assert.ok(paths.includes("tracked.txt"), "modified tracked file should be listed");
+  assert.ok(paths.includes("untracked.txt"), "untracked file should be listed");
+
+  const modifiedEntry = result.find((f) => f.path === "tracked.txt");
+  assert.ok(modifiedEntry, "tracked.txt entry must exist");
+  assert.match(modifiedEntry.status, /M/, "status should contain M for modified file");
+
+  const untrackedEntry = result.find((f) => f.path === "untracked.txt");
+  assert.ok(untrackedEntry, "untracked.txt entry must exist");
+  assert.match(untrackedEntry.status, /\?/, "status should contain ? for untracked file");
 });

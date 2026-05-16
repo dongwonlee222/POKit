@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.13.0 - 2026-05-17
+
+### Fixed
+
+- Top 3 정렬 결함 수정 (`session-brief.ts`) [POKIT-156]:
+  - `[배포대상]`·`[정의필요]` prefix 이슈가 일반 priority=3 이슈보다 앞에 정렬되도록 `issueTier()` 도입.
+  - 동일 parent를 가진 sub-issue는 Top 3 안에서 1건만 노출되도록 `selectNextCandidates()` dedup 로직 추가.
+  - `buildRecommendation`의 `candidateNumbers` / Top 3 list는 이미 `selectNextCandidates` 단일 소스 사용 중 (분기 없음 확인).
+
+### Added
+
+- `tests/select-next-candidates.test.mjs` 신규 — 3룰 unit test 6개 [POKIT-156]:
+  - 룰1: `[배포대상]`·`[정의필요]` prefix가 priority=3보다 앞에 정렬됨.
+  - 룰2: 동일 parent sub-issue는 Top 3 안에서 1건만 포함됨.
+  - 룰3: buildSessionBrief Top 3 첫 ID == 최우선 후보 ID.
+- `issueTier`, `selectNextCandidates`, `compareIssuePriority` 함수 export 추가.
+- 작업 플로우 단계 정의·렌더 분리 [POKIT-157]:
+  - `docs/_details/cycle-steps.json` 신규 — 단계 정의 단일 소스.
+  - `scripts/internal/cycle-steps.ts` 신규 — 정의 로드·접근 유틸리티.
+  - `scripts/cli/cycle-progress.ts` 리팩토링 — 하드코딩 제거, cycle-steps.ts 사용.
+- `session-close`에 git status 요약 출력 추가 [POKIT-154]: 커밋되지 않은 변경사항 경고.
+- `plan-gate` 스킬 신규 추가 [POKIT-158]: plan.md 존재·품질 게이트 체크.
+- `skills/acceptance-criteria-author`, `skills/prd-author`, `skills/sprint-runner` 업데이트 — plan-gate 연동 [POKIT-158].
+- Role Map 단일 출처 yaml + `role-check` verb [POKIT-147]:
+  - `docs/_details/role-map.yaml` 신규 — 역할 정의 단일 소스.
+  - `scripts/cli/role-map-check.ts` 신규 — `pokit role-check` verb 구현.
+  - `scripts/internal/verb-dispatch.ts` 업데이트 — role-check 등록.
+
 ## v0.12.2 - 2026-05-16
 
 ### Added

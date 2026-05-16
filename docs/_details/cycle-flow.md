@@ -112,22 +112,24 @@ Forbidden next-action patterns:
 
 ## Cycle Step Progress Contract
 
+단계 정의(단계명·설명·순서·라벨·approvalBoundary)의 단일 소스는 [`docs/_details/cycle-steps.json`](./cycle-steps.json)이다. 이 섹션의 예시는 참조용이며, 코드는 해당 JSON을 읽어 렌더한다.
+
 Default Cycle execution progress has 10 steps:
 
 ```text
 POKit 진행도
 [████░░░░░░] 4/10 · 현재: 작업 Gate 확인
 
-1. 시작 브리프        ✅
-2. Cycle 기준 확인    ✅
-3. Issue 묶음 확인    ✅
-4. 작업 Gate 확인     ▶ 진행 중
-5. 로컬 구현/문서     ⏳
-6. 테스트/검증        ⏳
-7. 완료 증거 정리     ⏳
-8. 외부 write dry-run ⏳
-9. 사용자 승인        ⏳
-10. 외부 반영/close   ⏳
+1. 시작 브리프               ✅
+2. Cycle 기준 확인           ✅
+3. Issue 묶음/우선순위 확인  ✅
+4. 작업 Gate 확인            ▶ 진행 중
+5. 로컬 구현/문서/산출물 작성 ⏳
+6. 테스트/검증               ⏳
+7. 완료 증거 정리            ⏳
+8. 외부 write dry-run        ⏳
+9. 사용자 승인               ⏳
+10. 외부 반영/close          ⏳
 ```
 
 When the current step is an approval boundary, the current marker is `▶ 승인 필요`. Release flows should render a release 전용 progress bar so release gate work is not confused with local implementation.
