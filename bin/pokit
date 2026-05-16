@@ -24,6 +24,7 @@ Available verbs:
   progress  Show cycle progress visualization
   end       Close a session — write resume brief
   safety    Run public safety scan before GitHub push/tag
+  role-check  Validate docs/_details/role-map.yaml — path existence + max_lines
   help      Show this help message
 
 All verbs go through scripts/internal/verb-dispatch.ts.
