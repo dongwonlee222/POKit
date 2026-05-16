@@ -21,6 +21,27 @@ artifacts/criteria/*
 !artifacts/sprints/
 artifacts/sprints/**
 !artifacts/sprints/README.md
+!artifacts/profiles/
+artifacts/profiles/**
+!artifacts/profiles/_template/
+artifacts/profiles/_template/**
+!artifacts/profiles/_template/collected/
+!artifacts/profiles/_template/collected/raw/
+!artifacts/profiles/_template/collected/raw/.gitkeep
+!artifacts/profiles/_template/collected/raw/*.public.*
+artifacts/profiles/*/collected/raw/*
+!artifacts/profiles/*/collected/raw/.gitkeep
+!artifacts/profiles/*/collected/raw/*.public.*
+!artifacts/profiles/_template/collected/digest/
+!artifacts/profiles/_template/collected/digest/.gitkeep
+!artifacts/profiles/_template/collected/digest/*.public.*
+artifacts/profiles/*/collected/digest/*
+!artifacts/profiles/*/collected/digest/.gitkeep
+!artifacts/profiles/*/collected/digest/*.public.*
+!artifacts/profiles/_template/collected/examples/
+artifacts/profiles/_template/collected/examples/**
+!artifacts/profiles/_template/collected/examples/.gitkeep
+!artifacts/profiles/_template/collected/README.md
 
 # Private/runtime memory MVP state. Publish sanitized examples elsewhere.
 memory/notes/
@@ -29,7 +50,7 @@ memory/problem-reviews/
 memory/profiles/
 memory/index.yaml
 memory/resume-brief.md
-collected/
+memory/collected/
 
 # Internal: 제작 plan 문서 (사용자 노출 안 함)
 docs/plans/
