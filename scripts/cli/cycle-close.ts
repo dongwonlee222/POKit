@@ -1,9 +1,10 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "../internal/linear.ts";
 import { discoverMarkdownArtifacts, safePathSegment } from "../internal/lib/history-collector.ts";
 import { profileArtifactPath } from "../internal/profile.ts";
+import { parseWorkingNoteFrontmatter } from "../internal/working-notes-validator.ts";
 import type { ResumeBriefWriteResult } from "./session-close.ts";
 
 export type CycleCloseInput = {
@@ -347,8 +348,61 @@ function compareIssueIdentifierText(left: string, right: string): number {
   return issueNumber(left) - issueNumber(right);
 }
 
+export type WorkingNoteArchiveResult = {
+  moved: string[];
+  skipped: string[];
+};
+
+export function archiveDoneWorkingNotes(cycleName: string, rootDir = "."): WorkingNoteArchiveResult {
+  const workingNotesDir = join(rootDir, profileArtifactPath("working-notes"));
+  const cycleSegment = safePathSegment(cycleName);
+  const archiveDir = join(rootDir, profileArtifactPath("working-notes", "_archive", cycleSegment));
+
+  const moved: string[] = [];
+  const skipped: string[] = [];
+
+  if (!existsSync(workingNotesDir)) {
+    return { moved, skipped };
+  }
+
+  const entries = readdirSync(workingNotesDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".md"));
+
+  for (const entry of entries) {
+    const srcPath = join(workingNotesDir, entry.name);
+    const content = readFileSync(srcPath, "utf8");
+    const { frontmatter } = parseWorkingNoteFrontmatter(content);
+
+    if (frontmatter.status !== "done") {
+      skipped.push(entry.name);
+      continue;
+    }
+
+    const destPath = join(archiveDir, entry.name);
+    if (existsSync(destPath)) {
+      skipped.push(entry.name);
+      continue;
+    }
+
+    mkdirSync(archiveDir, { recursive: true });
+    renameSync(srcPath, destPath);
+    moved.push(entry.name);
+  }
+
+  return { moved, skipped };
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const context = await getWorkingCycleContext();
-  const outputPath = writeCycleCloseDraft({ context });
+  const rootDir = process.cwd();
+  const outputPath = writeCycleCloseDraft({ context, rootDir });
   console.log(`Wrote ${outputPath}`);
+  const cycleName = context.cycle.name || context.cycle.id;
+  const archiveResult = archiveDoneWorkingNotes(cycleName, rootDir);
+  if (archiveResult.moved.length > 0) {
+    console.log(`Archived ${archiveResult.moved.length} done working note(s): ${archiveResult.moved.join(", ")}`);
+  }
+  if (archiveResult.skipped.length > 0) {
+    console.log(`Skipped ${archiveResult.skipped.length} working note(s) (not done or already archived): ${archiveResult.skipped.join(", ")}`);
+  }
 }
