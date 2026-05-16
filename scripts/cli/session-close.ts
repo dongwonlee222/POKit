@@ -120,8 +120,8 @@ export function buildResumeBrief(input: SessionCloseInput): string {
     blockedLine,
     "",
     "## 참조",
-    "- `node --experimental-strip-types scripts/session-brief.ts`",
-    "- `node --experimental-strip-types scripts/session-close.ts`",
+    "- `node --experimental-strip-types scripts/cli/session-brief.ts`",
+    "- `node --experimental-strip-types scripts/cli/session-close.ts`",
     "- `docs/OPERATING_MODEL.md#resume-brief-contract`",
     "",
   ].join("\n");

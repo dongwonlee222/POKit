@@ -50,7 +50,7 @@ const publicSafetyRules: PublicSafetyRule[] = [
 ];
 
 const scannerFixturePaths = new Set([
-  "scripts/public-safety-scan.ts",
+  "scripts/cli/public-safety-scan.ts",
   "tests/public-safety-scan.test.mjs",
 ]);
 

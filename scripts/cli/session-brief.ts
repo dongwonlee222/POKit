@@ -1,13 +1,13 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { buildArchiveGuardrail } from "./archive-guardrail.ts";
-import { renderCycleProgress } from "../cli/cycle-progress.ts";
-import { loadHookMap, renderHookMap } from "./hook-map.ts";
-import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
-import { getActiveProfile, profileArtifactPath } from "./profile.ts";
-import { renderProgressBar } from "./render/ascii.ts";
-import { loadMessageCatalog, renderMessage } from "./message-catalog.ts";
-import { buildSprintDryRunSummary, type SprintDryRunSummary } from "../cli/sprint-runner.ts";
+import { buildArchiveGuardrail } from "../internal/archive-guardrail.ts";
+import { renderCycleProgress } from "./cycle-progress.ts";
+import { loadHookMap, renderHookMap } from "../internal/hook-map.ts";
+import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
+import { getActiveProfile, profileArtifactPath } from "../internal/profile.ts";
+import { renderProgressBar } from "../internal/render/ascii.ts";
+import { loadMessageCatalog, renderMessage } from "../internal/message-catalog.ts";
+import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 
 export type SessionBriefInput = {
   now?: Date;
@@ -234,7 +234,7 @@ export function buildFlowDetail(input: SessionBriefInput): string {
     "  v",
     "Brief",
     "  |  사용자가 지금 무엇부터 볼지 정리",
-    "  |  script: scripts/session-brief.ts · hook: session_start",
+    "  |  script: scripts/cli/session-brief.ts · hook: session_start",
     "  v",
     "Backlog",
     "  |  사용자 아이디어를 후보 작업으로 정리",

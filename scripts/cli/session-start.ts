@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildSessionBrief, type SessionBriefInput } from "../internal/session-brief.ts";
+import { buildSessionBrief, type SessionBriefInput } from "./session-brief.ts";
 import { loadHookMap } from "../internal/hook-map.ts";
 import { getWorkingContext, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
 

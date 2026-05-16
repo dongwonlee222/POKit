@@ -11,7 +11,7 @@
 | Verb | Internal command |
 |---|---|
 | `pokit start` | `node --experimental-strip-types scripts/cli/session-start.ts` |
-| `pokit brief --detail <type>` | `node --experimental-strip-types scripts/internal/session-brief.ts --detail <type>` |
+| `pokit brief --detail <type>` | `node --experimental-strip-types scripts/cli/session-brief.ts --detail <type>` |
 | `pokit run [args]` | `node --experimental-strip-types scripts/cli/sprint-runner.ts [args]` |
 | `pokit close [args]` | `node --experimental-strip-types scripts/cli/cycle-close.ts [args]` |
 | `pokit retro [args]` | `node --experimental-strip-types scripts/cli/retro-summary.ts [args]` |
@@ -20,7 +20,7 @@
 | `pokit guard [args]` | `node --experimental-strip-types scripts/ci/cycle-guard.ts [args]` |
 | `pokit progress [args]` | `node --experimental-strip-types scripts/cli/cycle-progress.ts [args]` |
 | `pokit end [args]` | `node --experimental-strip-types scripts/cli/session-close.ts [args]` |
-| `pokit safety` | `node --experimental-strip-types scripts/ci/public-safety-scan.ts` |
+| `pokit safety` | `node --experimental-strip-types scripts/cli/public-safety-scan.ts` |
 
 verb 추가·변경 시 이 테이블과 `bin/pokit`, `package.json` scripts를 동시에 갱신한다.
 
@@ -59,7 +59,7 @@ npm run audit -- --target-version=v0.8.0
 ```yaml
 # .github/workflows/release.yml
 - name: Public safety scan
-  run: node --experimental-strip-types scripts/ci/public-safety-scan.ts
+  run: node --experimental-strip-types scripts/cli/public-safety-scan.ts
 
 - name: Release MD audit
   run: node --experimental-strip-types scripts/ci/release-md-audit.ts --target-version=${{ github.ref_name }}

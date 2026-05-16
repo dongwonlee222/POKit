@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node --experimental-strip-types scripts/cli/session-start.ts",
-    "brief": "node --experimental-strip-types scripts/internal/session-brief.ts",
+    "brief": "node --experimental-strip-types scripts/cli/session-brief.ts",
     "run": "node --experimental-strip-types scripts/cli/sprint-runner.ts",
     "close": "node --experimental-strip-types scripts/cli/cycle-close.ts",
     "retro": "node --experimental-strip-types scripts/cli/retro-summary.ts",
@@ -17,7 +17,7 @@
     "guard": "node --experimental-strip-types scripts/ci/cycle-guard.ts",
     "progress": "node --experimental-strip-types scripts/cli/cycle-progress.ts",
     "end": "node --experimental-strip-types scripts/cli/session-close.ts",
-    "safety": "node --experimental-strip-types scripts/ci/public-safety-scan.ts",
+    "safety": "node --experimental-strip-types scripts/cli/public-safety-scan.ts",
     "test": "node --experimental-strip-types --test tests/*.test.mjs"
   }
 }

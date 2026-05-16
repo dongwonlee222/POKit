@@ -8,7 +8,7 @@ import test from "node:test";
 process.env.POKIT_PROFILE = "";
 
 async function loadBriefModule() {
-  return import(`../scripts/internal/session-brief.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/cli/session-brief.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildSessionBrief renders compact dashboard with nudge", async () => {

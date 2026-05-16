@@ -14,7 +14,7 @@ export type VerbRoute = {
 
 export const VERB_ROUTES: Record<string, VerbRoute> = {
   start:    { path: "scripts/cli/session-start.ts" },
-  brief:    { path: "scripts/internal/session-brief.ts" },
+  brief:    { path: "scripts/cli/session-brief.ts" },
   run:      { path: "scripts/cli/sprint-runner.ts" },
   close:    { path: "scripts/cli/cycle-close.ts" },
   retro:    { path: "scripts/cli/retro-summary.ts" },
@@ -23,7 +23,7 @@ export const VERB_ROUTES: Record<string, VerbRoute> = {
   guard:    { path: "scripts/ci/cycle-guard.ts" },
   progress: { path: "scripts/cli/cycle-progress.ts" },
   end:      { path: "scripts/cli/session-close.ts" },
-  safety:   { path: "scripts/ci/public-safety-scan.ts" },
+  safety:   { path: "scripts/cli/public-safety-scan.ts" },
 };
 
 export type DispatchInput = {

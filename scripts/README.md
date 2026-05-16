@@ -83,7 +83,7 @@ Use this for `POKit 시작해줘`, after context compaction, and after any hando
 Print the compact session brief only when the bootstrap contract has already passed:
 
 ```bash
-node --experimental-strip-types scripts/session-brief.ts
+node --experimental-strip-types scripts/cli/session-brief.ts
 ```
 
 This command reads Linear cycle state and local run artifacts, then prints the next-cycle nudge dashboard. It does not write to Linear or GitHub.
@@ -91,10 +91,10 @@ This command reads Linear cycle state and local run artifacts, then prints the n
 Print detail views for quick follow-up commands:
 
 ```bash
-node --experimental-strip-types scripts/session-brief.ts --detail cycle
-node --experimental-strip-types scripts/session-brief.ts --detail backlog
-node --experimental-strip-types scripts/session-brief.ts --detail approvals
-node --experimental-strip-types scripts/session-brief.ts --candidate 1
+node --experimental-strip-types scripts/cli/session-brief.ts --detail cycle
+node --experimental-strip-types scripts/cli/session-brief.ts --detail backlog
+node --experimental-strip-types scripts/cli/session-brief.ts --detail approvals
+node --experimental-strip-types scripts/cli/session-brief.ts --candidate 1
 ```
 
 Use these when the user asks for "cycle 자세히", "backlog 자세히", or a numbered candidate detail before approving the next run.
@@ -156,7 +156,7 @@ node --experimental-strip-types scripts/cycle-maintenance.ts --previous-cycle-id
 Run the public safety scan before pushing or tagging a public release:
 
 ```bash
-node --experimental-strip-types scripts/public-safety-scan.ts
+node --experimental-strip-types scripts/cli/public-safety-scan.ts
 ```
 
 Run the release Markdown role audit before pushing, tagging, or creating a release:
@@ -177,8 +177,8 @@ Show the hook enforcement map:
 
 ```bash
 node --experimental-strip-types scripts/hook-map.ts
-node --experimental-strip-types scripts/session-brief.ts --detail hooks
-node --experimental-strip-types scripts/session-brief.ts --detail flow
+node --experimental-strip-types scripts/cli/session-brief.ts --detail hooks
+node --experimental-strip-types scripts/cli/session-brief.ts --detail flow
 ```
 
 Render an `on_error` Problem/Error Review and optionally write the local backlog memo:

@@ -3,7 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { loadHookMap, type HookGate, type HookGateSeverity } from "../internal/hook-map.ts";
-import { renderPublicSafetyViolations, scanTrackedPublicFiles } from "./public-safety-scan.ts";
+import { renderPublicSafetyViolations, scanTrackedPublicFiles } from "../cli/public-safety-scan.ts";
 import { renderReleaseMarkdownAudit, scanTrackedReleaseMarkdown } from "./release-md-audit.ts";
 
 const execFileAsync = promisify(execFile);

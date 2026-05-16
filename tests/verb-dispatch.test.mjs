@@ -38,8 +38,8 @@ test("VERB_ROUTES maps verbs to correct script paths", async () => {
   const { VERB_ROUTES } = await loadModule();
   assert.equal(VERB_ROUTES.start.path, "scripts/cli/session-start.ts");
   assert.equal(VERB_ROUTES.run.path, "scripts/cli/sprint-runner.ts");
-  assert.equal(VERB_ROUTES.brief.path, "scripts/internal/session-brief.ts");
-  assert.equal(VERB_ROUTES.safety.path, "scripts/ci/public-safety-scan.ts");
+  assert.equal(VERB_ROUTES.brief.path, "scripts/cli/session-brief.ts");
+  assert.equal(VERB_ROUTES.safety.path, "scripts/cli/public-safety-scan.ts");
 });
 
 test("dispatchVerb catches subprocess failure and renders ASCII with mapping", async () => {

@@ -10,6 +10,6 @@ Cycle 2 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행�
 없음
 
 ## 참조
-- `node --experimental-strip-types scripts/session-brief.ts`
+- `node --experimental-strip-types scripts/cli/session-brief.ts`
 - `node --experimental-strip-types scripts/session-close.ts`
 - `artifacts/profiles/pokit/criteria/POKIT-135.md`

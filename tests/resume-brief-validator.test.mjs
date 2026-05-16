@@ -19,7 +19,7 @@ const validResumeBrief = [
   "없음",
   "",
   "## 참조",
-  "- `node --experimental-strip-types scripts/session-brief.ts`",
+  "- `node --experimental-strip-types scripts/cli/session-brief.ts`",
   "- `artifacts/profiles/pokit/criteria/POKIT-135.md`",
   "",
 ].join("\n");
@@ -43,7 +43,7 @@ test("validateResumeBriefContract rejects missing sections, issue-only next acti
     "POKIT-135 구현 계속해줘",
     "",
     "## 참조",
-    "- `node --experimental-strip-types scripts/session-brief.ts`",
+    "- `node --experimental-strip-types scripts/cli/session-brief.ts`",
   ].join("\n"));
 
   assert.equal(result.valid, false);
