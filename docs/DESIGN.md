@@ -1170,7 +1170,7 @@ Day 2 구현 완료 시점에 동일 시나리오 5개를 Codex CLI와 Claude Co
 4. approval plan에 `idempotencyKey`와 `writes[]` 필드가 존재한다.
 5. status 값이 같은 집합을 사용한다: `Ready`, `Needs Label`, `Needs Clarification`, `Needs Approval`, `Skipped`, `Failed`.
 
-실행 결과는 `workflows/cross-runtime-diff-results/<runtime>/<scenario>.md`에 저장한다.
+실행 결과는 `artifacts/cross-runtime-diff/<runtime>/<scenario>.md`에 저장한다.
 
 ## 2.18 외부 쓰기 안전성
 

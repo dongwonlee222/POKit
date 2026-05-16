@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("PO Signal Watch documents source registry and workflow boundaries", async () => {
-  const sourceRegistry = await readFile("docs/source-registry.md", "utf8");
-  const workflow = await readFile("docs/signal-watch-workflow.md", "utf8");
+  const sourceRegistry = await readFile("docs/_details/source-registry.md", "utf8");
+  const workflow = await readFile("docs/_details/signal-watch.md", "utf8");
 
   assert.match(sourceRegistry, /PO Signal Watch 외부 출처 목록/);
   assert.match(sourceRegistry, /경쟁 제품 변경 기록/);

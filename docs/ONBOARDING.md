@@ -43,7 +43,7 @@ backlog 자세히 보여줘
 
 Manual Node commands below are smoke tests and fallback checks. The normal workflow is natural language first.
 
-For multi-step work, read `docs/GOAL_LOOP.md`.
+For multi-step work, read `docs/plans/GOAL_LOOP.md`.
 
 - Claude Code users can use `/goal` with a verifiable completion condition.
 - Codex users can ask POKit to follow the same goal loop through Brief, task list, skills, scripts, tests, and Linear Done updates.
@@ -52,7 +52,7 @@ For multi-step work, read `docs/GOAL_LOOP.md`.
 
 When you say `POKit 시작해줘`, the LLM should:
 
-- [ ] read `AGENTS.md`, `docs/GOAL_LOOP.md`, and relevant POKit skills;
+- [ ] read `AGENTS.md`, `docs/plans/GOAL_LOOP.md`, and relevant POKit skills;
 - [ ] show the compact POKit Brief;
 - [ ] inspect Linear cycle state through helper scripts when needed;
 - [ ] identify next cycle candidates and one recommended bundle;

@@ -188,7 +188,7 @@ node --experimental-strip-types scripts/public-safety-scan.ts
 - Claude Code: 명확한 완료 조건으로 `/goal`을 설정합니다.
 - Codex: 브리프, 작업 목록, skill, 테스트, Linear Done update를 goal loop로 사용해 달라고 요청합니다.
 
-[docs/GOAL_LOOP.md](docs/GOAL_LOOP.md)를 참고하세요.
+[docs/plans/GOAL_LOOP.md](docs/plans/GOAL_LOOP.md)를 참고하세요.
 
 생성 산출물은 기본적으로 로컬 전용이며 공개 GitHub 저장소에 올리지 않는 것이 원칙입니다. 공개 포킷 템플릿은 재사용 가능한 민감정보 제거 예시만 `examples/` 아래에 둡니다. 기준 정책은 [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md#artifact-policy)를 참고하세요.
 

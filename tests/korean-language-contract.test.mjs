@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const USER_FACING_MARKDOWN = [
-  "docs/source-registry.md",
-  "docs/signal-watch-workflow.md",
+  "docs/_details/source-registry.md",
+  "docs/_details/signal-watch.md",
   "examples/signal-watch/discovery-brief-sample.md",
   "examples/signal-watch/backlog-candidate-dry-run.md",
 ];
