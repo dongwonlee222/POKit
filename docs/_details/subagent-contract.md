@@ -19,6 +19,25 @@ Contract violations:
 - A Linear apply call without `actor: "main_agent"` is invalid.
 - A release-bundle issue apply without semantic preflight is invalid.
 
+## Operator Pre-task Judgment
+
+작업 진입 직전(Cycle Step 4 작업 Gate 시점) 메인 에이전트는 다음 3가지를 사용자에게 공개하고 승인을 받는다. 정책이 있어도 매 작업마다 명시적 판단이 보이지 않으면 운영에서 누락된다.
+
+```text
+[작업 진입 판단]
+- 모델 선택: <Opus 4.7 | Sonnet 4.6 | Haiku 4.5> — 이유
+- 병렬화: <단일 | 병렬 N개 서브에이전트> — 분할 기준 또는 단일 진행 이유
+- 외부 write: <없음 | N건 요약>
+```
+
+기준:
+
+- **모델 선택**은 본 문서의 Model Tier Policy를 따른다. 제품 판단·통합·완료 선언이 있으면 Opus. bounded 구현·테스트는 Sonnet. mechanical edit은 Haiku. 메인 에이전트는 매 작업의 판단 강도에 맞춰 모델을 골라 보여준다.
+- **병렬화 가능 조건**은 Definition Pipeline 섹션에 정의된 그대로다: (1) size=`full`인 작업, (2) 독립 stage 2개 이상, (3) 산출 파일 비중복. 셋 다 충족하지 않으면 단일 진행을 기본으로 한다.
+- **외부 write**는 dry-run + 승인 + idempotency key 계약을 따른다. 진입 판단 시점에서는 예상 건수만 보여주고, 실제 dry-run은 외부 write 직전에 다시 한 번 보여준다.
+
+이 판단은 한 줄짜리가 아니다. 단순 작업도 "단일 / 외부 write 없음"임을 명시한다 — 침묵 진입을 막기 위한 게이트다.
+
 ## Model Tier Policy
 
 Use stronger models where judgment matters, and cheaper models where the contract is already narrow.
