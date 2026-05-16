@@ -76,3 +76,52 @@ test("buildSessionStart fails loudly when read_order files are missing", async (
     /Session start blocked: missing read_order file memory\/missing\.md/,
   );
 });
+
+test("resolveBootError maps context-map.yaml missing to ASCII boot error", async () => {
+  const { resolveBootError, renderBootErrorAscii } = await loadSessionStartModule();
+
+  const review = resolveBootError(new Error("Session start blocked: missing memory/context-map.yaml"));
+  const output = renderBootErrorAscii(review);
+
+  assert.match(output, /🚨 pokit:boot FAILED/);
+  assert.match(output, /context-map\.yaml/);
+  assert.match(output, /1\) 문제:/);
+  assert.match(output, /2\) 원인:/);
+  assert.match(output, /3\) 해결:/);
+  assert.doesNotMatch(output, /^#/m);
+});
+
+test("resolveBootError maps read_order missing file to ASCII boot error with filename", async () => {
+  const { resolveBootError, renderBootErrorAscii } = await loadSessionStartModule();
+
+  const review = resolveBootError(new Error("Session start blocked: missing read_order file docs/architecture/01-document-roles.md"));
+  const output = renderBootErrorAscii(review);
+
+  assert.match(output, /🚨 pokit:boot FAILED/);
+  assert.match(output, /docs\/architecture\/01-document-roles\.md/);
+  assert.match(output, /3\) 해결:/);
+  assert.doesNotMatch(output, /^#/m);
+});
+
+test("resolveBootError maps Linear API failure to ASCII boot error", async () => {
+  const { resolveBootError, renderBootErrorAscii } = await loadSessionStartModule();
+
+  const review = resolveBootError(new Error("fetch failed: 401 Unauthorized"));
+  const output = renderBootErrorAscii(review);
+
+  assert.match(output, /🚨 pokit:boot FAILED/);
+  assert.match(output, /Linear API/);
+  assert.match(output, /LINEAR_API_KEY/);
+  assert.doesNotMatch(output, /^#/m);
+});
+
+test("resolveBootError falls back gracefully for unknown errors", async () => {
+  const { resolveBootError, renderBootErrorAscii } = await loadSessionStartModule();
+
+  const review = resolveBootError(new Error("something completely unexpected"));
+  const output = renderBootErrorAscii(review);
+
+  assert.match(output, /🚨 pokit:boot FAILED/);
+  assert.match(output, /something completely unexpected/);
+  assert.doesNotMatch(output, /^#/m);
+});

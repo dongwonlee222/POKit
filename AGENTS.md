@@ -20,6 +20,8 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 
 `pokit help` for the full list. Primary verbs: `start`, `brief`, `run`, `close`, `retro`, `hotfix`, `audit`, `guard`, `progress`, `end`, `safety`.
 
+작업 분류(Inline Fix vs hotfix vs 백로그) 기준: [docs/_details/release-flow.md](docs/_details/release-flow.md)
+
 ## Detailed Policies
 
 모든 운영 규칙은 주제별 파일에 있다. 작업 종류에 따라 필요한 것만 읽는다.

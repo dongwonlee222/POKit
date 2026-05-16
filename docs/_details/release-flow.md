@@ -28,6 +28,24 @@ After GitHub push/tag/release succeeds, render `Release Completion Evidence` wit
 
 Use Linear Weekly Cycle views to group Version Runs, review carry-over, and decide priorities. Do not hold completed release-ready work until the end of the week by default.
 
+## Inline Fix (No Backlog, No Linear)
+
+툴링 버그·연결 누락처럼 설계는 있으나 구현이 빠진 항목은 백로그나 Hotfix Cycle 없이 즉시 수정한다.
+
+Inline Fix 조건 (모두 충족 시):
+
+- 수정 파일 1~3개 이하
+- 외부 배포(GitHub push/tag/release) 없음
+- 새 설계 또는 기능 추가 없음 — 기존 설계의 연결 누락·오타·경로 오류 수준
+
+Inline Fix 절차:
+
+1. 수정 → 테스트 확인
+2. CHANGELOG에 한 줄 기록 (버전 올림 없음)
+3. 커밋 후 Cycle 재개
+
+조건을 벗어나면 백로그(신규 기능) 또는 Hotfix Cycle(배포 후 긴급 수정)로 전환한다.
+
 ## Release And Hotfix Cycles
 
 Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.

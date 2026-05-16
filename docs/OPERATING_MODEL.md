@@ -47,7 +47,7 @@ Full policy text lives in `docs/_details/`:
 |-------|------|
 | External write approval, dry-run, idempotency, Write Safety | [`docs/_details/approval-flow.md`](docs/_details/approval-flow.md) |
 | POKit Memory MVP Contract, Resume Brief Contract, frontmatter schema | [`docs/_details/memory-contract.md`](docs/_details/memory-contract.md) |
-| Version Run Release, Release And Hotfix Cycles, Public Release Safety | [`docs/_details/release-flow.md`](docs/_details/release-flow.md) |
+| Inline Fix, Version Run Release, Release And Hotfix Cycles, Public Release Safety | [`docs/_details/release-flow.md`](docs/_details/release-flow.md) |
 | Cycle Steward, Weekly Cycle, Focus Runs, Cycle Step Progress, Celebration, Completion Ritual, Cycle-first Guard | [`docs/_details/cycle-flow.md`](docs/_details/cycle-flow.md) |
 | Main Context/Subagent Call Contract, Model Tier Policy, Definition Pipeline | [`docs/_details/subagent-contract.md`](docs/_details/subagent-contract.md) |
 | Completion Report Contract, External Write Confirmation Contract | [`docs/_details/completion-report.md`](docs/_details/completion-report.md) |

@@ -10,7 +10,7 @@
 
 - 세션 시작 / 현재 상태 브리핑 / "포킷 시작해줘":
   ```bash
-  node --experimental-strip-types scripts/session-start.ts
+  ./bin/pokit start
   ```
 - 자세한 계약: [`AGENTS.md`](./AGENTS.md)
 - 운영 모델: [`docs/OPERATING_MODEL.md`](./docs/OPERATING_MODEL.md)
