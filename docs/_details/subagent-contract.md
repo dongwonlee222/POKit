@@ -25,9 +25,20 @@ Contract violations:
 
 ```text
 [작업 진입 판단]
-- 모델 선택: <Opus 4.7 | Sonnet 4.6 | Haiku 4.5> — 이유
+- Operator: <Claude Code | Codex CLI>
+- 모델 선택: <runtime의 Strong/Mid/Light tier 중 하나> — 이유
 - 병렬화: <단일 | 병렬 N개 서브에이전트> — 분할 기준 또는 단일 진행 이유
 - 외부 write: <없음 | N건 요약>
+```
+
+예시 (Claude operator):
+
+```text
+[작업 진입 판단]
+- Operator: Claude Code
+- 모델 선택: Sonnet 4.6 (Mid tier) — bounded 구현, 테스트 추가
+- 병렬화: 단일 — 단일 파일 수정, 분할 이점 없음
+- 외부 write: 없음
 ```
 
 기준:
@@ -38,17 +49,42 @@ Contract violations:
 
 이 판단은 한 줄짜리가 아니다. 단순 작업도 "단일 / 외부 write 없음"임을 명시한다 — 침묵 진입을 막기 위한 게이트다.
 
+## Operator Definition
+
+Operator는 현재 POKit 세션을 운영 중인 LLM runtime이다. Main agent와 동의어. 가능한 operator는 두 가지다.
+
+- **Claude Code** — Anthropic Claude 모델군 (Opus / Sonnet / Haiku) 위에서 동작.
+- **Codex CLI** — OpenAI 모델군 (GPT-5.5 / GPT-5.4 / GPT-5.4-mini 등) 위에서 동작.
+
+Operator는 runtime이 제공하는 최상위 모델로 세션을 시작하고, 작업 성격에 따라 같은 lineage 내의 다른 tier로 전환할 수 있다. POKit 운영 계약(외부 write 승인, dry-run, idempotency key, 완료 선언, on_error 자동화)은 operator 종류와 무관하게 동일하게 적용된다.
+
 ## Model Tier Policy
 
 Use stronger models where judgment matters, and cheaper models where the contract is already narrow.
 
-- Main agent: use the strongest available model for product judgment, ambiguity resolution, final integration, test interpretation, and user-facing completion claims.
-- `gpt-5.4`: use for bounded implementation that touches API shape, state classification, user-facing scripts, or non-trivial tests.
-- `gpt-5.4-mini`: use for first-pass documentation edits, fixture updates, and narrow mechanical cleanup when the policy contract is already clear.
+| Tier | Claude | Codex (OpenAI) | 용도 |
+|---|---|---|---|
+| Strong | Opus 4.7 | GPT-5.5 / o-series | 제품 판단, 모호성 해소, 최종 통합, 테스트 해석, 완료 선언 |
+| Mid    | Sonnet 4.6 | gpt-5.4 | bounded 구현, API 변경, 상태 분류, 사용자-facing 스크립트, non-trivial 테스트 |
+| Light  | Haiku 4.5 | gpt-5.4-mini | 첫-pass 문서 편집, fixture 업데이트, 좁은 mechanical 정리 |
+
+- Main agent(=operator)는 항상 자신이 운영 중인 runtime의 Strong tier에서 시작한다. 작업 분해 후 subtask가 명백히 Mid/Light 범위면 해당 tier로 전환한다.
 - Subagents must own disjoint files or responsibilities. The main agent remains accountable for integration, verification, and Linear/GitHub safety.
 - Lower-tier models must not make final Done decisions, final safety claims, or policy changes without main-agent review.
 
 The optimization goal is simple: spend expensive reasoning on choices and verification, not on repeatable edits.
+
+## Cross-Provider Subagent Policy
+
+Operator는 같은 lineage 내에서 subagent를 호출하는 것을 기본으로 한다 (Claude operator → Claude subagent, Codex operator → Codex subagent).
+
+Cross-provider subagent(Claude operator → Codex subagent, 또는 그 반대)는 다음 사유가 명시될 때만 허용한다.
+
+- 한쪽 runtime만 가진 도구·MCP·전문 능력이 필요할 때 (예: Codex의 특정 sandbox 기능, Claude의 특정 MCP).
+- 동일 모델군 내에서 충분한 tier가 없을 때 (예: Claude operator가 GPT-5.5의 검증을 명시적으로 받고 싶을 때).
+- Cross-runtime diff 작업 등 두 runtime 결과를 비교하는 게 작업 자체 목적일 때.
+
+Cross-provider 호출 시 main agent는 이유를 Operator Pre-task Judgment에 명시한다. 그 외에는 within-lineage가 기본이다.
 
 ## Definition Pipeline
 
