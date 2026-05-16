@@ -20,6 +20,7 @@ const REGISTERED_TOP_LEVEL_FOLDERS = new Set([
   "scripts",
   "tests",
   "skills",
+  ".claude-plugin",
   "workflows",
   "templates",
   "examples",

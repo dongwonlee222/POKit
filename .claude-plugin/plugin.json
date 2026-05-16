@@ -1,0 +1,13 @@
+{
+  "name": "pokit",
+  "version": "0.12.2",
+  "description": "POKit — Linear 기반 LLM 스크럼 운영 도구. 세션 시작/종료 브리프, 사이클 가드, PRD/Acceptance Criteria 자동 생성. 한국어 워크플로우 우선.",
+  "author": {
+    "name": "POKit team",
+    "url": "https://github.com/dongwonlee222/POKit"
+  },
+  "homepage": "https://github.com/dongwonlee222/POKit",
+  "repository": "https://github.com/dongwonlee222/POKit",
+  "license": "MIT",
+  "keywords": ["scrum", "linear", "llm", "claude-code", "agile", "cycle", "korean"]
+}

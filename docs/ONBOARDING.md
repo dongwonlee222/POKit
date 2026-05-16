@@ -4,6 +4,31 @@ Use this checklist to get from a fresh clone to the first POKit run. The normal 
 
 POKit is meant to be forked. The public upstream repo contains reusable docs, scripts, skills, and examples. Your fork or private workspace contains your `.env`, Linear context, memory, and generated artifacts.
 
+## 설치 옵션
+
+### 옵션 A — CLI 직접 사용 (모든 LLM 도구)
+
+```bash
+git clone https://github.com/dongwonlee222/POKit.git
+cd POKit
+npm install
+cp .env.example .env  # LINEAR_API_KEY, LINEAR_TEAM_ID 설정
+./bin/pokit start
+```
+
+Codex, 터미널, 임의 도구에서 사용 가능. 스킬 자동 트리거는 LLM의 자율 판단.
+
+### 옵션 B — Claude Code 플러그인 (자동 트리거)
+
+Claude Code에서 한 번 설치:
+
+```text
+/plugin marketplace add dongwonlee222/POKit
+/plugin install pokit@<marketplace-name>
+```
+
+→ `skills/pokit-start`, `pokit-end` 등이 Claude Code에 자동 등록. 새 세션에서 "포킷 시작" 입력만 해도 스킬이 자동 발동. CLI도 함께 clone 받아 사용 가능.
+
 ## 0. Start With The LLM
 
 - [ ] Open Codex CLI or Claude Code in the repository root.

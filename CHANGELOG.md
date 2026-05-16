@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.12.2 - 2026-05-16
+
+### Added
+
+- POKit을 Claude Code 플러그인으로 배포 가능하게 함:
+  - `.claude-plugin/plugin.json` 신규 — 플러그인 메타데이터 (name, version, description, author, repository).
+  - 사용자가 `/plugin marketplace add dongwonlee222/POKit` + `/plugin install pokit@<marketplace>` 명령으로 설치 시 `skills/` 자동 등록, 새 세션에서 `pokit-start`/`pokit-end` 등 트리거 자동 동작.
+  - CLI 경로(`./bin/pokit`)는 변경 없음. 플러그인은 CLI 위 통합 레이어.
+
+### Changed
+
+- `docs/ONBOARDING.md`: 설치 경로 두 가지 안내 — CLI 직접 사용 vs Claude Code 플러그인 설치.
+
 ## v0.12.1 - 2026-05-16
 
 ### Changed
