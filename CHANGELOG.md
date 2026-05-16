@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.12.1 - 2026-05-16
+
+### Changed
+
+- POKIT-155 후속: pokit-start, pokit-end 스킬을 `.claude/skills/` → `skills/`로 이동하여 POKit 스킬 디렉토리 단일 위치 통합. POKit dispatcher 스키마(`entry`, `labels`, `trigger_phrases`) 준수.
+- `.gitignore`: `.claude/skills/` 예외 제거 (원복) — 모든 스킬은 `skills/`에 거주.
+- `docs/_details/session-output-contract.md`: 경로·위치 구분 섹션 재작성. "POKit 내부 dispatcher vs 도구 통합 스킬" 이중 위치 → 단일 위치로 통일.
+
+### Fixed
+
+- `tests/skill-dispatcher.test.mjs`: 매니페스트 카운트 8→10, EXPECTED 배열에 `pokit-start`/`pokit-end` 추가.
+
 ## v0.12.0 - 2026-05-16
 
 ### Added

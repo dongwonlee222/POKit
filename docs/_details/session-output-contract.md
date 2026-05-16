@@ -23,7 +23,7 @@
 
 ## 도구별 발동 메커니즘
 
-- **Claude Code**: `.claude/skills/pokit-start/SKILL.md`, `.claude/skills/pokit-end/SKILL.md` 자동 로딩.
+- **Claude Code**: `skills/pokit-start/SKILL.md`, `skills/pokit-end/SKILL.md` 자동 로딩.
 - **Codex**: 위 SKILL.md 파일을 직접 읽고 동일 절차로 실행.
 
 ## 출력 포맷
@@ -63,9 +63,8 @@ pokit:boot ok ...
 <!-- AGENT: output above verbatim, no summary, no interpretation -->
 ```
 
-## 위치 구분 (혼동 방지)
+## 스킬 위치
 
-- `skills/` — POKit 내부 dispatcher용 (verb/label 라우팅, sprint-runner 등이 소비)
-- `.claude/skills/` — 도구 통합용 스킬 (세션 입출력 계약)
-
-서로 다른 개념이므로 섞지 않는다.
+- 모든 스킬은 repo 루트 `skills/<name>/SKILL.md` 단일 위치 사용
+- 스키마: `name`, `description`, `entry`(verb), `labels`, `trigger_phrases`, body
+- Claude Code / Codex / POKit 내부 dispatcher 모두 같은 디렉토리에서 읽음
