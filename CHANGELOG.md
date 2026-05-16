@@ -1,6 +1,15 @@
 # Changelog
 
-## Unreleased
+## v0.12.0 - 2026-05-16
+
+### Added
+
+- POKIT-155 start/end 브리프 포맷 개편 + 스킬화:
+  - `scripts/cli/session-brief.ts` start 변형 출력을 새 포맷으로 개편 — `🪧 POKit 시작 Brief`, `📅 날짜 · Team POKIT`, `- 스프린트(배포 버전): vX.Y.Z`, `- 💬 추천 다음 행동`, `📋 Linear 우선순위 Top 3`(priority 라벨 Urgent/High/Medium/Low). 기존 Profile/진행도바/Cycle 카운트 라인 제거.
+  - 스프린트 버전은 `git describe --tags --abbrev=0` 사용, 실패 시 `package.json` fallback.
+  - 추천 다음 행동은 `memory/resume-brief.md`의 "다음에 무엇을 하나" 섹션을 우선 채택, 없으면 기존 recommendation으로 fallback.
+  - `scripts/cli/session-close.ts`에 `buildSessionCloseBrief()` + `--hypothesis` 플래그 추가. `./bin/pokit end`가 새 종료 브리프(`🎉 POKit 종료 Brief` · 스프린트 · 완료 목록 · 기대 가설 · 추천 다음 행동) 출력.
+  - `.claude/skills/pokit-start`, `.claude/skills/pokit-end` 신설 — Bash tool 직접 호출 대신 스킬 경유로 stdout verbatim 출력 강제. Nexus current-context/save 패턴.
 
 ### Changed
 

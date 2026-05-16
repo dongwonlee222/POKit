@@ -49,15 +49,14 @@ test("buildSessionStart renders brief with boot signature after reading context 
     context,
   });
 
-  assert.match(output, /# POKit Brief/);
-  assert.match(output, /POKit Operating Cycle 1: Memory MVP Foundation/);
-  assert.match(output, /POKit 진행도\n\[█░░░░░░░░░\] 1\/10 · 현재: 시작 브리프/);
-  assert.match(output, /📌 현재: Todo 1 · 진행 0 · 완료 0/);
-  assert.match(output, /Linear 우선순위 Top 3/);
-  assert.match(output, /1\. POKIT-128 Session Bootstrap Contract · Todo · pokit:criteria/);
-  assert.match(output, /💬 추천 다음 행동: Operating Cycle 1 남은 Todo 전체 진행/);
-  assert.doesNotMatch(output, /2\. Cycle 기준 확인/);
-  assert.doesNotMatch(output, /📊 진행도/);
+  assert.match(output, /🪧 POKit 시작 Brief/);
+  assert.match(output, /· Team POKIT/);
+  assert.match(output, /- 스프린트\(배포 버전\): v\d+\.\d+\.\d+|- 스프린트\(배포 버전\): v0\.0\.0/);
+  assert.match(output, /📋 Linear 우선순위 Top 3/);
+  assert.match(output, /1\. POKIT-128 Session Bootstrap Contract · (Urgent|High|Medium|Low|No priority)/);
+  assert.match(output, /💬 추천 다음 행동: /);
+  assert.doesNotMatch(output, /# POKit Brief/);
+  assert.doesNotMatch(output, /Profile: default/);
   assert.match(output, /pokit:boot ok cycle=POKit Operating Cycle 1: Memory MVP Foundation hooks=loaded orchestrator=loaded read_order=4 linear=api-key/);
 });
 

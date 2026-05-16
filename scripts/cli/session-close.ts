@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { execSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { renderCycleProgress } from "./cycle-progress.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
@@ -24,6 +25,8 @@ export type SessionCloseInput = {
   verification?: VerificationResult[];
   historyWrites?: ResumeBriefWriteResult[];
   nextAction?: string;
+  hypothesis?: string;
+  rootDir?: string;
 };
 
 export type ResumeBriefWriteResult =
@@ -98,6 +101,69 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
   ].join("\n");
 }
 
+export function buildSessionCloseBrief(input: SessionCloseInput): string {
+  const resolved = resolveCloseContext(input.context, input.completed ?? []);
+  const rootDir = input.rootDir ?? ".";
+  const version = readReleaseVersion(rootDir);
+  const teamLabel = readTeamLabel(rootDir);
+  const completedList = resolved.completed.length
+    ? resolved.completed.map((issue) => `${issue.identifier} ${issue.title}`).join(", ")
+    : "없음";
+  const hypothesis = input.hypothesis?.trim() || "미입력 (--hypothesis로 전달)";
+  const nextAction = input.nextAction?.trim() || buildCycleNextAction(resolved.surface, resolved.pending.length);
+
+  return [
+    "🎉 POKit 종료 Brief",
+    `📅 ${formatKoreanDate(input.now ?? new Date())} · Team ${teamLabel}`,
+    "",
+    `- 스프린트(배포 버전): ${version}`,
+    `- 완료 목록: ${completedList}`,
+    `- 기대 가설: ${hypothesis}`,
+    `- 💬 추천 다음 행동: ${nextAction}`,
+    "",
+    "수고하셨습니다.",
+    "",
+  ].join("\n");
+}
+
+function readReleaseVersion(rootDir: string): string {
+  try {
+    const tag = execSync("git describe --tags --abbrev=0", {
+      cwd: rootDir,
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+    if (tag) return tag;
+  } catch {
+    // fall through
+  }
+  try {
+    const pkgPath = join(rootDir, "package.json");
+    if (existsSync(pkgPath)) {
+      const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version?: string };
+      if (pkg.version) return `v${pkg.version}`;
+    }
+  } catch {
+    // ignore
+  }
+  return "v0.0.0";
+}
+
+function readTeamLabel(rootDir: string): string {
+  try {
+    const envPath = join(rootDir, ".env");
+    if (existsSync(envPath)) {
+      const content = readFileSync(envPath, "utf8");
+      const match = content.match(/^LINEAR_TEAM_KEY=([^\n#]+)/m);
+      if (match) return match[1].trim();
+    }
+  } catch {
+    // ignore
+  }
+  return "POKIT";
+}
+
 export function buildResumeBrief(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
   const verification = input.verification ?? [];
@@ -164,9 +230,10 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const context = await getWorkingContext();
   const nextAction = readNextAction(args);
-  const report = buildSessionCloseReport({ context, nextAction });
-  console.log(report);
-  console.log("\n<!-- AGENT: output above verbatim, no summary, no interpretation -->");
+  const hypothesis = readHypothesis(args);
+  const brief = buildSessionCloseBrief({ context, nextAction, hypothesis });
+  console.log(brief);
+  console.log("<!-- AGENT: output above verbatim, no summary, no interpretation -->");
   if (args.includes("--write-resume-brief")) {
     const path = join(process.cwd(), profileMemoryPath("resume-brief.md"));
     const expectedHash = readExpectedHash(args) ?? (existsSync(path) ? hashContent(readFileSync(path, "utf8")) : undefined);
@@ -182,6 +249,11 @@ async function main(): Promise<void> {
       console.log(`Resume brief written: ${result.path}`);
     }
   }
+}
+
+function readHypothesis(args: string[]): string | undefined {
+  const index = args.findIndex((arg) => arg === "--hypothesis");
+  return index >= 0 ? args[index + 1] : undefined;
 }
 
 function resolveCloseContext(context: WorkingCycleContext | WorkingContext, completedIdentifiers: string[]): ResolvedCloseContext {

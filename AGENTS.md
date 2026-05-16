@@ -20,6 +20,8 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 - For "POKit 시작해줘" / "현재 상태 브리핑해줘" / "다음에 뭐 하면 돼?": `pokit start`.
 - For detail or "1번 자세히": `pokit brief --detail {cycle|backlog|approvals}` or `pokit brief --candidate N`.
 
+- Session 시작/종료 출력 계약: [docs/_details/session-output-contract.md](docs/_details/session-output-contract.md)
+
 ## Verbs
 
 `pokit help` for the full list. Primary verbs: `start`, `brief`, `run`, `close`, `retro`, `hotfix`, `audit`, `guard`, `progress`, `end`, `safety`. 모든 verb는 `scripts/internal/verb-dispatch.ts`를 경유해 on_error 자동 처리.

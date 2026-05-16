@@ -37,5 +37,6 @@ docs/plans/
 docs/history/
 # Internal: dogfood 신규 (과거 examples/dogfood/는 history 유지)
 dogfood/
-# Internal: Claude Code 로컬 상태 (worktrees 등)
-.claude/
+# Internal: Claude Code 로컬 상태 (worktrees 등). .claude/skills/는 repo와 함께 배포.
+.claude/*
+!.claude/skills/

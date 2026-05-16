@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "../internal/archive-guardrail.ts";
 import { renderCycleProgress } from "./cycle-progress.ts";
@@ -71,22 +72,20 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     : `${currentLabel}: ${formatCounts(resolved.currentCounts)}`;
 
   if (input.variant === "start") {
+    const version = readReleaseVersion(rootDir);
+    const teamLabel = profile.linearTeamKey ?? "POKIT";
+    const resumeNext = readResumeBriefNextAction(rootDir);
+    const nextActionText = resumeNext ?? recommendation.summary;
+    const top3 = resolved.primaryCandidates.slice(0, 3);
     return [
-      "# POKit Brief",
+      "🪧 POKit 시작 Brief",
+      `📅 ${formatKoreanDate(now)} · Team ${teamLabel}`,
       "",
-      `📅 ${formatKoreanDate(now)} · ${cycleDisplayName}`,
-      `Profile: ${profile.name}${profile.linearTeamKey ? ` · Team Key: ${profile.linearTeamKey}` : ""}`,
+      `- 스프린트(배포 버전): ${version}`,
+      `- 💬 추천 다음 행동: ${nextActionText}`,
       "",
-      "POKit 진행도",
-      `${renderProgressBar({ current: 1, total: 10, width: 10 })} · 현재: 시작 브리프`,
-      "",
-      ...buildPreviousSessionBlock(rootDir),
-      cycleLine,
-      "",
-      buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming, rootDir),
-      ...formatNumberedIssues(resolved.primaryCandidates),
-      "",
-      `${messageLabel(rootDir, "session_start.next_action_label", "💬 추천 다음 행동")}: ${recommendation.summary}`,
+      "📋 Linear 우선순위 Top 3",
+      ...formatStartTopIssues(top3),
       "",
     ].join("\n");
   }
@@ -1043,6 +1042,62 @@ function findLatestRunSummary(rootDir: string, cycleName: string): string | null
 function findRetro(rootDir: string, cycleName: string): string | null {
   const path = profileArtifactPath("sprints", safePathSegment(cycleName), "retro.md");
   return existsSync(join(rootDir, path)) ? path : null;
+}
+
+function readReleaseVersion(rootDir: string): string {
+  try {
+    const tag = execSync("git describe --tags --abbrev=0", {
+      cwd: rootDir,
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+    if (tag) return tag;
+  } catch {
+    // fall through to package.json
+  }
+  try {
+    const pkgPath = join(rootDir, "package.json");
+    if (existsSync(pkgPath)) {
+      const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version?: string };
+      if (pkg.version) return `v${pkg.version}`;
+    }
+  } catch {
+    // ignore
+  }
+  return "v0.0.0";
+}
+
+function readResumeBriefNextAction(rootDir: string): string | null {
+  const path = join(rootDir, "memory/resume-brief.md");
+  if (!existsSync(path)) return null;
+  const content = readFileSync(path, "utf8");
+  const sections = parseResumeBriefSections(content);
+  if (sections.next.length > 0) {
+    return sections.next.join(" · ");
+  }
+  const match = content.match(/##\s*다음에 무엇을 하나\s*\n+([^\n#][^\n]*)/);
+  if (match && match[1].trim()) {
+    return match[1].trim();
+  }
+  return null;
+}
+
+function priorityLabel(priority?: number): string {
+  switch (priority) {
+    case 1: return "Urgent";
+    case 2: return "High";
+    case 3: return "Medium";
+    case 4: return "Low";
+    default: return "No priority";
+  }
+}
+
+function formatStartTopIssues(issues: Issue[]): string[] {
+  if (!issues.length) {
+    return ["- 없음"];
+  }
+  return issues.map((issue, index) => `${index + 1}. ${issue.identifier} ${issue.title} · ${priorityLabel(issue.priority)}`);
 }
 
 function formatKoreanDate(date: Date): string {
