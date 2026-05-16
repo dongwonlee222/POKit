@@ -1,15 +1,15 @@
-# Release Flow — Version Run, Hotfix, and Public Release Safety
+# Release Flow — 버전 스프린트, Hotfix, and Public Release Safety
 
-## Version Run Release Contract
+## 버전 스프린트 Release Contract
 
-POKit's default release unit is the Version Run. Linear Weekly Cycle is a planning, grouping, tracking, and review container; it is not the deployment batch size.
+POKit's default release unit is the 버전 스프린트. 위클리 서클 is a planning, grouping, tracking, and review container; it is not the deployment batch size.
 
-Version Run release is default for public-release work. Linear Weekly Cycle is only a weekly tracking/review container.
+버전 스프린트 release is default for public-release work. 위클리 서클 is only a weekly tracking/review container.
 
-Default Version Run release flow:
+Default 버전 스프린트 release flow:
 
 ```text
-Version Run selected
+버전 스프린트 selected
 → local implementation/artifacts
 → tests and safety scans
 → local commit
@@ -19,14 +19,14 @@ Version Run selected
 → release completion evidence
 → Cycle Completion Experience
 → Linear Done/status sync after approval
-→ Version Run close note
+→ 버전 스프린트 close note
 ```
 
-A public-release Version Run is operationally complete only when verified changes are committed when applicable and the approved public release boundary is either completed or explicitly deferred. Deferral must be visible in the close report as `Version Run Release Deferred`, with the reason and the next release target.
+A public-release 버전 스프린트 is operationally complete only when verified changes are committed when applicable and the approved public release boundary is either completed or explicitly deferred. Deferral must be visible in the close report as `버전 스프린트 Release Deferred`, with the reason and the next release target.
 
-After GitHub push/tag/release succeeds, render `Release Completion Evidence` with `scripts/release-preflight.ts#renderReleaseCompletionEvidence`. The final response must then render or summarize the Cycle Completion Experience; otherwise the Version Run can be publicly released but still appear unfinished to the POKit close flow.
+After GitHub push/tag/release succeeds, render `Release Completion Evidence` with `scripts/release-preflight.ts#renderReleaseCompletionEvidence`. The final response must then render or summarize the Cycle Completion Experience; otherwise the 버전 스프린트 can be publicly released but still appear unfinished to the POKit close flow.
 
-Use Linear Weekly Cycle views to group Version Runs, review carry-over, and decide priorities. Do not hold completed release-ready work until the end of the week by default.
+Use 위클리 서클 views to group 버전 스프린트s, review carry-over, and decide priorities. Do not hold completed release-ready work until the end of the week by default.
 
 ## Inline Fix (No Backlog, No Linear)
 
@@ -50,7 +50,7 @@ Inline Fix 절차:
 
 Deployment means an action that lets external users receive a new project state. A local commit is not deployment. GitHub push can be deployment when users update from the public repository. GitHub tags, GitHub releases, package publishes, and public documentation deploys are deployment.
 
-Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the Version Run close condition. Public-release Version Runs are not fully complete until verified changes are committed when applicable and the approved public release boundary is completed or explicitly deferred. If deployment or version release was omitted after a Version Run should have shipped, treat that as release-pending work for the same Version Run or prepare a Hotfix Cycle when the omission is urgent and the next normal work has already resumed.
+Do not create separate release tasks for normal planned work. For POKit, normal deployment and version release are part of the 버전 스프린트 close condition. Public-release 버전 스프린트s are not fully complete until verified changes are committed when applicable and the approved public release boundary is completed or explicitly deferred. If deployment or version release was omitted after a 버전 스프린트 should have shipped, treat that as release-pending work for the same 버전 스프린트 or prepare a Hotfix Cycle when the omission is urgent and the next normal work has already resumed.
 
 Hotfix Cycles are only for urgent correction after a Cycle was completed or should have been deployed. Use a Hotfix Cycle for:
 

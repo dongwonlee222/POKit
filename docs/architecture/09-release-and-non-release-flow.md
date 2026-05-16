@@ -1,13 +1,13 @@
 # Release And Non-release Flow
 
-Version Run의 결과는 Release Bundle 또는 Non-release Close로 나뉜다. 모든 작업이 GitHub release로 가는 것은 아니지만, public release가 필요한 작업은 release gate를 생략할 수 없다.
+버전 스프린트의 결과는 Release Bundle 또는 Non-release Close로 나뉜다. 모든 작업이 GitHub release로 가는 것은 아니지만, public release가 필요한 작업은 release gate를 생략할 수 없다.
 
 ## Flow
 
 ```mermaid
 flowchart TD
   A["Linear Backlog Issue"] --> B["Cycle Bundle"]
-  B --> C["POKit Version Run"]
+  B --> C["버전 스프린트"]
   C --> D["Implementation / Documentation"]
   D --> E["Verification"]
   E --> F{"Public release 영향 있음?"}
@@ -107,5 +107,5 @@ Non-release Close는 다음을 남긴다.
 ```text
 Cycle Bundle은 실행 묶음이다.
 Release Bundle은 배포 묶음이다.
-Non-release Work는 배포 없이도 Version Run 안에서 완료될 수 있다.
+Non-release Work는 배포 없이도 버전 스프린트 안에서 완료될 수 있다.
 ```

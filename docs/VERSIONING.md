@@ -2,7 +2,7 @@
 
 This document is the canonical release version policy for POKit.
 
-Architecture examples and flow diagrams live in `docs/architecture/10-versioning-policy.md`. Terms such as Linear Weekly Cycle, POKit Version Run, Release Bundle, and Non-release Run are defined in `docs/architecture/00-glossary.md`.
+Architecture examples and flow diagrams live in `docs/architecture/10-versioning-policy.md`. Terms such as 위클리 서클, 버전 스프린트, Release Bundle, and Non-release Run are defined in `docs/architecture/00-glossary.md`.
 
 ## Release States
 
@@ -23,9 +23,9 @@ Because POKit is still early, pre-1.0 minor versions may carry meaningful behavi
 
 Avoid using `v0.0.1` for normal POKit operating releases. Reserve it only for bootstrap or test-release situations. Normal early POKit release work should use the `v0.x.y` line.
 
-## Version Runs
+## 버전 스프린트s
 
-A public release-oriented POKit Version Run must have a SemVer `targetVersion`.
+A public release-oriented 버전 스프린트 must have a SemVer `targetVersion`.
 
 Non-release Runs do not increment SemVer. They use an explicit `runId` and close with local evidence, approval status, and a reason for not entering public release.
 

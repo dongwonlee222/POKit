@@ -153,7 +153,7 @@ No pending public release notes.
 ### Changed
 
 - Optimized session start output into a compact POKit Brief.
-- Clarified Linear Weekly Cycle vs POKit Version Run vs Release Bundle boundaries.
+- Clarified 위클리 서클 vs 버전 스프린트 vs Release Bundle boundaries.
 - Standardized Korean-first backlog titles and separated machine variables into Linear descriptions.
 - Kept Sub-issue child work as Task Checklist items instead of creating deeper Linear sub-sub-issues by default.
 

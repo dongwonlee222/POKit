@@ -8,7 +8,7 @@ POKit은 진행 상태를 LLM이 임의 문장으로 설명하지 않고, 정해
 
 ```mermaid
 flowchart TD
-  A["Version Run / 작업 흐름"] --> B["Stage 판단"]
+  A["버전 스프린트 / 작업 흐름"] --> B["Stage 판단"]
   B --> C["scripts/cycle-progress.ts"]
   C --> D["scripts/render/ascii.ts"]
   D --> E["대화용 ASCII 진행도"]

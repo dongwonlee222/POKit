@@ -186,14 +186,14 @@ test("Cycle progress and one-time celebration contracts are documented", async (
   assert.match(cycleFlow, /Cycle 완료 직후 축하 메시지는 release gate 완료 후 1회만 표시한다/);
 });
 
-test("Version Run release is the default unit while Linear Weekly Cycle stays a tracking container", async () => {
+test("버전 스프린트 release is the default unit while 위클리 서클 stays a tracking container", async () => {
   // v0.8.0: all release flow phrases live in docs/_details/release-flow.md
   const releaseFlow = await readFile("docs/_details/release-flow.md", "utf8");
 
-  assert.match(releaseFlow, /Version Run release is default/);
-  assert.match(releaseFlow, /Linear Weekly Cycle is only a weekly tracking\/review container/);
-  assert.match(releaseFlow, /Version Run Release Contract/);
-  assert.match(releaseFlow, /default release unit is the Version Run/);
-  assert.match(releaseFlow, /Version Run Release Deferred/);
+  assert.match(releaseFlow, /버전 스프린트 release is default/);
+  assert.match(releaseFlow, /위클리 서클 is only a weekly tracking\/review container/);
+  assert.match(releaseFlow, /버전 스프린트 Release Contract/);
+  assert.match(releaseFlow, /default release unit is the 버전 스프린트/);
+  assert.match(releaseFlow, /버전 스프린트 Release Deferred/);
   assert.match(releaseFlow, /Do not hold completed release-ready work until the end of the week by default/);
 });

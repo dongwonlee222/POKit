@@ -32,7 +32,7 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 
 - [docs/_details/approval-flow.md](docs/_details/approval-flow.md) — write safety, human intervention matrix, external write rules, error/blocker handling
 - [docs/_details/cycle-flow.md](docs/_details/cycle-flow.md) — Cycle Steward, progress contract, completion celebration, remains/next
-- [docs/_details/release-flow.md](docs/_details/release-flow.md) — Version Run, Linear Weekly Cycle, hotfix
+- [docs/_details/release-flow.md](docs/_details/release-flow.md) — 버전 스프린트, 위클리 서클, hotfix
 - [docs/_details/subagent-contract.md](docs/_details/subagent-contract.md) — main/subagent split, model tiers, definition pipeline
 - [docs/_details/memory-contract.md](docs/_details/memory-contract.md) — resume brief, memory MVP, frontmatter schema
 - [docs/_details/completion-report.md](docs/_details/completion-report.md) — flow adherence, completion structure, dry-run rules

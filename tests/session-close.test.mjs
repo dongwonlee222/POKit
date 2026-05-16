@@ -127,7 +127,7 @@ test("buildSessionCloseReport stays on upcoming Cycle when active Cycle is alrea
   assert.doesNotMatch(report, /EVM-1 old work/);
 });
 
-test("buildSessionCloseReport keeps all-done active work Version Run release pending until release gate completes", async () => {
+test("buildSessionCloseReport keeps all-done active work 버전 스프린트 release pending until release gate completes", async () => {
   const { buildSessionCloseReport } = await loadSessionCloseModule();
 
   const report = buildSessionCloseReport({
@@ -160,8 +160,8 @@ test("buildSessionCloseReport keeps all-done active work Version Run release pen
   });
 
   assert.match(report, /📅 .* · Cycle 1/);
-  assert.match(report, /Version Run Release Pending/);
-  assert.match(report, /Version Run 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
+  assert.match(report, /버전 스프린트 Release Pending/);
+  assert.match(report, /버전 스프린트 작업은 완료됐지만 release gate가 아직 남아 있습니다/);
   assert.match(report, /Cycle 1 release preflight부터 완료 조건까지 이어가줘/);
   assert.doesNotMatch(report, /🎉 Cycle 1 완료!/);
   assert.doesNotMatch(report, /EVM-32 next work/);
@@ -193,7 +193,7 @@ test("buildSessionCloseReport treats release evidence as Cycle completion when c
 
   assert.match(report, /🎉 Cycle 1 완료!/);
   assert.match(report, /Cycle 1 완료 상태를 확인하고 다음 Cycle 후보를 묶어줘/);
-  assert.doesNotMatch(report, /Version Run Release Pending/);
+  assert.doesNotMatch(report, /버전 스프린트 Release Pending/);
 });
 
 test("buildSessionCloseReport uses Linear cycle number in next actions", async () => {

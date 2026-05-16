@@ -209,11 +209,11 @@ API key가 chat, log, screenshot, commit에 노출되면 계속 진행하기 전
 
 ## Linear 흐름
 
-Linear는 실제 backlog와 주간 cycle 상태를 관리하는 기준 시스템으로 두고, 포킷은 Version Run 단위로 스크럼을 실행하는 운영 레이어로 사용합니다.
+Linear는 실제 backlog와 주간 cycle 상태를 관리하는 기준 시스템으로 두고, 포킷은 버전 스프린트 단위로 스크럼을 실행하는 운영 레이어로 사용합니다.
 
-- Linear Weekly Cycle: 보통 월요일에 시작하는 주간 추적 단위.
-- POKit Version Run: `targetVersion` 또는 `runId`를 기준으로 issue를 라우팅하고, 산출물 초안을 만들고, 검증과 release/non-release close를 진행하는 실행 흐름.
-- Cycle Bundle: Version Run 안에서 처리할 이슈 묶음.
+- 위클리 서클: 보통 월요일에 시작하는 주간 추적 단위.
+- 버전 스프린트: `targetVersion` 또는 `runId`를 기준으로 issue를 라우팅하고, 산출물 초안을 만들고, 검증과 release/non-release close를 진행하는 실행 흐름.
+- Cycle Bundle: 버전 스프린트 안에서 처리할 이슈 묶음.
 - Release Bundle: public release로 나갈 배포 버전 묶음.
 - Linear 반영: 항상 실행 전 확인 계획으로 먼저 보여줍니다.
 

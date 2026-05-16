@@ -1,6 +1,6 @@
 # Versioning Policy
 
-POKit Version Run은 public release로 나갈 때 SemVer `targetVersion`을 가진다. 배포와 무관한 실행은 SemVer를 올리지 않고 명시적 `runId`로 닫는다.
+버전 스프린트은 public release로 나갈 때 SemVer `targetVersion`을 가진다. 배포와 무관한 실행은 SemVer를 올리지 않고 명시적 `runId`로 닫는다.
 
 Canonical release policy는 `docs/VERSIONING.md`에 둔다. 이 문서는 아키텍처 관점의 예시와 판단 흐름을 설명한다.
 
@@ -54,7 +54,7 @@ v0.0.1
 
 v1.0.0
 - 핵심 운영 루프가 안정됨
-- Backlog -> Version Run -> Release/Non-release 흐름이 고정됨
+- Backlog -> 버전 스프린트 -> Release/Non-release 흐름이 고정됨
 - 외부 사용자가 따라 해도 큰 혼란이 없는 상태
 ```
 
@@ -62,7 +62,7 @@ v1.0.0
 
 ```mermaid
 flowchart TD
-  A["Version Run 결과"] --> B{"Public release 대상?"}
+  A["버전 스프린트 결과"] --> B{"Public release 대상?"}
   B -- "아니오" --> C["non-release runId로 close"]
   B -- "예" --> D{"변경 성격"}
   D -- "새 기능/운영 흐름" --> E["MINOR 증가<br/>v0.7.0 -> v0.8.0"]
@@ -104,7 +104,7 @@ Non-release Run도 산출물 위치, 승인 대기 여부, 외부 write 여부, 
 
 ## Run Identity
 
-POKit Circle / Version Run은 제목이 아니라 안정 식별자로 추적한다.
+POKit Circle / 버전 스프린트은 제목이 아니라 안정 식별자로 추적한다.
 
 ```text
 release run:     pokit:run:release:<targetVersion>

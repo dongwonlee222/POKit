@@ -2,17 +2,17 @@
 
 이 문서는 POKit 운영/아키텍처 문서에서 쓰는 용어의 단일 기준이다. Linear 용어와 POKit 운영 용어가 섞이면 실행 단위, 추적 단위, 배포 단위가 흐려지므로 이 문서를 먼저 따른다.
 
-## Linear Weekly Cycle
+## 위클리 서클
 
-Linear의 주간 추적 컨테이너다. 월요일에 시작하며, 한 주 동안 진행된 POKit Version Run, 배포, 보류, follow-up, 회고 후보를 모아 본다.
+Linear의 주간 추적 컨테이너다. 월요일에 시작하며, 한 주 동안 진행된 버전 스프린트, 배포, 보류, follow-up, 회고 후보를 모아 본다.
 
-Linear Weekly Cycle은 실행 루프 자체가 아니다. 주간 planning/tracking/review의 기준 단위이며, POKit의 실제 실행은 Version Run이 담당한다.
+위클리 서클은 실행 루프 자체가 아니다. 주간 planning/tracking/review의 기준 단위이며, POKit의 실제 실행은 버전 스프린트이 담당한다.
 
-## POKit Version Run
+## 버전 스프린트
 
 버전 또는 명시적 `runId`를 기준으로 실행되는 POKit 작업 루프다. 시간 단위가 아니라 scope/version 단위다.
 
-Version Run은 다음 흐름을 가진다.
+버전 스프린트은 다음 흐름을 가진다.
 
 ```text
 Backlog selection
@@ -22,7 +22,7 @@ Backlog selection
 -> close
 ```
 
-Public release로 나가는 Version Run은 `targetVersion`을 가진다. 배포와 무관한 실행은 SemVer를 올리지 않고 `runId`로 닫을 수 있다.
+Public release로 나가는 버전 스프린트은 `targetVersion`을 가진다. 배포와 무관한 실행은 SemVer를 올리지 않고 `runId`로 닫을 수 있다.
 
 ## Backlog Issue
 
@@ -36,7 +36,7 @@ Raw idea를 Linear Backlog Issue로 만들기 전에 정리하는 로컬 카드�
 
 ## Cycle Bundle
 
-하나의 POKit Version Run에서 실제로 처리할 이슈 묶음이다. Linear Weekly Cycle 안에 속할 수 있지만, Linear Weekly Cycle 자체와 같지 않다.
+하나의 버전 스프린트에서 실제로 처리할 이슈 묶음이다. 위클리 서클 안에 속할 수 있지만, 위클리 서클 자체와 같지 않다.
 
 ## Release Bundle
 
@@ -46,7 +46,7 @@ Release Bundle은 포함 이슈, release scope, targetVersion, CHANGELOG 후보,
 
 ## Non-release Run
 
-Public release 없이 닫는 Version Run이다. 예시는 로컬 초안 문서, 승인 받을 문서, private artifact, Linear 정리, git에 올리지 않는 조사/분석 산출물이다.
+Public release 없이 닫는 버전 스프린트이다. 예시는 로컬 초안 문서, 승인 받을 문서, private artifact, Linear 정리, git에 올리지 않는 조사/분석 산출물이다.
 
 Non-release Run도 close 조건을 가져야 한다. 산출물 위치, 승인 대기 여부, 외부 write 여부, git에 올리지 않는 이유를 남긴다.
 

@@ -1,4 +1,4 @@
-# Cycle Flow — Steward, Weekly Cycles, Progress, Completion
+# Cycle Flow — Steward, 위클리 서클s, Progress, Completion
 
 ## Cycle-first Execution Guard
 
@@ -48,13 +48,13 @@ The default execution unit is the whole current Cycle. Individual issue wording 
 All new durable work must follow the same funnel:
 
 1. Capture the idea as a Linear Backlog item.
-2. Group it into a POKit Version Run through a Cycle Bundle.
+2. Group it into a 버전 스프린트 through a Cycle Bundle.
 3. Run implementation only after the Cycle guard passes.
-4. Complete the Version Run through verification, commit when applicable, Linear Done when applicable, and release/non-release close.
+4. Complete the 버전 스프린트 through verification, commit when applicable, Linear Done when applicable, and release/non-release close.
 
 Chat-only intent may produce analysis or a dry-run plan, but not durable project changes.
 
-## Weekly Cycle And Focus Runs
+## 위클리 서클 And Focus Runs
 
 Linear `Cycle` is POKit's weekly execution container. Do not create a separate Linear cycle for each day or each AI run.
 
@@ -62,7 +62,7 @@ Inside a weekly Cycle, POKit may group issues into `Focus Run` bundles. A Focus 
 
 Naming:
 
-- Weekly Cycle: `Cycle N`, using Linear `cycle.number` as the canonical number.
+- 위클리 서클: `Cycle N`, using Linear `cycle.number` as the canonical number.
 - Focus Run: `Cycle N.1`, `Cycle N.2`, `Cycle N.3`, shown compactly as `N.1`, `N.2`, `N.3`.
 - Focus Run numbers are sequential execution bundles inside the weekly Cycle. They are not dates, and multiple Focus Runs may happen on the same day.
 

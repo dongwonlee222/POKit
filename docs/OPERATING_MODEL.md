@@ -46,8 +46,8 @@ Full policy text lives in `docs/_details/`:
 |-------|------|
 | External write approval, dry-run, idempotency, Write Safety | [`docs/_details/approval-flow.md`](docs/_details/approval-flow.md) |
 | POKit Memory MVP Contract, Resume Brief Contract, frontmatter schema | [`docs/_details/memory-contract.md`](docs/_details/memory-contract.md) |
-| Inline Fix, Version Run Release, Release And Hotfix Cycles, Public Release Safety | [`docs/_details/release-flow.md`](docs/_details/release-flow.md) |
-| Cycle Steward, Weekly Cycle, Focus Runs, Cycle Step Progress, Celebration, Completion Ritual, Cycle-first Guard | [`docs/_details/cycle-flow.md`](docs/_details/cycle-flow.md) |
+| Inline Fix, 버전 스프린트 Release, Release And Hotfix Cycles, Public Release Safety | [`docs/_details/release-flow.md`](docs/_details/release-flow.md) |
+| Cycle Steward, 위클리 서클, Focus Runs, Cycle Step Progress, Celebration, Completion Ritual, Cycle-first Guard | [`docs/_details/cycle-flow.md`](docs/_details/cycle-flow.md) |
 | Main Context/Subagent Call Contract, Model Tier Policy, Definition Pipeline | [`docs/_details/subagent-contract.md`](docs/_details/subagent-contract.md) |
 | Completion Report Contract, External Write Confirmation Contract | [`docs/_details/completion-report.md`](docs/_details/completion-report.md) |
 | Conversation Visualization Contract, ASCII rules | [`docs/_details/visualization.md`](docs/_details/visualization.md) |
@@ -124,18 +124,18 @@ External write dry-runs are mandatory at approval boundaries. A completion respo
 
 POKit separates tracking, execution, and release units. The canonical glossary lives in `docs/architecture/00-glossary.md`.
 
-- Linear Weekly Cycle: a Monday-starting weekly tracking container in Linear.
-- POKit Version Run: the actual execution loop, scoped by `targetVersion` or `runId`.
-- Cycle Bundle: the issue bundle selected for a Version Run.
+- 위클리 서클: a Monday-starting weekly tracking container in Linear.
+- 버전 스프린트: the actual execution loop, scoped by `targetVersion` or `runId`.
+- Cycle Bundle: the issue bundle selected for a 버전 스프린트.
 - Release Bundle: the public release bundle for a specific `targetVersion`.
-- Non-release Run: a Version Run that closes without public release.
+- Non-release Run: a 버전 스프린트 that closes without public release.
 
 Architecture flow references: `docs/architecture/07-backlog-intake-flow.md`, `docs/architecture/08-cycle-vs-linear-cycle.md`, `docs/architecture/09-release-and-non-release-flow.md`, `docs/architecture/10-versioning-policy.md`
 
 ## Roles
 
 - Linear issue: official task, priority, discussion, and weekly cycle placement.
-- POKit Version Run: scoped execution loop.
+- 버전 스프린트: scoped execution loop.
 - Session task list: temporary progress tracker for the current AI work session.
 - GitHub commit: durable implementation history.
 
@@ -156,7 +156,7 @@ POKit is distributed as a GitHub repository, not as a hosted service or standalo
 ## Weekly Rhythm
 
 1. Put work into a weekly Linear cycle.
-2. Run POKit Version Runs.
+2. Run 버전 스프린트s.
 3. Review the Run Summary.
 4. Approve or reject any proposed Linear write plan.
 5. Commit code/docs changes to GitHub.

@@ -24,7 +24,7 @@ flowchart TD
 | Path | Role | Should Contain | Should Not Contain |
 |---|---|---|---|
 | `AGENTS.md` | main-agent orchestration | session bootstrap command, approval boundaries, high-signal runtime reminders, where to delegate detail | long policy explanations, artifact templates, detailed flow diagrams, duplicated canonical docs |
-| `docs/OPERATING_MODEL.md` | canonical operating policy | durable rules, approval model, external write policy, Version Run policy | historical rationale or one-off examples that belong in architecture docs |
+| `docs/OPERATING_MODEL.md` | canonical operating policy | durable rules, approval model, external write policy, 버전 스프린트 policy | historical rationale or one-off examples that belong in architecture docs |
 | `docs/VERSIONING.md` | canonical version policy | SemVer rules, release states, hotfix/pre-release policy | detailed backlog or orchestration flow |
 | `docs/architecture/*` | architecture and flow explanation | glossary, file roles, context flow, backlog/release diagrams, examples | executable policy that scripts should enforce directly |
 | `workflows/hooks.yaml` | lifecycle gate registry | hook names, runner, enforcement metadata, gates | prose-only policy or user-facing report text |
@@ -43,7 +43,7 @@ flowchart TD
 - `docs/architecture/00-glossary.md`: shared terms.
 - `docs/architecture/01-document-roles.md`: file and document responsibilities.
 - `docs/architecture/07-backlog-intake-flow.md`: backlog creation and intake.
-- `docs/architecture/08-cycle-vs-linear-cycle.md`: Linear Weekly Cycle vs POKit Version Run.
+- `docs/architecture/08-cycle-vs-linear-cycle.md`: 위클리 서클 vs 버전 스프린트.
 - `docs/architecture/09-release-and-non-release-flow.md`: release and non-release close.
 - `docs/architecture/10-versioning-policy.md`: version number meaning and run choice.
 - `docs/architecture/11-visualization-and-incident-response.md`: stage visualization and incident response.
@@ -91,7 +91,7 @@ Use them for:
 - release preflight;
 - Linear external write preflight;
 - deterministic brief rendering.
-- POKit Circle / Version Run identity rendering.
+- POKit Circle / 버전 스프린트 identity rendering.
 
 ## Templates
 

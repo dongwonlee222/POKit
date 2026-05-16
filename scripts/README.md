@@ -26,7 +26,7 @@ Quick read-only smoke test:
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => { const cycle = await m.getCurrentCycle(); const issues = await m.listIssues(cycle.id); console.log({ cycle, issueCount: issues.length }); })"
 ```
 
-Version Run context smoke test:
+버전 스프린트 context smoke test:
 
 ```bash
 node --experimental-strip-types -e "import('./scripts/linear.ts').then(async (m) => console.log(JSON.stringify(await m.getWorkingCycleContext(), null, 2)))"
@@ -191,7 +191,7 @@ Conversation ASCII visuals are centralized in `scripts/render/ascii.ts`. Use `re
 
 Backlog memo and Linear issue title/outline rendering is centralized in `scripts/backlog-outline.ts`. Use it for Korean-first status titles and fixed Linear description headings instead of hand-building backlog dry-run markdown.
 
-POKit Circle / Version Run identity rendering is centralized in `scripts/pokit-run-identity.ts`. Track runs by `pokitRunId`, `linearCycleId`, `cycleBundleId`, and `targetVersion` or `runId`; do not rely on the title as the stable identifier.
+POKit Circle / 버전 스프린트 identity rendering is centralized in `scripts/pokit-run-identity.ts`. Track runs by `pokitRunId`, `linearCycleId`, `cycleBundleId`, and `targetVersion` or `runId`; do not rely on the title as the stable identifier.
 
 Print the completed issue archive dry-run contract:
 

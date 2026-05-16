@@ -1150,7 +1150,7 @@ test("planUpdateCycle compacts long descriptions before Linear update", async ()
     cycleName: "Cycle 6: Focus Run Visual Grouping",
     name: "Cycle 6: Focus Run Visual Grouping",
     description: [
-      "Weekly Cycle for Focus Run visual grouping.",
+      "위클리 서클 for Focus Run visual grouping.",
       "",
       "POKit canonical cycleNumber: 6",
       "Scope: Focus Run label group/view rules, checklist brief, status rules, due date filter, numbering rules.",
@@ -1160,7 +1160,7 @@ test("planUpdateCycle compacts long descriptions before Linear update", async ()
 
   const payload = plan.writes[0].payload;
   assert.ok(payload.description.length <= 255);
-  assert.match(payload.description, /Weekly Cycle for Focus Run visual grouping/);
+  assert.match(payload.description, /위클리 서클 for Focus Run visual grouping/);
   assert.match(payload.description, /idempotency: linear:update_cycle:cycle-focus:update/);
 });
 

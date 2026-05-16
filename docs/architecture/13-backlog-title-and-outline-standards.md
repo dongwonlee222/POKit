@@ -98,7 +98,7 @@ runId: vr-YYYY-MM-DD-topic | none
 idempotencyKey: linear:create_issue:<stable-key>
 ```
 
-POKit Circle / Version Run 연결이 있는 Backlog는 다음 변수도 포함한다.
+POKit Circle / 버전 스프린트 연결이 있는 Backlog는 다음 변수도 포함한다.
 
 ```yaml
 pokitRunId: pokit:run:release:v0.8.0

@@ -6,7 +6,7 @@
 
 ```text
 Linear Cycle = 주간 추적 컨테이너
-POKit Circle = POKit Version Run의 사용자-facing 이름
+POKit Circle = 버전 스프린트의 사용자-facing 이름
 Parent Issue = 하나의 POKit Circle 또는 큰 Backlog 묶음을 대표
 Sub-issue = 실제 구현/문서/검증 단위
 Labels = routing과 타입 분류
@@ -45,7 +45,7 @@ Sub-issues:
 | Object | Linear 위치 | 역할 | 안정 식별자 |
 |---|---|---|---|
 | Linear Cycle | Linear native Cycle | 주간 tracking/review container | `linearCycleId` |
-| POKit Circle | Parent issue 또는 description metadata | Version Run 사용자-facing 이름 | `pokitRunId` |
+| POKit Circle | Parent issue 또는 description metadata | 버전 스프린트 사용자-facing 이름 | `pokitRunId` |
 | Cycle Bundle | Parent issue description metadata | 이번 실행에 묶인 issue set | `cycleBundleId` |
 | Parent Issue | Linear issue | POKit Circle 또는 큰 backlog 묶음 대표 | `parentIssueId` |
 | Sub-issue | Linear sub-issue | 실제 구현/문서/검증 단위 | `subIssueIds[]` |
@@ -169,7 +169,7 @@ flowchart TD
 - Parent issue 제목만으로 release/non-release를 판단하지 않는다.
 - Sub-issue 제목에 모든 변수를 밀어 넣지 않는다.
 - `targetVersion`, `runId`, `cycleBundleId`, `parentIssueId`를 description에서 생략하지 않는다.
-- Linear Cycle을 실행 완료 기준으로 보지 않는다. 완료 기준은 POKit Circle / Version Run close다.
+- Linear Cycle을 실행 완료 기준으로 보지 않는다. 완료 기준은 POKit Circle / 버전 스프린트 close다.
 
 ## Context Minimization
 
