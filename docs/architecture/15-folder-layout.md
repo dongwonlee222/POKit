@@ -131,7 +131,7 @@ v0.10.0에서 정리할 25개 이동 대상.
 | `docs/CYCLE_BRIEF_CLOSE_PLAN.md` | `docs/plans/` | 제작 plan |
 | `docs/GOAL_LOOP.md` | `docs/plans/` | 제작 plan |
 | `docs/IMPLEMENTATION_PLAN.md` | `docs/plans/` | 제작 plan |
-| `docs/DESIGN.md` 일부 | `docs/architecture/` (정책) + `docs/history/` (히스토리) | 정책/히스토리 분리 |
+| `docs/DESIGN.md` 전체 (1149줄) | `docs/history/DESIGN.md` (gitignore) | 전체가 design background/historical rationale로 정의됨 |
 | `docs/signal-watch-workflow.md` | `docs/_details/signal-watch.md` | 분류 정리 |
 | `docs/source-registry.md` | `docs/_details/source-registry.md` | 분류 정리 |
 

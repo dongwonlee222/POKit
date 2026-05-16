@@ -19,11 +19,10 @@ Each document has one job:
 - `docs/OPERATING_MODEL.md`: canonical policy source for approvals, cycle execution, completion, artifact handling, and documentation ownership.
 - `docs/ROADMAP.md`: roadmap compass for goals, initiatives, candidate cycles, and Linear sync policy.
 - `workflows/hooks.yaml`: canonical workflow hook list.
-- `docs/DESIGN.md`: design background and historical rationale.
 - `examples/`: sanitized reusable samples.
 - `artifacts/`: local generated workspace output, not canonical documentation.
 
-Do not duplicate full policy text across README, ONBOARDING, and DESIGN. Link to the canonical section instead.
+Do not duplicate full policy text across README and ONBOARDING. Link to the canonical section instead.
 
 ## Product Philosophy and Decision Rules
 

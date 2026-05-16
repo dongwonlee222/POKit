@@ -35,7 +35,6 @@ export function auditReleaseMarkdown(files: ReleaseMarkdownFile[], options: Rele
   const agents = byPath.get("AGENTS.md");
   const releaseChecklist = byPath.get("docs/RELEASE_CHECKLIST.md");
   const operatingModel = byPath.get("docs/OPERATING_MODEL.md");
-  const design = byPath.get("docs/DESIGN.md");
   const versioning = byPath.get("docs/VERSIONING.md");
   const changelog = byPath.get("CHANGELOG.md");
 
@@ -60,14 +59,6 @@ export function auditReleaseMarkdown(files: ReleaseMarkdownFile[], options: Rele
       path: "docs/OPERATING_MODEL.md",
       ruleId: "missing-operating-model-role",
       message: "OPERATING_MODEL must identify itself as the canonical policy source.",
-    });
-  }
-
-  if (design && !/design reference/i.test(design)) {
-    violations.push({
-      path: "docs/DESIGN.md",
-      ruleId: "missing-design-reference-role",
-      message: "DESIGN must identify itself as a design reference, not current policy source.",
     });
   }
 

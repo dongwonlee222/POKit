@@ -40,15 +40,10 @@ test("auditReleaseMarkdown requires canonical role markers in current docs", asy
       path: "docs/OPERATING_MODEL.md",
       content: "# POKit Operating Model\n\nPolicy.",
     },
-    {
-      path: "docs/DESIGN.md",
-      content: "# POKit Design Plan\n\nDesign.",
-    },
   ], { targetVersion: "v0.2.0" });
 
   assert.deepEqual(result.violations.map((violation) => violation.ruleId), [
     "missing-operating-model-role",
-    "missing-design-reference-role",
   ]);
 });
 

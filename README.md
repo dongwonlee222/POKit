@@ -84,7 +84,7 @@ flowchart LR
 - [docs/OPERATING_MODEL.md](docs/OPERATING_MODEL.md): 정책, 승인, cycle 규칙, 문서 역할의 기준 문서.
 - [docs/ROADMAP.md](docs/ROADMAP.md): 목표, initiative, 후보 cycle, Linear 반영 전 roadmap 기준 문서.
 - [workflows/hooks.yaml](workflows/hooks.yaml): 워크플로우 훅 이름의 기준 파일.
-- [docs/DESIGN.md](docs/DESIGN.md): 설계 배경. 세부 내용이 달라지면 위 기준 문서를 우선합니다.
+
 
 ## 5분 시작하기
 

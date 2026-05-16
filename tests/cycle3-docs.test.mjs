@@ -48,7 +48,7 @@ test("versioning policy defines first release, semver, hotfixes, and release che
 });
 
 test("DESIGN documents orchestrator recovery after session start and compaction", async () => {
-  const design = await readFile("docs/DESIGN.md", "utf8");
+  const design = await readFile("docs/history/DESIGN.md", "utf8");
 
   assert.match(design, /Orchestrator Recovery Contract/);
   assert.match(design, /orchestrator=loaded/);
