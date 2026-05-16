@@ -8,7 +8,7 @@ import test from "node:test";
 process.env.POKIT_PROFILE = "";
 
 async function loadCycleCloseModule() {
-  return import(`../scripts/cycle-close.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/cli/cycle-close.ts?cacheBust=${Date.now()}`);
 }
 
 const cycle3Context = {

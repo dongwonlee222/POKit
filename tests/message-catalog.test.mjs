@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function loadCatalogModule() {
-  return import(`../scripts/message-catalog.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/message-catalog.ts?cacheBust=${Date.now()}`);
 }
 
 test("loadMessageCatalog reads message ids and Korean user-facing text", async () => {

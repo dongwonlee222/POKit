@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
-import { discoverMarkdownArtifacts, safePathSegment } from "./lib/history-collector.ts";
-import { profileArtifactPath } from "./profile.ts";
+import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "../internal/linear.ts";
+import { discoverMarkdownArtifacts, safePathSegment } from "../internal/lib/history-collector.ts";
+import { profileArtifactPath } from "../internal/profile.ts";
 import type { ResumeBriefWriteResult } from "./session-close.ts";
 
 export type CycleCloseInput = {

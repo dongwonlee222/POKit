@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadAuditModule() {
-  return import(`../scripts/release-md-audit.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/release-md-audit.ts?cacheBust=${Date.now()}`);
 }
 
 test("auditReleaseMarkdown flags oversized agent rules and stale release checklist targets", async () => {

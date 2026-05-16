@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadHotfixModule() {
-  return import(`../scripts/hotfix-cycle-plan.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/cli/hotfix-cycle-plan.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildHotfixCyclePlans returns create-cycle and move-issue dry-run plans", async () => {

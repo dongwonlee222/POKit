@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadPreflightModule() {
-  return import(`../scripts/linear-write-semantic-preflight.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/linear-write-semantic-preflight.ts?cacheBust=${Date.now()}`);
 }
 
 test("validateLinearWriteSemanticPreflight passes Korean title with target version and release bundle", async () => {

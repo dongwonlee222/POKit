@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadCardModule() {
-  return import(`../scripts/backlog-idea-card.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/backlog-idea-card.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildBacklogIdeaCard creates a lightweight card with optional PO fields", async () => {

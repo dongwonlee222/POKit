@@ -1,4 +1,4 @@
-import { planMissingLabels, type Plan } from "./linear.ts";
+import { planMissingLabels, type Plan } from "../internal/linear.ts";
 
 export const DAY2_REQUIRED_LABELS = ["pokit:prd", "pokit:criteria"] as const;
 

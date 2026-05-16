@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadSeedModule() {
-  return import(`../scripts/backlog-seed-plan.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/backlog-seed-plan.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildBacklogSeedPlans returns dry-run issue creation plans only", async () => {

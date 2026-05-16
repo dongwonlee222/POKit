@@ -25,7 +25,8 @@ test("document roles keep AGENTS focused on main-agent orchestration", async () 
 });
 
 test("AGENTS documents minimal human intervention approval matrix", async () => {
-  const content = await readFile("AGENTS.md", "utf8");
+  // v0.8.0: human intervention matrix moved to docs/_details/approval-flow.md.
+  const content = await readFile("docs/_details/approval-flow.md", "utf8");
 
   assert.match(content, /Human Intervention Matrix/);
   assert.match(content, /Local file edits/);
@@ -48,7 +49,8 @@ test("AGENTS and OPERATING_MODEL require Korean-first user-facing artifacts", as
 });
 
 test("OPERATING_MODEL documents conversational ASCII visualization rules", async () => {
-  const content = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: detail content moved to docs/_details/visualization.md
+  const content = await readFile("docs/_details/visualization.md", "utf8");
 
   assert.match(content, /Conversation Visualization Contract/);
   assert.match(content, /Mermaid is for durable docs/);
@@ -64,48 +66,51 @@ test("OPERATING_MODEL documents conversational ASCII visualization rules", async
 });
 
 test("external write boundaries require actionable dry-run next steps", async () => {
-  const agents = await readFile("AGENTS.md", "utf8");
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: AGENTS.md slimmed; all external write boundary phrases live in docs/_details/.
+  const approvalFlow = await readFile("docs/_details/approval-flow.md", "utf8");
+  const completionReport = await readFile("docs/_details/completion-report.md", "utf8");
 
-  assert.match(agents, /When local work is complete and the next step is an external write/);
-  assert.match(agents, /Show the external write dry-run immediately/);
-  assert.match(agents, /Approval-pending responses must still be actionable/);
-  assert.match(operatingModel, /must not simply stop/);
-  assert.match(operatingModel, /print the external write dry-run/);
-  assert.match(operatingModel, /A completion response that says an external write was skipped is incomplete/);
+  assert.match(approvalFlow, /When local work is complete and the next step is an external write/);
+  assert.match(approvalFlow, /Show the external write dry-run immediately/);
+  assert.match(approvalFlow, /Approval-pending responses must still be actionable/);
+  assert.match(approvalFlow, /must not simply stop/);
+  assert.match(approvalFlow, /print the external write dry-run/);
+  assert.match(completionReport, /A completion response that says an external write was skipped is incomplete/);
 });
 
 test("completion reports require a flow adherence check", async () => {
-  const agents = await readFile("AGENTS.md", "utf8");
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: all completion flow phrases live in docs/_details/completion-report.md
+  const completionReport = await readFile("docs/_details/completion-report.md", "utf8");
 
-  assert.match(agents, /Before reporting procedure\/Cycle completion/);
-  assert.match(agents, /documented flow name/);
-  assert.match(agents, /required artifacts, naming\/title conventions/);
-  assert.match(operatingModel, /Before any completion claim, run a flow adherence check/);
-  assert.match(operatingModel, /required artifacts were produced with the expected names and titles/);
-  assert.match(operatingModel, /skipped steps or deviations/);
+  assert.match(completionReport, /Before reporting procedure\/Cycle completion/);
+  assert.match(completionReport, /documented flow name/);
+  assert.match(completionReport, /required artifacts, naming\/title conventions/);
+  assert.match(completionReport, /Before any completion claim, run a flow adherence check/);
+  assert.match(completionReport, /required artifacts were produced with the expected names and titles/);
+  assert.match(completionReport, /skipped steps or deviations/);
 });
 
 test("remaining-work answers require Cycle close and release-state checks", async () => {
-  const agents = await readFile("AGENTS.md", "utf8");
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: all cycle release state phrases live in docs/_details/cycle-flow.md
+  const cycleFlow = await readFile("docs/_details/cycle-flow.md", "utf8");
 
-  assert.match(agents, /When the user asks what remains\/next/);
-  assert.match(agents, /check current Cycle task state and close\/release state/);
-  assert.match(agents, /Do not recommend Backlog or next-Cycle work/);
-  assert.match(operatingModel, /must inspect the Cycle close\/release state, not only the brief task counts/);
-  assert.match(operatingModel, /Cycle Release Pending/);
-  assert.match(operatingModel, /Do not move to Backlog grooming or next-Cycle bundling/);
+  assert.match(cycleFlow, /When the user asks what remains\/next/);
+  assert.match(cycleFlow, /check current Cycle task state and close\/release state/);
+  assert.match(cycleFlow, /Do not recommend Backlog or next-Cycle work/);
+  assert.match(cycleFlow, /must inspect the Cycle close\/release state, not only the brief task counts/);
+  assert.match(cycleFlow, /Cycle Release Pending/);
+  assert.match(cycleFlow, /Do not move to Backlog grooming or next-Cycle bundling/);
 });
 
 test("confirmed errors require local Problem/Error Review backlog memos", async () => {
-  const agents = await readFile("AGENTS.md", "utf8");
+  // v0.8.0: error/blocker phrases live in docs/_details/approval-flow.md.
+  // Memo contract body still anchored in docs/OPERATING_MODEL.md stub for backref compat.
+  const approvalFlow = await readFile("docs/_details/approval-flow.md", "utf8");
   const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
 
-  assert.match(agents, /When a confirmed error\/blocker occurs/);
-  assert.match(agents, /write a Korean Problem\/Error Review memo under `artifacts\/backlog\/`/);
-  assert.match(agents, /docs\/OPERATING_MODEL\.md#problemerror-review-memo-contract/);
+  assert.match(approvalFlow, /When a confirmed error\/blocker occurs/);
+  assert.match(approvalFlow, /write a Korean Problem\/Error Review memo under `artifacts\/backlog\/`/);
+  assert.match(approvalFlow, /docs\/OPERATING_MODEL\.md#problemerror-review-memo-contract/);
   assert.match(operatingModel, /Problem\/Error Review Memo Contract/);
   assert.match(operatingModel, /artifacts\/backlog\/\[short-kebab-problem\]-problem-review\.md/);
   assert.match(operatingModel, /무엇이 문제인가\?/);
@@ -119,7 +124,10 @@ test("AGENTS requires executable session bootstrap after compaction or handoff",
   const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
 
   assert.match(agents, /POKit session start contract/);
-  assert.match(agents, /scripts\/session-start\.ts/);
+  // v0.8.0: bootstrap reference shifted from raw node command to `pokit start` verb.
+  // The test accepts either form so the bootstrap contract stays enforceable
+  // before and after CLI wrapper migration completes.
+  assert.match(agents, /pokit start|scripts\/(cli\/)?session-start\.ts/);
   assert.match(agents, /context compaction/);
   assert.match(agents, /pokit:boot ok/);
   assert.match(operatingModel, /Session Bootstrap Contract/);
@@ -128,23 +136,24 @@ test("AGENTS requires executable session bootstrap after compaction or handoff",
 });
 
 test("OPERATING_MODEL documents Memory MVP boundary, frontmatter, index, and Linear relation contract", async () => {
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: memory detail moved to docs/_details/memory-contract.md
+  const memoryContract = await readFile("docs/_details/memory-contract.md", "utf8");
   const workflow = await readFile("workflows/definition-pipeline.yaml", "utf8");
   const gitignore = await readFile(".gitignore", "utf8");
 
-  assert.match(operatingModel, /POKit Memory MVP Contract/);
-  assert.match(operatingModel, /Private Memory Boundary/);
-  assert.match(operatingModel, /memory\/notes\/\*\.md/);
-  assert.match(operatingModel, /generated `memory\/index\.yaml`/);
-  assert.match(operatingModel, /collected\/`/);
-  assert.match(operatingModel, /Minimal Frontmatter Schema/);
-  assert.match(operatingModel, /id: mem-/);
-  assert.match(operatingModel, /scope: private/);
-  assert.match(operatingModel, /Linear Issue Creation Contract/);
-  assert.match(operatingModel, /Depends on/);
-  assert.match(operatingModel, /Related/);
-  assert.match(operatingModel, /Source/);
-  assert.match(operatingModel, /Evidence/);
+  assert.match(memoryContract, /POKit Memory MVP Contract/);
+  assert.match(memoryContract, /Private Memory Boundary/);
+  assert.match(memoryContract, /memory\/notes\/\*\.md/);
+  assert.match(memoryContract, /generated `memory\/index\.yaml`/);
+  assert.match(memoryContract, /collected\/`/);
+  assert.match(memoryContract, /Minimal Frontmatter Schema/);
+  assert.match(memoryContract, /id: mem-/);
+  assert.match(memoryContract, /scope: private/);
+  assert.match(memoryContract, /Linear Issue Creation Contract/);
+  assert.match(memoryContract, /Depends on/);
+  assert.match(memoryContract, /Related/);
+  assert.match(memoryContract, /Source/);
+  assert.match(memoryContract, /Evidence/);
   assert.match(workflow, /linear_issue_creation_contract:/);
   assert.match(workflow, /idempotency_key/);
   assert.match(workflow, /relation_metadata/);
@@ -154,36 +163,37 @@ test("OPERATING_MODEL documents Memory MVP boundary, frontmatter, index, and Lin
 });
 
 test("OPERATING_MODEL documents executable resume-brief validation", async () => {
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: resume brief detail moved to docs/_details/memory-contract.md
+  const memoryContract = await readFile("docs/_details/memory-contract.md", "utf8");
 
-  assert.match(operatingModel, /Resume Brief Contract/);
-  assert.match(operatingModel, /scripts\/resume-brief-validator\.ts/);
-  assert.match(operatingModel, /command-only handoff is not enough/);
-  assert.match(operatingModel, /raw context/);
+  assert.match(memoryContract, /Resume Brief Contract/);
+  assert.match(memoryContract, /scripts\/resume-brief-validator\.ts/);
+  assert.match(memoryContract, /command-only handoff is not enough/);
+  assert.match(memoryContract, /raw context/);
 });
 
 test("Cycle progress and one-time celebration contracts are documented", async () => {
-  const agents = await readFile("AGENTS.md", "utf8");
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: all cycle progress + celebration phrases live in docs/_details/cycle-flow.md
+  const cycleFlow = await readFile("docs/_details/cycle-flow.md", "utf8");
 
-  assert.match(operatingModel, /Cycle Step Progress Contract/);
-  assert.match(operatingModel, /\[████░░░░░░\] 4\/10/);
-  assert.match(operatingModel, /▶ 승인 필요/);
-  assert.match(operatingModel, /release 전용 progress bar/);
-  assert.match(operatingModel, /One-Time Cycle Celebration Contract/);
-  assert.match(operatingModel, /stateKey/);
-  assert.match(operatingModel, /must not repeat unless the cycle state changes/);
-  assert.match(agents, /Cycle 완료 직후 축하 메시지는 release gate 완료 후 1회만 표시한다/);
+  assert.match(cycleFlow, /Cycle Step Progress Contract/);
+  assert.match(cycleFlow, /\[████░░░░░░\] 4\/10/);
+  assert.match(cycleFlow, /▶ 승인 필요/);
+  assert.match(cycleFlow, /release 전용 progress bar/);
+  assert.match(cycleFlow, /One-Time Cycle Celebration Contract/);
+  assert.match(cycleFlow, /stateKey/);
+  assert.match(cycleFlow, /must not repeat unless the cycle state changes/);
+  assert.match(cycleFlow, /Cycle 완료 직후 축하 메시지는 release gate 완료 후 1회만 표시한다/);
 });
 
 test("Version Run release is the default unit while Linear Weekly Cycle stays a tracking container", async () => {
-  const agents = await readFile("AGENTS.md", "utf8");
-  const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: all release flow phrases live in docs/_details/release-flow.md
+  const releaseFlow = await readFile("docs/_details/release-flow.md", "utf8");
 
-  assert.match(agents, /Version Run release is default/);
-  assert.match(agents, /Linear Weekly Cycle is only a weekly tracking\/review container/);
-  assert.match(operatingModel, /Version Run Release Contract/);
-  assert.match(operatingModel, /default release unit is the Version Run/);
-  assert.match(operatingModel, /Version Run Release Deferred/);
-  assert.match(operatingModel, /Do not hold completed release-ready work until the end of the week by default/);
+  assert.match(releaseFlow, /Version Run release is default/);
+  assert.match(releaseFlow, /Linear Weekly Cycle is only a weekly tracking\/review container/);
+  assert.match(releaseFlow, /Version Run Release Contract/);
+  assert.match(releaseFlow, /default release unit is the Version Run/);
+  assert.match(releaseFlow, /Version Run Release Deferred/);
+  assert.match(releaseFlow, /Do not hold completed release-ready work until the end of the week by default/);
 });

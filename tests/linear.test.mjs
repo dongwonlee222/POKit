@@ -11,7 +11,7 @@ let moduleLoadCount = 0;
 
 async function loadLinearModule() {
   moduleLoadCount += 1;
-  return import(`../scripts/linear.ts?cacheBust=${moduleLoadCount}`);
+  return import(`../scripts/internal/linear.ts?cacheBust=${moduleLoadCount}`);
 }
 
 function resetProcessEnv() {

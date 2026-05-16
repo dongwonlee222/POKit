@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function loadCycleGuardModule() {
-  return import(`../scripts/cycle-guard.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/cycle-guard.ts?cacheBust=${Date.now()}`);
 }
 
 test("evaluateCycleGuard blocks implementation without cycle or approved bundle context", async () => {

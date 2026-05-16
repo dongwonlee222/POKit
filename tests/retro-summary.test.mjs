@@ -8,7 +8,7 @@ import test from "node:test";
 process.env.POKIT_PROFILE = "";
 
 async function loadRetroModule() {
-  return import(`../scripts/retro-summary.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/cli/retro-summary.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildRetroDraft summarizes completed, unfinished, artifacts, and questions", async () => {

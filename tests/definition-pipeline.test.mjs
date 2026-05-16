@@ -166,7 +166,8 @@ test("definition pipeline templates use Korean headings", async () => {
 });
 
 test("operating model references the definition pipeline contract", async () => {
-  const content = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: definition pipeline detail moved to docs/_details/subagent-contract.md
+  const content = await readFile("docs/_details/subagent-contract.md", "utf8");
 
   assert.match(content, /Definition Pipeline/);
   assert.match(content, /기계가 읽는 id와 파일명은 영어/);
@@ -181,7 +182,8 @@ test("operating model references the definition pipeline contract", async () => 
 });
 
 test("operating model fixes the main context and subagent call contract", async () => {
-  const content = await readFile("docs/OPERATING_MODEL.md", "utf8");
+  // v0.8.0: subagent contract detail moved to docs/_details/subagent-contract.md
+  const content = await readFile("docs/_details/subagent-contract.md", "utf8");
 
   assert.match(content, /Main Context \/ Subagent Call Contract/);
   assert.match(content, /메인 에이전트는 최신 사용자 의도, 승인 경계, 최종 판단만 유지/);

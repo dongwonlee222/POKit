@@ -1,3 +1,15 @@
+---
+name: backlog-manager
+description: PO가 백로그 아이템을 추가·조회·변경할 때 사용한다. "백로그 추가해줘", "이슈 만들어줘" 등 자연어 요청으로 진입하며 dry-run plan 후 승인 대기.
+entry: conversational
+labels: []
+trigger_phrases:
+  - "백로그 추가해줘"
+  - "이슈 만들어줘"
+  - "백로그 변경"
+  - "backlog 추가"
+---
+
 # backlog-manager
 
 ## Trigger

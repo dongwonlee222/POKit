@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function loadHooksRunnerModule() {
-  return import(`../scripts/hooks-runner.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/hooks-runner.ts?cacheBust=${Date.now()}`);
 }
 
 test("runOnErrorHook renders a Problem/Error Review and can write the memo artifact", async () => {

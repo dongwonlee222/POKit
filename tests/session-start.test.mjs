@@ -8,7 +8,7 @@ import test from "node:test";
 process.env.POKIT_PROFILE = "";
 
 async function loadSessionStartModule() {
-  return import(`../scripts/session-start.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/cli/session-start.ts?cacheBust=${Date.now()}`);
 }
 
 const context = {

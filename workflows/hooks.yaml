@@ -46,7 +46,7 @@ hooks:
 
   before_public_release:
     enforcement: script
-    runner: scripts/release-preflight.ts
+    runner: scripts/ci/release-preflight.ts
     gates:
       - id: release_md_audit
         severity: blocker
@@ -89,7 +89,7 @@ hooks:
 
   on_error:
     enforcement: script
-    runner: scripts/hooks-runner.ts
+    runner: scripts/internal/hooks-runner.ts
     - collect_error
     - render_problem_error_review
     - write_problem_review_memo

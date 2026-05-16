@@ -1,4 +1,4 @@
-import { planUpdateCycle, type Plan } from "./linear.ts";
+import { planUpdateCycle, type Plan } from "../internal/linear.ts";
 
 export type CycleMaintenanceTarget = {
   cycleId: string;

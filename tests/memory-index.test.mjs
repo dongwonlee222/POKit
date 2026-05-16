@@ -6,7 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function loadIndexModule() {
-  return import(`../scripts/memory-index.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/memory-index.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildMemoryIndex creates a unified index from private memory notes", async () => {

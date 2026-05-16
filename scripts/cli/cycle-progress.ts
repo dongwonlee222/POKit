@@ -1,4 +1,4 @@
-import { renderProgressBar } from "./render/ascii.ts";
+import { renderProgressBar } from "../internal/render/ascii.ts";
 
 export type CycleProgressStep = {
   id: string;

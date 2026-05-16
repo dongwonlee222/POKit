@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadSubagentPayloadModule() {
-  return import(`../scripts/subagent-payload-check.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/subagent-payload-check.ts?cacheBust=${Date.now()}`);
 }
 
 test("validateSubagentPayload accepts bounded schema-only output", async () => {

@@ -3,13 +3,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { renderCycleProgress } from "./cycle-progress.ts";
-import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
-import { profileMemoryPath } from "./profile.ts";
+import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
+import { profileMemoryPath } from "../internal/profile.ts";
 import {
   validateNextAction,
   validateResumeBriefContract,
   type ResumeBriefValidationResult,
-} from "./resume-brief-validator.ts";
+} from "../internal/resume-brief-validator.ts";
 
 export type VerificationResult = {
   command: string;

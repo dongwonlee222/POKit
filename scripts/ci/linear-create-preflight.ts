@@ -1,4 +1,4 @@
-import { renderPreflightStatusBlock } from "./render/ascii.ts";
+import { renderPreflightStatusBlock } from "../internal/render/ascii.ts";
 
 export type LinearState = "absent" | "open" | "done";
 export type LocalEvidenceState = "none" | "partial" | "complete";

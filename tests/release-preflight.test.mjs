@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadPreflightModule() {
-  return import(`../scripts/release-preflight.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/release-preflight.ts?cacheBust=${Date.now()}`);
 }
 
 test("renderReleasePreflight prints ASCII gate map with blocker and warning states", async () => {

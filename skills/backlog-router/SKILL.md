@@ -1,3 +1,13 @@
+---
+name: backlog-router
+description: pokit:prd 또는 pokit:criteria 라벨을 읽어 적절한 artifact 스킬로 이슈를 라우팅한다. 내부 dispatcher가 자동 호출.
+entry: internal:dispatcher
+labels: [pokit:prd, pokit:criteria]
+trigger_phrases:
+  - "이슈 라우팅해줘"
+  - "라벨 보고 스킬 골라줘"
+---
+
 # backlog-router
 
 ## Trigger

@@ -18,7 +18,7 @@ test("on_error hook is backed by the Problem/Error Review runner contract", asyn
 
   assert.match(content, /on_error:/);
   assert.match(content, /enforcement:\s*script/);
-  assert.match(content, /runner:\s*scripts\/hooks-runner\.ts/);
+  assert.match(content, /runner:\s*scripts\/(internal\/)?hooks-runner\.ts/);
   assert.match(content, /collect_error/);
   assert.match(content, /render_problem_error_review/);
   assert.match(content, /write_problem_review_memo/);

@@ -10,7 +10,7 @@ let moduleLoadCount = 0;
 
 async function loadProfileModule() {
   moduleLoadCount += 1;
-  return import(`../scripts/profile.ts?cacheBust=${moduleLoadCount}`);
+  return import(`../scripts/internal/profile.ts?cacheBust=${moduleLoadCount}`);
 }
 
 test.afterEach(() => {

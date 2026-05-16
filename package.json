@@ -1,0 +1,23 @@
+{
+  "name": "pokit",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "pokit": "./bin/pokit"
+  },
+  "scripts": {
+    "start": "node --experimental-strip-types scripts/cli/session-start.ts",
+    "brief": "node --experimental-strip-types scripts/internal/session-brief.ts",
+    "run": "node --experimental-strip-types scripts/cli/sprint-runner.ts",
+    "close": "node --experimental-strip-types scripts/cli/cycle-close.ts",
+    "retro": "node --experimental-strip-types scripts/cli/retro-summary.ts",
+    "hotfix": "node --experimental-strip-types scripts/cli/hotfix-cycle-plan.ts",
+    "audit": "node --experimental-strip-types scripts/ci/release-md-audit.ts",
+    "guard": "node --experimental-strip-types scripts/ci/cycle-guard.ts",
+    "progress": "node --experimental-strip-types scripts/cli/cycle-progress.ts",
+    "end": "node --experimental-strip-types scripts/cli/session-close.ts",
+    "safety": "node --experimental-strip-types scripts/ci/public-safety-scan.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+  }
+}

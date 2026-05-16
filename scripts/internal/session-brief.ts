@@ -1,13 +1,13 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "./archive-guardrail.ts";
-import { renderCycleProgress } from "./cycle-progress.ts";
+import { renderCycleProgress } from "../cli/cycle-progress.ts";
 import { loadHookMap, renderHookMap } from "./hook-map.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "./linear.ts";
 import { getActiveProfile, profileArtifactPath } from "./profile.ts";
 import { renderProgressBar } from "./render/ascii.ts";
 import { loadMessageCatalog, renderMessage } from "./message-catalog.ts";
-import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
+import { buildSprintDryRunSummary, type SprintDryRunSummary } from "../cli/sprint-runner.ts";
 
 export type SessionBriefInput = {
   now?: Date;

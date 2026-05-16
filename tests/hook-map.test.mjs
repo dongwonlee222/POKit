@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadHookMapModule() {
-  return import(`../scripts/hook-map.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/hook-map.ts?cacheBust=${Date.now()}`);
 }
 
 test("loadHookMap reads before_public_release enforcement metadata", async () => {

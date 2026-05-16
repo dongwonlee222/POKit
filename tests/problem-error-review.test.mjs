@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function loadProblemReviewModule() {
-  return import(`../scripts/problem-error-review.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/problem-error-review.ts?cacheBust=${Date.now()}`);
 }
 
 test("renderProblemErrorReview shows the required Korean review structure", async () => {

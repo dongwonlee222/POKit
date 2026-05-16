@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadRunIdentityModule() {
-  return import(`../scripts/pokit-run-identity.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/pokit-run-identity.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildPokitRunId tracks release and non-release runs without relying on titles", async () => {

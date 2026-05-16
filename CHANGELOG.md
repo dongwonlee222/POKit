@@ -4,6 +4,35 @@
 
 No pending public release notes.
 
+## v0.8.0 - 2026-05-16
+
+### Added
+
+- `bin/pokit` CLI wrapper with 11 verbs (`start`, `brief`, `run`, `close`, `retro`, `hotfix`, `audit`, `guard`, `progress`, `end`, `safety`) replaces direct `node --experimental-strip-types scripts/...` invocations in operating instructions.
+- `package.json` with `bin` field and 12 npm scripts so `pokit start` / `npm run start` both work after `npm install -g` or local clone.
+- `scripts/internal/dispatch.ts` with skill manifest loader (parseFrontmatter, loadSkillManifests, dispatchByLabels, dispatchByTriggerPhrase) and 14 dispatcher tests.
+- `tests/agents-md-size-regression.test.mjs` guards AGENTS.md line count, full-command absence, and required detail-policy links.
+
+### Changed
+
+- `scripts/` reorganized from 30+ flat files into `scripts/cli/` (7 entry points), `scripts/internal/` (helpers, validators, render, lib, external-write), and `scripts/ci/` (8 release/CI scripts). 21 script imports and 36 test imports updated.
+- `AGENTS.md` slimmed from 92 to 35 lines. Detail policy moved into `docs/_details/*.md`. Bootstrap, Korean-first principle, verb pointer, and link map kept inline.
+- `docs/OPERATING_MODEL.md` slimmed from 727 to 174 lines (index + anchor stubs). Detail moved to 7 topic files in `docs/_details/`.
+- All 8 `skills/*/SKILL.md` gained YAML frontmatter (`name`, `description`, `entry`, `labels`, `trigger_phrases`) for label-based dispatcher routing.
+
+### Docs / Policy
+
+- New `docs/_details/` directory with 8 topic files: `approval-flow.md`, `cycle-flow.md`, `release-flow.md`, `subagent-contract.md`, `memory-contract.md`, `completion-report.md`, `visualization.md`, `cli-internals.md`.
+- `cli-internals.md` preserves the verb → `node --experimental-strip-types scripts/...` mapping as a debugging and CI escape hatch.
+- `AGENTS.md` now indexes detail policies instead of embedding them, so main-agent context loads only what the current task needs.
+
+### Verification
+
+- 231 tests / 230 PASS / 1 pre-existing ENOENT in `korean-language-contract.test.mjs` (unrelated, sprint artifact missing).
+- `pokit start` produces the same `pokit:boot ok cycle=... hooks=loaded` signature as the prior direct node invocation.
+- `pokit safety` passes (no private POKit dogfood data leaked).
+- Regression guards in `agents-md-size-regression.test.mjs` keep AGENTS.md under 40 lines, full-command-free, and linked to detail files.
+
 ## v0.7.1 - 2026-05-16
 
 ### Added

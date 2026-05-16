@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadOutlineModule() {
-  return import(`../scripts/backlog-outline.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/backlog-outline.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildBacklogTitle keeps Korean state first and machine variables out of the title", async () => {

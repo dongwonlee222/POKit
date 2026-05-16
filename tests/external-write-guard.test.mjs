@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadExternalWriteGuardModule() {
-  return import(`../scripts/external-write/guard.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/external-write/guard.ts?cacheBust=${Date.now()}`);
 }
 
 const releaseBundlePlan = {

@@ -1,3 +1,15 @@
+---
+name: prioritizer
+description: Cycle 또는 백로그의 이슈를 ICE-lite로 우선순위 평가한다. "우선순위 정해줘", "뭐부터 할까" 요청 시 대화형으로 진입.
+entry: conversational
+labels: []
+trigger_phrases:
+  - "우선순위 정해줘"
+  - "뭐부터 할까"
+  - "ICE 평가해줘"
+  - "어떤 이슈 먼저 할까"
+---
+
 # prioritizer
 
 ## Trigger

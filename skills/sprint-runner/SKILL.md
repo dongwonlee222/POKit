@@ -1,3 +1,15 @@
+---
+name: sprint-runner
+description: 현재 Cycle 이슈를 처리하고 run summary를 생성한다. "이번 cycle 실행", "이번 cycle 준비" 요청 시 사용.
+entry: pokit run
+labels: []
+trigger_phrases:
+  - "이번 cycle 실행"
+  - "이번 cycle 준비"
+  - "스프린트 실행해줘"
+  - "cycle 처리해줘"
+---
+
 # sprint-runner
 
 ## Trigger

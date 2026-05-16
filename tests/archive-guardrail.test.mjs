@@ -4,7 +4,7 @@ import test from "node:test";
 process.env.POKIT_PROFILE = "";
 
 async function loadArchiveModule() {
-  return import(`../scripts/archive-guardrail.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/archive-guardrail.ts?cacheBust=${Date.now()}`);
 }
 
 function makeDoneIssue(number) {

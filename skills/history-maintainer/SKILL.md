@@ -1,3 +1,14 @@
+---
+name: history-maintainer
+description: 세션·Cycle·태스크 완료 이력을 관리하고 history 레이어(Task/Session/Cycle/Product/Decision)를 유지한다. 세션 종료 시 자동 호출.
+entry: internal:session-close
+labels: []
+trigger_phrases:
+  - "히스토리 정리해줘"
+  - "세션 이력 기록해줘"
+  - "완료 이력 업데이트"
+---
+
 # history-maintainer
 
 ## Trigger

@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
-import { profileArtifactPath } from "./profile.ts";
+import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "../internal/linear.ts";
+import { profileArtifactPath } from "../internal/profile.ts";
 
 type ArtifactType = "prd" | "criteria";
 

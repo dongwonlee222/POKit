@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function loadValidatorModule() {
-  return import(`../scripts/resume-brief-validator.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/resume-brief-validator.ts?cacheBust=${Date.now()}`);
 }
 
 const validResumeBrief = [

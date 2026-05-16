@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "./linear.ts";
-import { profileArtifactPath } from "./profile.ts";
+import { getWorkingCycleContext, type Issue, type WorkingCycleContext } from "../internal/linear.ts";
+import { profileArtifactPath } from "../internal/profile.ts";
 
 export type ArtifactReference = {
   path: string;

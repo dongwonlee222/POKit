@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadPreflightModule() {
-  return import(`../scripts/label-preflight.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/label-preflight.ts?cacheBust=${Date.now()}`);
 }
 
 test("renderLabelPreflightPlanMarkdown is dry-run and shows idempotency key", async () => {

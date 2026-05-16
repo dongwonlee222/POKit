@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadMaintenanceModule() {
-  return import(`../scripts/cycle-maintenance.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/cycle-maintenance.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildCycleMaintenancePlans returns dry-run completion plans", async () => {

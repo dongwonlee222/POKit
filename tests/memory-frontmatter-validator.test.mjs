@@ -6,7 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function loadValidatorModule() {
-  return import(`../scripts/memory-frontmatter-validator.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/memory-frontmatter-validator.ts?cacheBust=${Date.now()}`);
 }
 
 test("validateMemoryFrontmatter accepts minimal POKit memory frontmatter", async () => {

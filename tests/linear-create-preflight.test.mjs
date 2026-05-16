@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadPreflightModule() {
-  return import(`../scripts/linear-create-preflight.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/linear-create-preflight.ts?cacheBust=${Date.now()}`);
 }
 
 test("classifyLinearCreatePreflight groups absent candidates into CREATE and SKIP", async () => {

@@ -1,4 +1,4 @@
-import { planAssignIssueToCycle, planCreateHotfixCycle, type Plan } from "./linear.ts";
+import { planAssignIssueToCycle, planCreateHotfixCycle, type Plan } from "../internal/linear.ts";
 
 export type HotfixCyclePlanInput = {
   hotfixCycleName: string;

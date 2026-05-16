@@ -8,7 +8,7 @@ import test from "node:test";
 process.env.POKIT_PROFILE = "";
 
 async function loadBriefModule() {
-  return import(`../scripts/session-brief.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/session-brief.ts?cacheBust=${Date.now()}`);
 }
 
 test("buildSessionBrief renders compact dashboard with nudge", async () => {
@@ -420,7 +420,7 @@ test("buildHookDetail shows hooks and enforcement metadata", async () => {
   assert.match(detail, /POKit Hook Map/);
   assert.match(detail, /before_public_release/);
   assert.match(detail, /enforcement: script/);
-  assert.match(detail, /scripts\/release-preflight\.ts/);
+  assert.match(detail, /scripts\/(ci\/)?release-preflight\.ts/);
 });
 
 test("buildSessionBrief keeps active cycle candidates when active cycle still has remaining work", async () => {

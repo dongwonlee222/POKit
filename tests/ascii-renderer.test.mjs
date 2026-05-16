@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadAsciiModule() {
-  return import(`../scripts/render/ascii.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/internal/render/ascii.ts?cacheBust=${Date.now()}`);
 }
 
 test("renderProgressBar clamps values and keeps a stable ten-slot visual", async () => {

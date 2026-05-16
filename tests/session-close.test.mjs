@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function loadSessionCloseModule() {
-  return import(`../scripts/session-close.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/cli/session-close.ts?cacheBust=${Date.now()}`);
 }
 
 const cycle2Context = {

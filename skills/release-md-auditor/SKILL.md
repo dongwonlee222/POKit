@@ -1,6 +1,13 @@
 ---
 name: release-md-auditor
-description: Use before a POKit public release, GitHub push/tag/release, or release candidate to check Markdown files for clear document roles, stale release targets, oversized AGENTS.md instructions, and release-readiness notes.
+description: 공개 릴리스 전 Markdown 파일의 문서 역할·스테일 릴리스 대상·AGENTS.md 크기·릴리스 준비 상태를 검사한다. "릴리스 감사", "audit 실행해줘" 요청 시 사용.
+entry: pokit audit
+labels: []
+trigger_phrases:
+  - "릴리스 감사해줘"
+  - "audit 실행해줘"
+  - "release audit"
+  - "릴리스 전 검사"
 ---
 
 # release-md-auditor

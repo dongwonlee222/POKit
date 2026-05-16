@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadPublicSafetyModule() {
-  return import(`../scripts/public-safety-scan.ts?cacheBust=${Date.now()}`);
+  return import(`../scripts/ci/public-safety-scan.ts?cacheBust=${Date.now()}`);
 }
 
 test("scanPublicFiles flags private Linear workspace and cycle identifiers", async () => {
