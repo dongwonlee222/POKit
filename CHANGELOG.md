@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No pending public release notes.
+### Changed
+
+- 명칭 통일: `Linear Weekly Cycle` / `Weekly Cycle` → **위클리 서클**, `POKit Version Run` / `Version Run` → **버전 스프린트**. 23개 파일 / 96곳 일괄 치환 (문서·코드 출력 문자열·테스트 어서션 포함). 다음 docs sync 릴리즈에 묶일 예정.
 
 ## v0.11.0 - 2026-05-16
 
