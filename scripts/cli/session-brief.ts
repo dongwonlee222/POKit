@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildArchiveGuardrail } from "../internal/archive-guardrail.ts";
 import { renderCycleProgress } from "./cycle-progress.ts";
@@ -80,6 +80,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
       "POKit 진행도",
       `${renderProgressBar({ current: 1, total: 10, width: 10 })} · 현재: 시작 브리프`,
       "",
+      ...buildPreviousSessionBlock(rootDir),
       cycleLine,
       "",
       buildCandidateHeading(resolved.primarySurface, resolved.futureUpcoming, rootDir),
@@ -119,6 +120,67 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     `Retro: ${retroPath ?? "없음"}`,
     "",
   ].join("\n");
+}
+
+function buildPreviousSessionBlock(rootDir: string): string[] {
+  const path = join(rootDir, "memory/resume-brief.md");
+  const headerLabel = messageLabel(rootDir, "session_start.previous_session_label", "🪧 이전 세션");
+  if (!existsSync(path)) {
+    const missing = messageLabel(rootDir, "session_start.previous_missing", "이전 세션 기록 없음");
+    return [headerLabel, `- ${missing}`, ""];
+  }
+  const content = readFileSync(path, "utf8");
+  const sections = parseResumeBriefSections(content);
+  const stoppedLabel = messageLabel(rootDir, "session_start.previous_stopped_label", "어디서 멈췄나");
+  const nextLabel = messageLabel(rootDir, "session_start.previous_next_label", "다음에 무엇을 하나");
+  const blockedLabel = messageLabel(rootDir, "session_start.previous_blocked_label", "차단된 것");
+  const lines: string[] = [headerLabel];
+  if (sections.stopped) {
+    lines.push(`- ${stoppedLabel}: ${sections.stopped}`);
+  }
+  if (sections.next.length) {
+    lines.push(`- ${nextLabel}:`);
+    for (const item of sections.next) {
+      lines.push(`  - ${item}`);
+    }
+  }
+  if (sections.blocked) {
+    lines.push(`- ${blockedLabel}: ${sections.blocked}`);
+  }
+  if (lines.length === 1) {
+    const missing = messageLabel(rootDir, "session_start.previous_missing", "이전 세션 기록 없음");
+    lines.push(`- ${missing}`);
+  }
+  lines.push("");
+  return lines;
+}
+
+function parseResumeBriefSections(content: string): { stopped: string; next: string[]; blocked: string } {
+  const lines = content.split(/\r?\n/);
+  const sectionMap: Record<string, string[]> = {};
+  let currentKey: string | null = null;
+  for (const line of lines) {
+    const heading = line.match(/^##\s+(.+?)\s*$/);
+    if (heading) {
+      currentKey = heading[1].trim();
+      sectionMap[currentKey] = [];
+      continue;
+    }
+    if (currentKey) {
+      sectionMap[currentKey].push(line);
+    }
+  }
+  const stoppedRaw = (sectionMap["어디서 멈췄나"] ?? []).map((l) => l.trim()).filter(Boolean);
+  const nextRaw = (sectionMap["다음에 무엇을 하나"] ?? []).map((l) => l.trim()).filter(Boolean);
+  const blockedRaw = (sectionMap["차단된 것"] ?? []).map((l) => l.trim()).filter(Boolean);
+  return {
+    stopped: stoppedRaw[0] ?? "",
+    next: nextRaw
+      .filter((l) => l.startsWith("-"))
+      .map((l) => l.replace(/^-\s*/, ""))
+      .slice(0, 5),
+    blocked: blockedRaw[0] ?? "",
+  };
 }
 
 function messageLabel(rootDir: string, id: string, fallback: string): string {

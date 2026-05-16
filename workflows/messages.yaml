@@ -14,6 +14,27 @@ messages:
     text: "추천 다음 행동"
     emoji: "💬"
 
+  session_start.previous_session_label:
+    surface: session_start
+    text: "이전 세션"
+    emoji: "🪧"
+
+  session_start.previous_stopped_label:
+    surface: session_start
+    text: "어디서 멈췄나"
+
+  session_start.previous_next_label:
+    surface: session_start
+    text: "다음에 무엇을 하나"
+
+  session_start.previous_blocked_label:
+    surface: session_start
+    text: "차단된 것"
+
+  session_start.previous_missing:
+    surface: session_start
+    text: "이전 세션 기록 없음 (memory/resume-brief.md 비어있음)"
+
   resume_compaction.title:
     surface: resume_compaction
     text: "세션 복구 확인"
