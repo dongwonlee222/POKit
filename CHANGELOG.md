@@ -4,6 +4,78 @@
 
 No pending public release notes.
 
+## v0.10.0 - 2026-05-16
+
+### Added
+
+- `docs/architecture/15-folder-layout.md` 신규 — 14개 폴더 책임 정의 + 배포 표(Public/Internal) + 5가지 경계 결정 + 외부 사례 인용. 작업자 LLM이 매 세션 cold start에서 헷갈리지 않게 하기 위한 단일 출처.
+- `AGENTS.md` Core Principle 섹션 신설 — "모든 구조 결정은 LLM 명확성을 최우선으로 한다".
+- `docs/ROADMAP.md` North Star/현재 목표/Identity Fit Check Q8에 LLM 명확성 박제.
+- `tests/folder-layout-contract.test.mjs` 신규 — 최상위 폴더가 §2 배포 표에 등록된 것만 허용, Internal 폴더는 `.gitignore` 동기화 검증.
+- 신규 폴더: `memory/notes/`, `memory/manifests/`, `memory/problem-reviews/`, `artifacts/analyses/`, `artifacts/cross-runtime-diff/`, `dogfood/`, `docs/plans/`, `docs/history/`, `tests/fixtures/day2-dry-run/`.
+
+### Changed
+
+- 레거시 25개 폴더·파일 이동 (`git mv` history 보존):
+  - `artifacts/backlog/*-problem-review.md` → `memory/problem-reviews/` (cross-run 학습 자료).
+  - `artifacts/manifests/` → `memory/manifests/` (cross-run 추적).
+  - `artifacts/pokit-deep-analysis-*.md` → `artifacts/analyses/`.
+  - `workflows/cross-runtime-diff-{checklist,tests}.md` → `docs/_details/cross-runtime-diff.md` (2개를 1개로 통합).
+  - `workflows/cross-runtime-diff-results/` → `artifacts/cross-runtime-diff/`.
+  - `examples/dogfood/` → `dogfood/` (최상위 승격, 자체 작업 ≠ sample).
+  - `examples/day2-dry-run/` → `tests/fixtures/day2-dry-run/` (test fixture).
+  - `examples/definition/POKIT-89/` → `examples/definition-pipeline-sample/` (익명화).
+  - `docs/{CYCLE_BRIEF_CLOSE_PLAN,GOAL_LOOP,IMPLEMENTATION_PLAN}.md` → `docs/plans/` (gitignore — 제작 plan은 사용자 노출 불필요).
+  - `docs/{signal-watch-workflow,source-registry}.md` → `docs/_details/{signal-watch,source-registry}.md`.
+  - `docs/DESIGN.md` (1149줄) → `docs/history/DESIGN.md` (gitignore — 전체가 design background/historical rationale 성격).
+- `workflows/`는 이제 yaml 4개만 (선언적 정의 전용).
+- `examples/`는 이제 3개만 (`backlog-intake/`, `definition-pipeline-sample/`, `signal-watch/` — 모두 sanitized).
+- `scripts/internal/problem-error-review.ts`, `scripts/cli/session-brief.ts`: Problem Review 경로를 `memory/problem-reviews/`로.
+- `scripts/ci/release-md-audit.ts`: DESIGN 검증 블록 제거 (untracked → audit 대상 아님).
+- `tests/agents-md-size-regression.test.mjs`: AGENTS.md 라인 ceiling 40 → 45 (Core Principle 박제 ~4줄 사유).
+- README.md, docs/VERSIONING.md, docs/OPERATING_MODEL.md: DESIGN.md Public 참조 제거.
+- `.gitignore`: `docs/plans/`, `docs/history/`, `dogfood/`, `memory/manifests/`, `memory/problem-reviews/`, `.claude/` 추가. `artifacts/manifests/` whitelist 제거 (memory로 이동).
+
+### Docs / Policy
+
+- LLM 명확성을 POKit North Star/현재 목표/Identity Fit Check에 박제. 가벼움의 기준은 분량이 아니라 작업자 LLM이 헷갈리지 않는 구조다.
+- Public/Internal 2-tier 분리 — 사용자가 `git clone` 시 보는 표면적은 9개 폴더 + 루트 파일만. memory/artifacts/dogfood/docs/plans/docs/history는 Internal.
+- 5가지 경계 명확화: memory↔artifacts, workflows↔scripts, examples↔templates, artifacts/backlog↔memory, dogfood 위치.
+
+### Verification
+
+- 247/247 tests PASS (folder-layout-contract 4건 신규 포함).
+- `workflows/` 가 yaml 4개만 남음 (정의/결과/문서 분리 완료).
+- 최상위 폴더가 12개 → docs/architecture/15-folder-layout.md §2 배포 표와 일치.
+
+## v0.9.0 - 2026-05-16
+
+### Added
+
+- `scripts/internal/dispatch.ts` 가 모든 verb의 on_error를 통합 처리 — Problem/Error Review 메모 자동 생성, 사용자 친화 ASCII 출력.
+- Inline Fix 정책 명시 (`docs/_details/release-flow.md`) — 1~3 파일 / 외부 배포 없음 / 기존 설계 연결 누락 수준은 백로그/Hotfix 없이 즉시 수정.
+- Operator Pre-task Judgment 게이트 정책 — 실행 전 분류·확인 단계 강제.
+
+### Changed
+
+- `scripts/cli/`로 `session-brief.ts` 와 `public-safety-scan.ts` 이동 (디렉토리 정합성, POKIT-145).
+- Policy Precondition Gate 정책 추가 — Inline fix.
+- Operator 정의와 Codex 운영 명시 — Inline fix.
+
+### Fixed
+
+- `korean-language-contract.test.mjs` ENOENT 해결 (POKIT-146) — 누락된 sprint artifact 처리.
+- `session-start` 에러 처리 개선 — Inline fix.
+
+### Docs / Policy
+
+- `memory/resume-brief.md` gitignore 추가 — private session handoff 파일.
+- Operator 역할과 Codex CLI 운영 흐름 명시.
+
+### Verification
+
+- 테스트 통과 (Cycle 11 close 시).
+
 ## v0.8.0 - 2026-05-16
 
 ### Added
