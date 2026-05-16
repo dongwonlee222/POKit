@@ -74,6 +74,7 @@ export type Issue = {
   labels: string[];
   state?: string;
   assignee?: string;
+  priority?: number;
   parent?: {
     id: string;
     identifier?: string;
@@ -179,6 +180,8 @@ type LinearIssueNode = {
   description?: string;
   url?: string;
   dueDate?: string | null;
+  priority?: number;
+  sortOrder?: number;
   labels: { nodes: Array<{ name: string }> };
   state?: { name: string };
   assignee?: { name: string } | null;
@@ -325,6 +328,9 @@ function normalizeIssue(issue: LinearIssueNode): Issue {
     state: issue.state?.name,
     assignee: issue.assignee?.name,
   };
+  if (issue.priority !== undefined) {
+    normalized.priority = issue.priority;
+  }
   if (issue.dueDate !== undefined && issue.dueDate !== null) {
     normalized.dueDate = issue.dueDate;
   }
@@ -501,6 +507,8 @@ async function fetchWorkingContext(teamId: string): Promise<WorkingContext> {
             description
             url
             dueDate
+            priority
+            sortOrder
             labels {
               nodes {
                 name

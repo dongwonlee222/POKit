@@ -41,7 +41,7 @@ test("buildSessionBrief renders compact dashboard with nudge", async () => {
   assert.match(brief, /9\. 사용자 승인\s+⏳/);
   assert.match(brief, /📌 현재: Todo 3 · 진행 1 · 완료 2/);
   assert.match(brief, /⚠️ 주의: 라벨 필요 1 · 확인 필요 0 · 승인 대기 1/);
-  assert.match(brief, /🧺 다음 후보/);
+  assert.match(brief, /Linear 우선순위 Top 3/);
   assert.match(brief, /1\. EVM-20 LLM-first · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-21 Team optional · Todo · pokit:criteria/);
   assert.match(brief, /3\. EVM-26 No label · Todo · no-label/);
@@ -187,7 +187,7 @@ test("buildSessionBrief shows upcoming and backlog candidates when active cycle 
 
   assert.match(brief, /📅 .* · Cycle 2/);
   assert.match(brief, /📌 현재: Todo 3 · 진행 0 · 완료 0/);
-  assert.match(brief, /🧺 다음 후보 \(Cycle 2/);
+  assert.match(brief, /Linear 우선순위 Top 3 \(Cycle 2/);
   assert.match(brief, /1\. EVM-32 Model tier · Todo · pokit:criteria/);
   assert.match(brief, /2\. EVM-33 Resume brief · Todo · pokit:criteria/);
   assert.match(brief, /3\. EVM-34 Session close · Todo · pokit:prd/);
@@ -557,7 +557,7 @@ test("buildSessionBrief shows backlog candidates when only an empty upcoming cyc
 
   assert.match(brief, /📅 .* · Cycle 5/);
   assert.match(brief, /✅ Cycle 5 완료: Todo 0 · 진행 0 · 완료 0/);
-  assert.match(brief, /🧺 다음 후보/);
+  assert.match(brief, /Linear 우선순위 Top 3/);
   assert.match(brief, /1\. POKIT-53 Brief fallback · Backlog · pokit:criteria/);
   assert.match(brief, /2\. POKIT-54 Visual layer · Backlog · pokit:prd/);
   assert.match(brief, /💬 추천 다음 행동: Backlog 후보를 다음 Cycle 후보로 묶기/);

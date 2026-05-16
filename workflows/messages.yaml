@@ -6,8 +6,8 @@ messages:
 
   session_start.next_candidates_label:
     surface: session_start
-    text: "다음 후보"
-    emoji: "🧺"
+    text: "Linear 우선순위 Top 3"
+    emoji: ""
 
   session_start.next_action_label:
     surface: session_start

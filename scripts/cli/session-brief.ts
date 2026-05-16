@@ -438,8 +438,17 @@ function selectNextCandidates(issues: Issue[]): Issue[] {
       const state = classifyIssueState(issue.state);
       return state === "todo";
     })
-    .sort(compareIssueIdentifier)
+    .sort(compareIssuePriority)
     .slice(0, 3);
+}
+
+function compareIssuePriority(left: Issue, right: Issue): number {
+  // Linear priority: 1=Urgent, 2=High, 3=Medium, 4=Low, 0=None
+  // 0 (No priority) goes last
+  const leftP = left.priority === 0 || left.priority === undefined ? Number.MAX_SAFE_INTEGER : left.priority;
+  const rightP = right.priority === 0 || right.priority === undefined ? Number.MAX_SAFE_INTEGER : right.priority;
+  if (leftP !== rightP) return leftP - rightP;
+  return compareIssueIdentifier(left, right);
 }
 
 function selectRecentDone(issues: Issue[]): Issue[] {
@@ -852,7 +861,7 @@ function isFutureCycle(context: WorkingCycleContext, now: Date): boolean {
 }
 
 function buildCandidateHeading(context: WorkingCycleContext, futureUpcoming: boolean, rootDir = "."): string {
-  const label = messageLabel(rootDir, "session_start.next_candidates_label", "🧺 다음 후보");
+  const label = messageLabel(rootDir, "session_start.next_candidates_label", "Linear 우선순위 Top 3");
   if (context.source !== "linear_upcoming") {
     return label;
   }
