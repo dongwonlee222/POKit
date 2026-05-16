@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- POKIT-115 Working Notes Lifecycle (v0.14.0 Memory MVP):
+  - `scripts/internal/working-notes-validator.ts` 신규 — issue/status/updated_at 필수 필드 + status enum (wip|blocked|done|abandoned) 검증.
+  - `templates/working-notes/_template.md` 신규 — 작업 노트 템플릿 (frontmatter + 목적/진행상황/차단사항/완료요약 섹션).
+  - `docs/_details/working-notes-lifecycle.md` 신규 — 경로 규칙, status 정의, Done 시 완료요약 규칙, Cycle close 아카이브 정책, 장기기억 승격 수동 정책.
+  - `scripts/cli/cycle-close.ts` `archiveDoneWorkingNotes()` 추가 — Cycle close 시 working-notes/ 스캔하여 status=done 노트만 `_archive/{cycle-name}/`으로 이동. wip/blocked/abandoned는 유지. 멱등성 보장.
+  - `tests/working-notes-archive.test.mjs` 신규 — validator 6개 + archive 4개 총 10개 테스트.
+
 ## v0.12.2 - 2026-05-16
 
 ### Added
