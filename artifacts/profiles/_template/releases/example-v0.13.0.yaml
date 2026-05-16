@@ -1,0 +1,9 @@
+version: "v0.13.0"
+released_at: "2026-04-15T12:00:00Z"
+included_issue_ids:
+  - POKIT-100
+  - POKIT-101
+  - POKIT-102
+cycle_refs:
+  - "POKit Cycle 8"
+changelog_summary: "Memory MVP 초기 구현 — cycle/release manifest 스키마 및 lookup 지원"

@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { renderCycleProgress } from "./cycle-progress.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
 import { profileMemoryPath } from "../internal/profile.ts";
+import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 import {
   validateNextAction,
   validateResumeBriefContract,
@@ -112,12 +113,17 @@ export function buildSessionCloseBrief(input: SessionCloseInput): string {
   const hypothesis = input.hypothesis?.trim() || "미입력 (--hypothesis로 전달)";
   const nextAction = input.nextAction?.trim() || buildCycleNextAction(resolved.surface, resolved.pending.length);
 
+  const openCycle = findOpenCycleManifest(rootDir);
+  const manifestLine = openCycle
+    ? `- Cycle manifest: ${openCycle.cycle_name}${openCycle.release_version ? ` · ${openCycle.release_version}` : ""} · ${openCycle.included_issue_ids.length}개 이슈`
+    : null;
   return [
     "🎉 POKit 종료 Brief",
     `📅 ${formatKoreanDate(input.now ?? new Date())} · Team ${teamLabel}`,
     "",
     `- 스프린트(배포 버전): ${version}`,
     `- 완료 목록: ${completedList}`,
+    ...(manifestLine ? [manifestLine] : []),
     `- 기대 가설: ${hypothesis}`,
     `- 💬 추천 다음 행동: ${nextAction}`,
     "",

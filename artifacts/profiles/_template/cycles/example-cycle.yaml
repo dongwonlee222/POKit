@@ -1,0 +1,9 @@
+cycle_name: "POKit Cycle 8"
+started_at: "2026-04-01T00:00:00Z"
+closed_at: null
+release_version: "v0.13.0"
+included_issue_ids:
+  - POKIT-100
+  - POKIT-101
+  - POKIT-102
+notes: "Memory MVP 기반 구축 cycle. 예시 파일 — 실제 데이터 아님."
