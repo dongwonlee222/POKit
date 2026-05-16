@@ -28,7 +28,7 @@ export function buildSessionStart(input: SessionStartInput): string {
   return [
     brief.trimEnd(),
     "",
-    `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length}`,
+    `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length} linear=api-key`,
     "",
     "<!-- AGENT: output above verbatim, no summary, no interpretation -->",
   ].join("\n");

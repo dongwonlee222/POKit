@@ -23,6 +23,7 @@ export type SessionCloseInput = {
   completed?: string[];
   verification?: VerificationResult[];
   historyWrites?: ResumeBriefWriteResult[];
+  nextAction?: string;
 };
 
 export type ResumeBriefWriteResult =
@@ -49,8 +50,8 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
   const verification = input.verification ?? [];
   const historyConflicts = (input.historyWrites ?? []).filter((item) => item.status === "needs_approval");
-  const nextAction = buildCycleNextAction(resolved.surface, resolved.pending.length);
-  const nextActionCheck = validateNextAction(nextAction);
+  const nextAction = input.nextAction ?? buildCycleNextAction(resolved.surface, resolved.pending.length);
+  const nextActionCheck = validateNextAction(nextAction, { explicitIssueSelection: input.nextAction !== undefined });
   const cycleActionName = cycleNameForAction(resolved.surface);
   const pendingLines = resolved.pending.length
     ? resolved.pending.map((issue) => `- ${formatIssueStatus(issue)} · ${cycleActionName} 남은 Todo 묶음 · 다음: ${nextAction}`)
@@ -100,7 +101,7 @@ export function buildSessionCloseReport(input: SessionCloseInput): string {
 export function buildResumeBrief(input: SessionCloseInput): string {
   const resolved = resolveCloseContext(input.context, input.completed ?? []);
   const verification = input.verification ?? [];
-  const nextAction = buildCycleNextAction(resolved.surface, resolved.pending.length);
+  const nextAction = input.nextAction ?? buildCycleNextAction(resolved.surface, resolved.pending.length);
   const pending = resolved.pending.map((issue) => issue.identifier).join(", ") || "없음";
   const blocked = verification.filter((item) => item.status === "failed");
   const blockedLine = blocked.length
@@ -162,7 +163,8 @@ export async function writeResumeBrief(input: {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const context = await getWorkingContext();
-  const report = buildSessionCloseReport({ context });
+  const nextAction = readNextAction(args);
+  const report = buildSessionCloseReport({ context, nextAction });
   console.log(report);
   console.log("\n<!-- AGENT: output above verbatim, no summary, no interpretation -->");
   if (args.includes("--write-resume-brief")) {
@@ -170,7 +172,7 @@ async function main(): Promise<void> {
     const expectedHash = readExpectedHash(args) ?? (existsSync(path) ? hashContent(readFileSync(path, "utf8")) : undefined);
     const result = await writeResumeBrief({
       path,
-      content: buildResumeBrief({ context }),
+      content: buildResumeBrief({ context, nextAction }),
       expectedHash,
     });
     if (result.status === "needs_approval") {
@@ -387,6 +389,11 @@ function issueNumber(identifier: string): number {
 
 function readExpectedHash(args: string[]): string | undefined {
   const index = args.findIndex((arg) => arg === "--expected-hash");
+  return index >= 0 ? args[index + 1] : undefined;
+}
+
+function readNextAction(args: string[]): string | undefined {
+  const index = args.findIndex((arg) => arg === "--next-action");
   return index >= 0 ? args[index + 1] : undefined;
 }
 
