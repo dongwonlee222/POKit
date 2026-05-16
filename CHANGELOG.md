@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.14.0 - 2026-05-17
+
+### Added
+
+- Working Notes Lifecycle — Memory MVP [POKIT-115]:
+  - `scripts/internal/working-notes-validator.ts` 신규 — issue/status/updated_at 필수 필드 + status enum (wip|blocked|done|abandoned) 검증.
+  - `templates/working-notes/_template.md` 신규 — 작업 노트 템플릿.
+  - `docs/_details/working-notes-lifecycle.md` 신규 — 경로 규칙, status 정의, 아카이브 정책.
+  - `scripts/cli/cycle-close.ts` `archiveDoneWorkingNotes()` 추가 — Cycle close 시 done 노트 아카이브.
+  - `tests/working-notes-archive.test.mjs` 신규 — 10개 테스트.
+- Cycle 릴리스 Manifest 추적 [POKIT-116]:
+  - `scripts/internal/manifest-lookup.ts` 신규 — cycle/release manifest 조회 유틸리티.
+  - `artifacts/profiles/_template/cycles/`, `artifacts/profiles/_template/releases/` 템플릿 추가.
+  - `docs/_details/cycle-manifest-schema.md`, `docs/_details/release-manifest-schema.md` 신규.
+  - `scripts/cli/session-start.ts`, `scripts/cli/session-close.ts` manifest 통합.
+  - `tests/manifest-lookup.test.mjs` 신규.
+- Collected Data Governance [POKIT-117]:
+  - `artifacts/profiles/_template/collected/` 디렉토리 구조 신규 — raw/digest/examples 하위.
+  - `.gitignore` 업데이트 — collected 데이터 거버넌스 규칙 적용.
+
 ## v0.13.0 - 2026-05-17
 
 ### Fixed
