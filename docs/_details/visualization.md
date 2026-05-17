@@ -10,6 +10,15 @@ Default patterns:
 - Decision Flow: show the current decision point, recommended path, alternative path, and approval boundary.
 - Before/After ASCII: in Cycle close drafts, show what changed in the workflow before adding narrative detail.
 - Long Session Nudge: use the nudge emoji with an ASCII recommendation bar and current usage/status signals. This is a gentle continuity hint, not an error or approval gate.
+- **Improvement / Friction Analysis (필수, 도구 무관)**: 사용자가 마찰·문제·개선점·회고·우선순위·Before/After를 물을 때(예: "뭐가 문제야?", "왜 오래 걸려?", "비효율", "개선안") 텍스트 단락 나열 금지. 항상 시각화 우선:
+  - 흐름·단계 → ASCII sequence diagram (사용자/Claude/시스템 컬럼)
+  - 분포·비율 → ASCII bar chart (Pareto 우선)
+  - 원인-해결 매핑 → 3열 표 (마찰 / 원인 / 해결)
+  - 본질 vs 우발 → ✅/⚠️/🔴 아이콘 + 카운트
+  - Before/After → 같은 흐름도 2개 나란히, step 수 비교
+  - 우선순위 → 효과×시급도 매트릭스 (1사분면 강조)
+
+  각 시각화 뒤 **핵심 인사이트 1줄** ("핵심: 80%가 CLI 부재" 같은) 명시. 시각화는 데이터, 인사이트는 결론. 본 규칙은 Claude Code·Codex 등 진입 에이전트와 무관하게 동일 적용 (AGENTS.md → visualization.md 참조 경로로 양쪽 모두 로드).
 
 Keep conversational visuals compact. They should make the next Cycle action easier to see, not become a separate dashboard or a second source of truth.
 
