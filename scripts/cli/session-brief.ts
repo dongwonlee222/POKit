@@ -11,7 +11,7 @@ import { loadMessageCatalog, renderMessage } from "../internal/message-catalog.t
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 import { getActiveCycleTargetVersion } from "../internal/manifest-lookup.ts";
 import { readNextAction } from "../internal/next-action-wizard.ts";
-import { parseReleaseManifest, type ReleaseUnresolved } from "../internal/release-manifest.ts";
+import { parseReleaseManifest, releaseManifestPath, type ReleaseUnresolved } from "../internal/release-manifest.ts";
 
 export type SessionBriefInput = {
   now?: Date;
@@ -138,7 +138,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
 function buildUnresolvedCard(rootDir: string, latestVersion: string): string[] {
   if (!latestVersion || latestVersion === "(unreleased)") return [];
   const versionToken = latestVersion.startsWith("v") ? latestVersion.slice(1) : latestVersion;
-  const path = join(rootDir, "memory", "releases", `v${versionToken}.yaml`);
+  const path = releaseManifestPath(versionToken, rootDir);
   if (!existsSync(path)) return [];
   let manifest;
   try {
