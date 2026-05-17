@@ -10,6 +10,12 @@ trigger_phrases:
   - "/backlog-memo"
   - "백로그 아이디어 정리"
   - "일단 메모만"
+  - "백로그 등록"
+  - "백로그 추가"
+  - "백로그 만들어"
+  - "백로그 올려"
+  - "백로그 등록해줘"
+  - "백로그 추가해줘"
 ---
 
 # backlog-memo
@@ -86,14 +92,14 @@ scope-hash: title의 앞 8자 소문자 슬러그 (공백→하이픈, 특수문
 ```
 ---
 > **이건 로컬 메모입니다. Linear에 아직 등록되지 않았습니다.**
-> 등록하려면 "OK 등록해" 또는 "linear-backlog-manager로 넘겨"라고 말해주세요.
+> Linear에 올리려면 "Linear 백로그 등록" 또는 "Linear에 올려"라고 명시해주세요. 그 외 응답은 메모로 유지됩니다.
 ```
 
 ### Step 5 — 사용자 승인 대기
 
-- "OK 등록해" / "linear-backlog-manager로 넘겨" → linear-backlog-manager 스킬로 위임. **자동 호출 금지** — 사용자가 명시적으로 요청할 때만.
+- "Linear 백로그 등록" / "Linear에 올려" / "linear-backlog-manager로 넘겨" → linear-backlog-manager 스킬로 위임. **자동 호출 금지** — 사용자가 명시적으로 요청할 때만.
 - 수정 요청 → Step 3~4 반복.
-- "됐어" / "그냥 저장" → 메모로 종료. 외부 등록 없음.
+- "됐어" / "그냥 저장" / 그 외 모호한 응답 → 메모로 종료. 외부 등록 없음.
 
 ## Self-Verification Checklist
 

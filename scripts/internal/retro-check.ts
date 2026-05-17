@@ -205,7 +205,7 @@ function buildDescription(
 
 function releaseManifestPathDisplay(version: string): string {
   // For description text — show repo-relative path, not absolute.
-  return `memory/releases/v${version}.yaml`;
+  return `releases/v${version}/manifest.yaml`;
 }
 
 function idempotencyKeyFor(version: string, gap: WiringGap): string {

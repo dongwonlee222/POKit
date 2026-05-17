@@ -166,7 +166,7 @@ LLM이 판단하지 말아야 할 것:
 
 Linear write는 다음 단일 경로만 통과한다 (3겹 hook):
 
-1. **SKILL 진입** — `linear-backlog-manager` 스킬 (raw idea → memo 단계는 `backlog-memo`).
+1. **SKILL 진입** — `linear-issue-manager` 스킬 (raw idea → memo 단계는 `backlog-memo`). create/update 두 분기 모두 포함.
 2. **타입 hook** — `planCreateIssue` 가 `LinearBacklogDescriptionInput` 만 받음 (raw description string 금지).
 3. **Bash hook** — `.claude/hooks/block-linear-curl.sh` 가 Linear GraphQL 직접 호출 차단.
 

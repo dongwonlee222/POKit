@@ -46,7 +46,7 @@ test("loadSkillManifests: all 11 expected skill names are present", async () => 
   const EXPECTED = [
     "acceptance-criteria-author",
     "backlog-memo",
-    "linear-backlog-manager",
+    "linear-issue-manager",
     "backlog-router",
     "history-maintainer",
     "pokit-end",

@@ -1,5 +1,42 @@
 # Changelog
 
+## v0.15.2 - 2026-05-17
+
+### Added
+
+- POKIT-171 (M2) — `./bin/pokit release [4/8]` manifest 미존재 시 자동 생성:
+  - `scripts/internal/release-manifest.ts` `buildReleaseManifest(version, opts)` 신규 + `parseChangelogSection(rootDir, version)` 헬퍼.
+  - `scripts/cli/release.ts` [4/8] 분기 — 미존재 시 `writeReleaseManifest` 자동 호출 (issues/changelog/artifacts 빈 배열로 시작).
+- POKIT-173 (M4) — 미결 인계 메커니즘:
+  - `ReleaseManifest` 타입에 `unresolved?: Array<{id, note, owner}>` 필드 추가. render/parse round-trip 지원.
+  - `scripts/cli/session-brief.ts` start variant — "🪧 이전 릴리스 미결 N건" 카드 자동 렌더 (직전 manifest unresolved 참조).
+- POKIT-176 (M7) — wiring 실측 probe:
+  - `scripts/internal/wiring-probe.ts` 신규 — `countProductionHits(id, rootDir)` + `scanWiring(intended, opts)`.
+  - 단위 테스트 3건 추가.
+- POKIT-177 (M10) — `linear-issue-manager` SKILL 신설 (구 `linear-backlog-manager` 리네임):
+  - `scripts/internal/linear.ts` `planUpdateIssue` / `applyUpdateIssue` / `composeAppendedDescription` / `fetchIssueByIdentifier` / `resolveWorkflowStateId` 추가.
+  - SKILL 본문에 Routing 분기(`POKIT-\d+` 매칭 → Update / 미포함 → Create) + Step 3-update 절차.
+  - `tests/linear-update.test.mjs` 신규 (9건).
+
+### Changed
+
+- POKIT-172 (M3) — `release.ts [6/8]` retro-check `--dry-run` 고정 해제. dry-run plan → `[y/N]` 프롬프트 → `--apply` 재실행 흐름. TTY 없음 시 자동 skip + WARN.
+- POKIT-174 (M5) — 백로그 라우팅 강화:
+  - `skills/backlog-memo/SKILL.md` trigger_phrases 확장 ("백로그 등록/추가/만들어/올려" 등 6건).
+  - `skills/linear-issue-manager/SKILL.md` Trigger Guard 섹션 — 발화에 `Linear` 단어 없으면 즉시 거부.
+  - `CLAUDE.md` "백로그 라우팅 규약" 섹션 추가.
+- POKIT-175 (M6) — `releases/v<버전>/manifest.yaml` 단일 폴더 묶음:
+  - `memory/releases/v*.yaml` → `releases/v*/manifest.yaml` 이동 (4건).
+  - `memory/releases/SCHEMA.md` → `releases/SCHEMA.md`.
+  - `releaseManifestPath()` 헬퍼 경로 갱신. `retro-check` evidence 경로도 동기.
+  - `memory/releases/` 폐기. `artifacts/{prds,criteria,sprints}/` 마이그레이션은 후속 백로그.
+- `.claude/hooks/block-linear-curl.sh` 메시지 `linear-backlog-manager` → `linear-issue-manager` 갱신.
+- `.claude/settings.local.json` permissions 영구 허용 목록 정비 (mkdir/mv/rm/git mv/node/./bin/pokit/gh 등).
+
+### Notes
+
+- M8 (POKIT-170 보류 처리) / M9 (POKIT-159 link append) 는 M10 SKILL 첫 사용 케이스로 본 릴리스 내 처리. `releases/v0.15.2/manifest.yaml` `unresolved:` 박제 확인.
+
 ## v0.15.1 - 2026-05-17
 
 ### Added

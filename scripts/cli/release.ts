@@ -12,6 +12,13 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  buildReleaseManifest,
+  parseReleaseManifest,
+  releaseManifestPath,
+  renderReleaseManifest,
+  writeReleaseManifest,
+} from "../internal/release-manifest.ts";
 
 type Opts = {
   version: string;
@@ -98,25 +105,59 @@ const main = async () => {
   run("git", ["push", "origin", "main"], opts);
   run("git", ["push", "origin", tagName], opts);
 
-  // [4/8] Release Manifest yaml 생성
+  // [4/8] Release Manifest yaml 생성 (POKIT-171 — 미존재 시 자동 생성)
   step(4, TOTAL, "Release Manifest yaml 생성");
-  const manifestPath = join(opts.rootDir, "memory", "releases", `v${opts.version}.yaml`);
+  const manifestPath = releaseManifestPath(opts.version, opts.rootDir);
   if (existsSync(manifestPath)) {
     console.log(`  ✓ manifest 이미 존재: ${manifestPath} (재생성 안 함)`);
+    try {
+      parseReleaseManifest(readFileSync(manifestPath, "utf8"));
+      console.log(`  ✓ parse OK`);
+    } catch (err: any) {
+      console.error(`  ✗ manifest parse 실패: ${err.message}`);
+      if (!opts.dryRun) process.exit(1);
+    }
+  } else if (opts.dryRun) {
+    console.log(`  (dry-run) manifest 자동 생성 skip: ${manifestPath}`);
   } else {
-    console.log(`  ⚠ manifest 미존재 — 수동 작성 또는 backfill 필요: ${manifestPath}`);
+    console.log(`  manifest 미존재 — 자동 생성 시작: ${manifestPath}`);
+    const manifest = buildReleaseManifest(opts.version, { rootDir: opts.rootDir });
+    const writtenPath = await writeReleaseManifest(opts.version, manifest, opts.rootDir);
+    console.log(`  ✓ 자동 생성 완료: ${writtenPath}`);
+    console.log(`    - issues: ${manifest.issues.length}건 (cycle ${manifest.cycle_id})`);
+    console.log(`    - changelog: ${manifest.changelog.length} bullet`);
+    console.log(`    - wiring intended/actual/gaps: ${manifest.wiring_status.intended.length}/${manifest.wiring_status.actual.length}/${manifest.wiring_status.gaps.length}`);
+    console.log(`    ※ issues·artifacts·wiring_status는 빈 상태로 시작. 후속 단계가 채움.`);
   }
 
   // [5/8] Cycle Close (간소화 — close 호출)
   step(5, TOTAL, "Cycle Close");
   run("node", ["--experimental-strip-types", "scripts/cli/session-close.ts"], { ...opts, allowFail: true });
 
-  // [6/8] 이전 버전 점검 → pokit:gap 이슈 자동 생성
+  // [6/8] 이전 버전 점검 → pokit:gap 이슈 자동 생성 (POKIT-172 M3 — dry-run plan → 승인 → apply)
   if (opts.skipRetroCheck) {
     step(6, TOTAL, "🔍 이전 버전 점검 (skipped via --no-retro-check)");
   } else {
-    step(6, TOTAL, "🔍 이전 버전 점검 → pokit:gap 이슈 자동 생성");
-    run("node", ["--experimental-strip-types", "scripts/cli/retro-check.ts", "--dry-run"], { ...opts, allowFail: true });
+    step(6, TOTAL, "🔍 이전 버전 점검 → pokit:gap 이슈 plan");
+    const previousVersion = await findPreviousReleaseVersion(opts.rootDir, opts.version);
+    if (!previousVersion) {
+      console.log(`  (이전 release manifest 없음 — retro-check skip)`);
+    } else {
+      console.log(`  이전 버전: v${previousVersion}`);
+      run("node", ["--experimental-strip-types", "scripts/cli/retro-check.ts", previousVersion, "--dry-run"], { ...opts, allowFail: true });
+      if (opts.dryRun) {
+        console.log(`  (dry-run mode — apply 단계 skip)`);
+      } else if (!process.stdin.isTTY) {
+        console.error(`  ⚠ TTY 없음 — retro-check apply skip. plan만 출력됨. (수동 처리 필요)`);
+      } else {
+        const answer = await promptYesNo("  pokit:gap 이슈를 Linear에 실제 등록할까요?");
+        if (answer) {
+          run("node", ["--experimental-strip-types", "scripts/cli/retro-check.ts", previousVersion, "--apply"], { ...opts, allowFail: true });
+        } else {
+          console.log(`  (사용자 거부 — apply skip)`);
+        }
+      }
+    }
   }
 
   // [7/8] Next Action Wizard
@@ -142,6 +183,42 @@ const main = async () => {
 
   console.log(`\n✓ Release v${opts.version} 완료.`);
 };
+
+// ---------- helpers (M3) ----------
+import { readdirSync } from "node:fs";
+
+async function findPreviousReleaseVersion(rootDir: string, currentVersion: string): Promise<string | null> {
+  const dir = join(rootDir, "releases");
+  if (!existsSync(dir)) return null;
+  const versions = readdirSync(dir)
+    .filter((name) => /^v\d+\.\d+\.\d+/.test(name))
+    .map((name) => name.replace(/^v/, ""))
+    .filter((v) => v !== currentVersion);
+  if (versions.length === 0) return null;
+  // semver sort desc
+  versions.sort((a, b) => compareSemver(b, a));
+  return versions[0];
+}
+
+function compareSemver(a: string, b: string): number {
+  const pa = a.split(".").map((n) => parseInt(n, 10));
+  const pb = b.split(".").map((n) => parseInt(n, 10));
+  for (let i = 0; i < 3; i++) {
+    if (pa[i] !== pb[i]) return pa[i] - pb[i];
+  }
+  return 0;
+}
+
+async function promptYesNo(question: string): Promise<boolean> {
+  const readline = await import("node:readline/promises");
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const ans = (await rl.question(`${question} [y/N]: `)).trim().toLowerCase();
+    return ans === "y" || ans === "yes";
+  } finally {
+    rl.close();
+  }
+}
 
 main().catch((err) => {
   console.error(err);

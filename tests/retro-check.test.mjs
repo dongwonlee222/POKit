@@ -16,7 +16,7 @@ function baseManifest(overrides = {}) {
     changelog: ["feat: memory MVP"],
     artifacts: {
       code_paths: ["scripts/internal/memory-index.ts"],
-      doc_paths: ["memory/releases/SCHEMA.md"],
+      doc_paths: ["releases/SCHEMA.md"],
       skills: [],
     },
     wiring_status: {
@@ -147,7 +147,7 @@ test("dispatchGapsToLinear description includes the gap's note in AS-IS and refe
   const [d] = await dispatchGapsToLinear("0.14.0", gaps, { dryRun: true });
   assert.match(d.description, /renderLinearBacklogDescription/);
   assert.match(d.description, /pokit retro-check 0\.14\.0/);
-  assert.match(d.description, /memory\/releases\/v0\.14\.0\.yaml/);
+  assert.match(d.description, /releases\/v0\.14\.0\/manifest\.yaml/);
 });
 
 test("runRetroCheckCli with injected readers produces report and dispatches in dry-run by default", async () => {

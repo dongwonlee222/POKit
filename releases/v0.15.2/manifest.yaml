@@ -1,0 +1,92 @@
+version: 0.15.2
+released_at: "2026-05-17T06:30:00Z"
+cycle_id: 2026-W20
+issues:
+  - id: POKIT-171
+    title: "[v0.15.2] release dispatcher [4/8] — manifest 미존재 시 자동 생성"
+    state: Backlog
+    type: feature
+  - id: POKIT-172
+    title: "[v0.15.2] release dispatcher [6/8] retro-check --dry-run 고정 해제 + 실제 디스패치"
+    state: Backlog
+    type: fix
+  - id: POKIT-173
+    title: "[v0.15.2] 미결 인계 메커니즘 — manifest unresolved 섹션 + session-brief 카드"
+    state: Backlog
+    type: feature
+  - id: POKIT-174
+    title: 백로그 라우팅 — Linear 명시 필수 (모호 표현은 backlog-memo 강제)
+    state: Backlog
+    type: chore
+  - id: POKIT-175
+    title: "releases/v<버전>/ 단위 묶음 도입 + artifacts/ 역할 재정의 + dogfood/ 제거"
+    state: Backlog
+    type: chore
+  - id: POKIT-176
+    title: wiring_status.actual 실측 자동화 — wiring-probe.ts 신규 + retro-check 연동
+    state: Backlog
+    type: feature
+  - id: POKIT-177
+    title: "linear-backlog-manager → linear-issue-manager (update 분기 추가)"
+    state: Backlog
+    type: feature
+changelog:
+  - "POKIT-171 (M2) — release dispatcher [4/8] manifest 자동 생성 (buildReleaseManifest)"
+  - "POKIT-172 (M3) — retro-check dry-run 고정 해제 + [y/N] 프롬프트 + TTY escape"
+  - "POKIT-173 (M4) — ReleaseManifest unresolved 필드 + session-brief 카드"
+  - "POKIT-174 (M5) — 백로그 라우팅 Linear 명시 필수"
+  - "POKIT-175 (M6) — releases/v<버전>/manifest.yaml 단일 폴더 묶음"
+  - "POKIT-176 (M7) — wiring-probe.ts (countProductionHits + scanWiring)"
+  - "POKIT-177 (M10) — linear-issue-manager SKILL + planUpdateIssue / applyUpdateIssue"
+artifacts:
+  code_paths:
+    - scripts/internal/release-manifest.ts
+    - scripts/internal/wiring-probe.ts
+    - scripts/internal/linear.ts
+    - scripts/cli/release.ts
+    - scripts/cli/session-brief.ts
+    - scripts/internal/retro-check.ts
+  doc_paths:
+    - CHANGELOG.md
+    - docs/architecture/15-folder-layout.md
+    - docs/PRD.md
+    - docs/architecture/13-backlog-title-and-outline-standards.md
+    - releases/SCHEMA.md
+    - CLAUDE.md
+  skills:
+    - linear-issue-manager
+    - backlog-memo
+    - backlog-router
+wiring_status:
+  intended:
+    - buildReleaseManifest
+    - parseChangelogSection
+    - ReleaseUnresolved
+    - buildUnresolvedCard
+    - countProductionHits
+    - scanWiring
+    - planUpdateIssue
+    - applyUpdateIssue
+    - composeAppendedDescription
+  actual:
+    - buildReleaseManifest
+    - parseChangelogSection
+    - ReleaseUnresolved
+    - buildUnresolvedCard
+    - countProductionHits
+    - scanWiring
+    - planUpdateIssue
+    - applyUpdateIssue
+    - composeAppendedDescription
+  gaps: []
+unresolved:
+  - id: artifacts-migration
+    note: "artifacts/{prds,criteria,sprints}/ → releases/v*/{prds,criteria,sprints}/ 마이그레이션 (M6 후속, 별도 cycle)"
+    owner: human
+  - id: pokit-159-retrieval-impl
+    note: "POKIT-159 위치기억 retrieval 구현 (M9 메모 참조, 별도 cycle 진입 시)"
+    owner: POKIT-159
+  - id: wiring-intended-auto-extract
+    note: "buildReleaseManifest 시 PRD/CHANGELOG에서 wiring intended 자동 추출 (M7 후속)"
+    owner: human
+git_tag: v0.15.2

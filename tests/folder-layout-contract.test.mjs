@@ -29,6 +29,7 @@ const REGISTERED_TOP_LEVEL_FOLDERS = new Set([
   "memory",
   "artifacts",
   "dogfood",
+  "releases", // POKIT-175 (M6) — 버전 단위 산출물 묶음
   ".claude",
   // 빌드/환경
   "node_modules",

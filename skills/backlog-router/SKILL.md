@@ -23,7 +23,8 @@ The LLM should route issues after reading Linear labels and issue context. Users
 - `pokit:prd` -> `skills/prd-author/SKILL.md`
 - `pokit:criteria` -> `skills/acceptance-criteria-author/SKILL.md`
 - 백로그 등록 요청 (모호) -> `skills/backlog-memo/SKILL.md` (dry-run 구조 먼저)
-- 백로그 등록 요청 (Linear write 확정) -> `skills/linear-backlog-manager/SKILL.md`
+- 백로그 등록 요청 (Linear write 확정) -> `skills/linear-issue-manager/SKILL.md`
+- Linear 기존 이슈 update 요청 (description append / state 전환) -> `skills/linear-issue-manager/SKILL.md` (Update 분기)
 
 ## Missing Label Rule
 

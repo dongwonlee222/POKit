@@ -1,8 +1,9 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 // POKIT-167 G1/T2 — release manifest schema, parser, writer.
-// 단일 소스: memory/releases/v<VERSION>.yaml.
+// 단일 소스: releases/v<VERSION>/manifest.yaml. (POKIT-175 M6 — 구 memory/releases/v<X>.yaml에서 이동)
 // 손으로 yaml을 편집하지 말 것. parseReleaseManifest → 수정 → renderReleaseManifest 또는 writeReleaseManifest 사용.
 
 export type ReleaseIssueType = "feature" | "fix" | "chore";
@@ -38,6 +39,13 @@ export type ReleaseRetro = {
   try: string[];
 };
 
+// POKIT-173 (M4) — 미결 인계 박제용. 다음 release 시작 시 brief 카드로 노출.
+export type ReleaseUnresolved = {
+  id: string;
+  note: string;
+  owner: string; // "human" | "<verb-name>" | "<Linear-issue-id>"
+};
+
 export type ReleaseManifest = {
   version: string;
   released_at: string;
@@ -46,6 +54,7 @@ export type ReleaseManifest = {
   changelog: string[];
   artifacts: ReleaseArtifacts;
   wiring_status: WiringStatus;
+  unresolved?: ReleaseUnresolved[];
   retro?: ReleaseRetro;
   github_release_url?: string;
   git_tag?: string;
@@ -186,6 +195,19 @@ export function renderReleaseManifest(manifest: ReleaseManifest): string {
     for (const gap of manifest.wiring_status.gaps) {
       lines.push(`    - category: ${scalar(gap.category)}`);
       lines.push(`      note: ${scalar(gap.note)}`);
+    }
+  }
+
+  if (manifest.unresolved !== undefined) {
+    if (manifest.unresolved.length === 0) {
+      lines.push("unresolved: []");
+    } else {
+      lines.push("unresolved:");
+      for (const item of manifest.unresolved) {
+        lines.push(`  - id: ${scalar(item.id)}`);
+        lines.push(`    note: ${scalar(item.note)}`);
+        lines.push(`    owner: ${scalar(item.owner)}`);
+      }
     }
   }
 
@@ -389,6 +411,7 @@ export function parseReleaseManifest(yaml: string): ReleaseManifest {
   let changelog: string[] | undefined;
   let artifacts: ReleaseArtifacts | undefined;
   let wiring_status: WiringStatus | undefined;
+  let unresolved: ReleaseUnresolved[] | undefined;
   let retro: ReleaseRetro | undefined;
   let github_release_url: string | undefined;
   let git_tag: string | undefined;
@@ -438,6 +461,10 @@ export function parseReleaseManifest(yaml: string): ReleaseManifest {
         wiring_status = readWiringStatus(ctx, 0);
         break;
       }
+      case "unresolved": {
+        unresolved = readUnresolved(ctx, 0, rest);
+        break;
+      }
       case "retro": {
         if (rest.trim().length > 0) fail("retro", "expected block map");
         const map = readMapOfStringLists(ctx, 0, "retro", ["kept", "problem", "try"]);
@@ -476,12 +503,46 @@ export function parseReleaseManifest(yaml: string): ReleaseManifest {
     artifacts,
     wiring_status,
   };
+  if (unresolved !== undefined) manifest.unresolved = unresolved;
   if (retro) manifest.retro = retro;
   if (github_release_url !== undefined) manifest.github_release_url = github_release_url;
   if (git_tag !== undefined) manifest.git_tag = git_tag;
 
   validateManifest(manifest);
   return manifest;
+}
+
+function readUnresolved(ctx: ParseContext, parentIndent: number, inlineRest: string): ReleaseUnresolved[] {
+  if (inlineRest.trim() === "[]") return [];
+  if (inlineRest.trim().length > 0) {
+    fail("unresolved", "non-empty inline lists are not supported; use block form");
+  }
+  const items: ReleaseUnresolved[] = [];
+  while (ctx.idx < ctx.lines.length) {
+    const line = peek(ctx)!;
+    if (line.indent <= parentIndent) break;
+    const header = line.text.match(/^- id:\s*(.+)$/);
+    if (!header) break;
+    consume(ctx);
+    const item: Partial<ReleaseUnresolved> = { id: unquote(header[1]) };
+    const childIndent = line.indent + 2;
+    while (ctx.idx < ctx.lines.length) {
+      const inner = peek(ctx)!;
+      if (inner.indent < childIndent) break;
+      if (inner.indent === childIndent && inner.text.startsWith("- ")) break;
+      consume(ctx);
+      const kv = inner.text.match(/^([a-z_]+):\s*(.*)$/);
+      if (!kv) fail("unresolved", `unparseable line: ${inner.text}`);
+      if (kv[1] === "note") item.note = unquote(kv[2]);
+      else if (kv[1] === "owner") item.owner = unquote(kv[2]);
+      else fail("unresolved", `unknown key "${kv[1]}"`);
+    }
+    if (!item.id) fail("unresolved[].id", "expected non-empty string");
+    if (!item.note) fail("unresolved[].note", "expected non-empty string");
+    if (!item.owner) fail("unresolved[].owner", "expected non-empty string");
+    items.push(item as ReleaseUnresolved);
+  }
+  return items;
 }
 
 function readMapOfStringLists(
@@ -531,7 +592,8 @@ function readWiringStatus(ctx: ParseContext, parentIndent: number): WiringStatus
 
 export function releaseManifestPath(version: string, rootDir = process.cwd()): string {
   validateSemver(version);
-  return join(rootDir, "memory", "releases", `v${version}.yaml`);
+  // POKIT-175 (M6) — 버전 단위 폴더로 묶음. memory/releases/v<X>.yaml → releases/v<X>/manifest.yaml
+  return join(rootDir, "releases", `v${version}`, "manifest.yaml");
 }
 
 export async function writeReleaseManifest(
@@ -547,4 +609,91 @@ export async function writeReleaseManifest(
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, body, "utf8");
   return path;
+}
+
+// ---------- M2 (POKIT-171) — buildReleaseManifest 자동 생성 ----------
+
+export type BuildReleaseManifestOptions = {
+  rootDir?: string;
+  now?: Date;
+  cycleId?: string;
+  issues?: ReleaseIssue[];
+  changelog?: string[];
+  codePaths?: string[];
+  docPaths?: string[];
+  skills?: string[];
+  unresolved?: ReleaseUnresolved[];
+};
+
+/**
+ * Build a release manifest skeleton from CHANGELOG + (optional) Linear cycle issues.
+ *
+ * release dispatcher [4/8]에서 호출. manifest 파일이 없을 때 자동 생성.
+ *
+ * - issues: 호출자가 Linear cycle context를 넘겨주거나 빈 배열로 시작
+ * - changelog: CHANGELOG.md의 `## v<version>` 섹션 bullets 자동 파싱
+ * - artifacts: 호출자가 git diff로 채워 넘기거나 빈 배열로 시작
+ * - wiring_status: intended/actual/gaps 모두 빈 배열로 초기화 → [6/8] retro-check가 채움
+ */
+export function buildReleaseManifest(version: string, opts: BuildReleaseManifestOptions = {}): ReleaseManifest {
+  validateSemver(version);
+  const rootDir = opts.rootDir ?? process.cwd();
+  const now = opts.now ?? new Date();
+
+  const changelog = opts.changelog ?? parseChangelogSection(rootDir, version);
+
+  const manifest: ReleaseManifest = {
+    version,
+    released_at: now.toISOString(),
+    cycle_id: opts.cycleId ?? "n/a",
+    issues: opts.issues ?? [],
+    changelog,
+    artifacts: {
+      code_paths: opts.codePaths ?? [],
+      doc_paths: opts.docPaths ?? [],
+      skills: opts.skills ?? [],
+    },
+    wiring_status: {
+      intended: [],
+      actual: [],
+      gaps: [],
+    },
+  };
+
+  if (opts.unresolved !== undefined) {
+    manifest.unresolved = opts.unresolved;
+  }
+
+  validateManifest(manifest);
+  return manifest;
+}
+
+/**
+ * CHANGELOG.md에서 `## v<version>` 섹션의 bullet 추출.
+ * `### Added` / `### Changed` 같은 하위 헤더는 그대로 보존.
+ * 다음 `## v...` 또는 EOF까지가 한 섹션.
+ */
+export function parseChangelogSection(rootDir: string, version: string): string[] {
+  const path = join(rootDir, "CHANGELOG.md");
+  if (!existsSync(path)) return [];
+  const content = readFileSync(path, "utf8");
+  const headerRe = new RegExp(`^## v?${escapeRegExp(version)}\\b`, "m");
+  const headerMatch = headerRe.exec(content);
+  if (!headerMatch) return [];
+  const start = headerMatch.index + headerMatch[0].length;
+  const tail = content.slice(start);
+  const nextHeader = tail.search(/^## v?\d+\.\d+\.\d+/m);
+  const section = nextHeader >= 0 ? tail.slice(0, nextHeader) : tail;
+  const bullets: string[] = [];
+  for (const rawLine of section.split(/\r?\n/)) {
+    const line = rawLine.trimEnd();
+    if (/^\s*-\s+/.test(line)) {
+      bullets.push(line.replace(/^\s*-\s+/, "").trim());
+    }
+  }
+  return bullets;
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

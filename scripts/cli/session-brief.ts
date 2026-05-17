@@ -11,6 +11,7 @@ import { loadMessageCatalog, renderMessage } from "../internal/message-catalog.t
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 import { getActiveCycleTargetVersion } from "../internal/manifest-lookup.ts";
 import { readNextAction } from "../internal/next-action-wizard.ts";
+import { parseReleaseManifest, type ReleaseUnresolved } from "../internal/release-manifest.ts";
 
 export type SessionBriefInput = {
   now?: Date;
@@ -85,6 +86,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     const nextIssuesLine = nextActionData?.issues.length
       ? `- 다음 Cycle 후보 이슈: ${nextActionData.issues.join(", ")}`
       : null;
+    const unresolvedCard = buildUnresolvedCard(rootDir, version);
     return [
       "🪧 POKit 시작 Brief",
       `📅 ${formatKoreanDate(now)} · Team ${teamLabel}`,
@@ -94,6 +96,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
       ...(nextIssuesLine ? [nextIssuesLine] : []),
       `- 💬 추천 다음 행동: ${nextActionText}`,
       "",
+      ...unresolvedCard,
       "📋 Linear 우선순위 Top 3",
       ...formatStartTopIssues(top3),
       "",
@@ -129,6 +132,29 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     `Retro: ${retroPath ?? "없음"}`,
     "",
   ].join("\n");
+}
+
+// POKIT-173 (M4) — 직전 release manifest의 unresolved 항목을 start brief에 카드로 노출.
+function buildUnresolvedCard(rootDir: string, latestVersion: string): string[] {
+  if (!latestVersion || latestVersion === "(unreleased)") return [];
+  const versionToken = latestVersion.startsWith("v") ? latestVersion.slice(1) : latestVersion;
+  const path = join(rootDir, "memory", "releases", `v${versionToken}.yaml`);
+  if (!existsSync(path)) return [];
+  let manifest;
+  try {
+    manifest = parseReleaseManifest(readFileSync(path, "utf8"));
+  } catch {
+    return [];
+  }
+  const items = manifest.unresolved ?? [];
+  if (items.length === 0) return [];
+  const lines: string[] = [];
+  lines.push(`🪧 이전 릴리스 미결 ${items.length}건 (v${manifest.version})`);
+  for (const item of items) {
+    lines.push(`- [${item.id}] ${item.note} (owner: ${item.owner})`);
+  }
+  lines.push("");
+  return lines;
 }
 
 function buildPreviousSessionBlock(rootDir: string): string[] {

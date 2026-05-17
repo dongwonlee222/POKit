@@ -23,7 +23,7 @@ function sampleManifest(overrides = {}) {
     ],
     artifacts: {
       code_paths: ["scripts/internal/release-manifest.ts"],
-      doc_paths: ["memory/releases/SCHEMA.md"],
+      doc_paths: ["releases/SCHEMA.md"],
       skills: [],
     },
     wiring_status: {
@@ -126,7 +126,7 @@ test("parseReleaseManifest rejects unknown issue type and gap category", async (
   );
 });
 
-test("writeReleaseManifest writes to memory/releases/v<version>.yaml and is idempotent", async () => {
+test("writeReleaseManifest writes to releases/v<version>/manifest.yaml and is idempotent", async () => {
   const { writeReleaseManifest, parseReleaseManifest } = await load();
   const root = await mkdtemp(join(tmpdir(), "release-manifest-"));
   try {
@@ -134,7 +134,7 @@ test("writeReleaseManifest writes to memory/releases/v<version>.yaml and is idem
     const path1 = await writeReleaseManifest("0.16.0", manifest, root);
     const path2 = await writeReleaseManifest("0.16.0", manifest, root);
     assert.equal(path1, path2);
-    assert.equal(path1, join(root, "memory", "releases", "v0.16.0.yaml"));
+    assert.equal(path1, join(root, "releases", "v0.16.0", "manifest.yaml"));
     const body1 = await readFile(path1, "utf8");
     const body2 = await readFile(path2, "utf8");
     assert.equal(body1, body2);

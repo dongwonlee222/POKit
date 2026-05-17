@@ -40,8 +40,9 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | 폴더 | 책임 | 안에 들어가는 것 |
 |------|------|----------------|
 | `memory/` | **cross-run 학습/맥락** | `notes/`, `manifests/`, `problem-reviews/`, `context-map.yaml`, `decision-log.*`, `resume-brief.md` |
-| `artifacts/` | **per-run 산출물** | `prds/`, `criteria/`, `sprints/`, `analyses/`, `cross-runtime-diff/` |
-| `dogfood/` | POKit 자체 작업 히스토리 | 자체 운영하며 만든 PRD, criteria, sprint |
+| `artifacts/` | **per-run 산출물** (버전 무관) | `prds/`, `criteria/`, `sprints/`, `analyses/`, `cross-runtime-diff/` |
+| `releases/` | **버전 단위 산출물 묶음** (POKIT-175 M6) | `v<버전>/manifest.yaml`, `v<버전>/{prds,criteria,sprints,gaps}/`, `v<버전>/retro.md`, `v<버전>/unresolved.md` |
+| `dogfood/` | POKit 자체 작업 히스토리 (legacy) | 자체 운영하며 만든 PRD, criteria, sprint |
 | `docs/plans/` | 제작 plan | `CYCLE_BRIEF_CLOSE_PLAN.md`, `GOAL_LOOP.md`, `IMPLEMENTATION_PLAN.md` |
 | `docs/history/` | 설계 히스토리 | `DESIGN.md` 히스토리 부분 |
 | `.claude/` | 에이전트 도구 로컬 상태 | `worktrees/` |
@@ -62,6 +63,7 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `docs/history/` | ❌ Internal | gitignore |
 | `memory/` | 🟡 부분 | yaml/md 일부 ✅, `notes/` `manifests/` `problem-reviews/` `profiles/` `resume-brief.md` ❌ |
 | `artifacts/` | ❌ Internal | `.gitkeep` + `sprints/README.md`만 ✅ |
+| `releases/` | 🟡 부분 | `manifest.yaml` ✅ tracked, hotfix 산출물(`prds/criteria/sprints/`)은 frontmatter version 매핑 (POKIT-175) |
 | `dogfood/` | ❌ Internal | 현 위치 `examples/dogfood/`는 과거 history 유지, 신규는 gitignore |
 | `.claude/` | ❌ Internal | gitignore |
 

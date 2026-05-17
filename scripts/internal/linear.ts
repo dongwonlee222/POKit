@@ -1166,6 +1166,190 @@ export async function applyCreateLabel(plan: Plan, options: ApplyOptions = {}): 
   return labels;
 }
 
+// ── General Issue Update ─────────────────────────────────────────────────────
+
+export type IssueUpdateInput = {
+  issueIdentifier: string; // e.g. POKIT-170
+  descriptionAppend?: string; // Markdown section to append to existing description
+  stateName?: string; // Target workflow state name e.g. "Cancelled"
+  labels?: string[]; // Label names to set
+};
+
+/**
+ * Compose a new description by appending a section to the existing one.
+ * Pure helper — no network calls, easy to unit-test.
+ */
+export function composeAppendedDescription(existing: string, append: string): string {
+  const base = existing.trimEnd();
+  return base ? `${base}\n\n${append}` : append;
+}
+
+export async function planUpdateIssue(input: IssueUpdateInput): Promise<Plan> {
+  const dateScope = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  // Derive a short scope hash from the change fields for idempotency uniqueness
+  const scopeParts: string[] = [];
+  if (input.descriptionAppend !== undefined) scopeParts.push("desc");
+  if (input.stateName !== undefined) scopeParts.push(`state-${input.stateName}`);
+  if (input.labels !== undefined) scopeParts.push(`labels-${input.labels.join("-")}`);
+  const scopeHash = scopeParts.join("_") || "generic";
+
+  return {
+    idempotencyKey: `linear:update_issue:${input.issueIdentifier}:${dateScope}:${scopeHash}`,
+    summary: `Update Linear issue ${input.issueIdentifier}`,
+    writes: [
+      {
+        type: "update_issue",
+        target: input.issueIdentifier,
+        payload: input,
+      },
+    ],
+  };
+}
+
+type LinearIssueQueryResult = {
+  issueQuery: {
+    nodes: Array<{
+      id: string;
+      identifier: string;
+      title: string;
+      description: string | null;
+      state: { id: string; name: string };
+    }>;
+  };
+};
+
+async function fetchIssueByIdentifier(
+  _teamId: string,
+  issueIdentifier: string,
+): Promise<{ id: string; identifier: string; title: string; description: string; stateId: string; stateName: string }> {
+  // Linear API는 issue(id: "POKIT-170")처럼 identifier를 id로 받음.
+  const data = await linearGraphql<{
+    issue: {
+      id: string;
+      identifier: string;
+      title: string;
+      description: string | null;
+      state: { id: string; name: string };
+    } | null;
+  }>(`
+    query GetIssueByIdentifier($id: String!) {
+      issue(id: $id) {
+        id
+        identifier
+        title
+        description
+        state {
+          id
+          name
+        }
+      }
+    }
+  `, { id: issueIdentifier });
+  if (!data.issue) {
+    throw new Error(`Issue ${issueIdentifier} not found in Linear.`);
+  }
+  return {
+    id: data.issue.id,
+    identifier: data.issue.identifier,
+    title: data.issue.title,
+    description: data.issue.description ?? "",
+    stateId: data.issue.state.id,
+    stateName: data.issue.state.name,
+  };
+}
+
+async function resolveWorkflowStateId(teamId: string, stateName: string): Promise<string> {
+  const data = await linearGraphql<{
+    workflowStates: { nodes: Array<{ id: string; name: string }> };
+  }>(`
+    query GetWorkflowStates($teamId: ID!) {
+      workflowStates(filter: { team: { id: { eq: $teamId } } }) {
+        nodes {
+          id
+          name
+        }
+      }
+    }
+  `, { teamId });
+  const match = data.workflowStates.nodes.find(
+    (s) => s.name.toLowerCase() === stateName.toLowerCase(),
+  );
+  if (!match) {
+    const available = data.workflowStates.nodes.map((s) => s.name).join(", ");
+    throw new Error(`Workflow state "${stateName}" not found. Available: ${available}`);
+  }
+  return match.id;
+}
+
+export async function applyUpdateIssue(plan: Plan, options: ApplyOptions = {}): Promise<Issue> {
+  assertExternalWriteAllowed(plan, options);
+  if (plan.writes.length !== 1 || plan.writes[0].type !== "update_issue") {
+    throw new Error("Refusing update issue apply for unsupported plan shape.");
+  }
+  const payload = plan.writes[0].payload as IssueUpdateInput;
+  if (!payload.issueIdentifier) {
+    throw new Error("Refusing update issue apply without issueIdentifier.");
+  }
+  if (payload.descriptionAppend === undefined && payload.stateName === undefined && payload.labels === undefined) {
+    throw new Error("Refusing update issue apply: no fields to update (descriptionAppend, stateName, or labels required).");
+  }
+
+  const teamId = await resolveTeamId();
+  const existing = await fetchIssueByIdentifier(teamId, payload.issueIdentifier);
+
+  const updateInput: Record<string, unknown> = {};
+
+  if (payload.descriptionAppend !== undefined) {
+    updateInput.description = composeAppendedDescription(existing.description, payload.descriptionAppend);
+  }
+  if (payload.stateName !== undefined) {
+    updateInput.stateId = await resolveWorkflowStateId(teamId, payload.stateName);
+  }
+  // labels: not currently implemented — extend here when needed
+  if (payload.labels !== undefined) {
+    throw new Error("labels update not yet implemented in applyUpdateIssue. Use planAssignLabelToIssue instead.");
+  }
+
+  const data = await linearGraphql<{
+    issueUpdate: {
+      success: boolean;
+      issue: LinearIssueNode;
+    };
+  }>(`
+    mutation UpdateIssue($issueId: String!, $input: IssueUpdateInput!) {
+      issueUpdate(id: $issueId, input: $input) {
+        success
+        issue {
+          id
+          identifier
+          title
+          description
+          url
+          dueDate
+          labels {
+            nodes {
+              name
+            }
+          }
+          state {
+            name
+          }
+          assignee {
+            name
+          }
+        }
+      }
+    }
+  `, {
+    issueId: existing.id,
+    input: updateInput,
+  });
+  if (!data.issueUpdate.success) {
+    throw new Error("Linear issueUpdate returned success=false.");
+  }
+  return normalizeIssue(data.issueUpdate.issue);
+}
+
 export async function planAssignLabelToIssue(input: AssignLabelToIssuePayload): Promise<Plan> {
   return {
     idempotencyKey: `linear:assign_label:${input.issueIdentifier}:${input.labelName}`,
