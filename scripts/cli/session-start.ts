@@ -4,6 +4,7 @@ import { buildSessionBrief, type SessionBriefInput } from "./session-brief.ts";
 import { loadHookMap } from "../internal/hook-map.ts";
 import { getWorkingContext, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
 import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
+import { loadBacklogRawSummaries, renderPendingRawLines } from "../internal/backlog-raw-collector.ts";
 
 export type SessionStartInput = SessionBriefInput & {
   rootDir?: string;
@@ -30,11 +31,15 @@ export function buildSessionStart(input: SessionStartInput): string {
   const manifestLine = openCycle
     ? `- Cycle manifest: ${openCycle.cycle_name}${openCycle.release_version ? ` · ${openCycle.release_version}` : ""} · ${openCycle.included_issue_ids.length}개 이슈`
     : null;
+  // POKIT-194: raw 백로그 정리/승격 대기 노출
+  const rawSummaries = loadBacklogRawSummaries(rootDir);
+  const pendingRawLines = renderPendingRawLines(rawSummaries);
   return [
     brief.trimEnd(),
     ...(manifestLine ? [manifestLine] : []),
+    ...pendingRawLines,
     "",
-    `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length} linear=api-key`,
+    `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length} linear=api-key backlog_raw=${rawSummaries.length}`,
     "",
     "<!-- AGENT: output above verbatim, no summary, no interpretation -->",
   ].join("\n");

@@ -5,6 +5,7 @@ import { execSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { renderCycleProgress } from "./cycle-progress.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
+import { loadBacklogRawSummaries, renderTodayRawLines } from "../internal/backlog-raw-collector.ts";
 import { profileMemoryPath } from "../internal/profile.ts";
 import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 import {
@@ -117,6 +118,10 @@ export function buildSessionCloseBrief(input: SessionCloseInput): string {
   const manifestLine = openCycle
     ? `- Cycle manifest: ${openCycle.cycle_name}${openCycle.release_version ? ` · ${openCycle.release_version}` : ""} · ${openCycle.included_issue_ids.length}개 이슈`
     : null;
+  // POKIT-194: 이번 세션이 만든 raw 백로그 노출
+  const today = (input.now ?? new Date()).toISOString().slice(0, 10);
+  const rawSummaries = loadBacklogRawSummaries(rootDir);
+  const todayRawLines = renderTodayRawLines(rawSummaries, today);
   return [
     "🎉 POKit 종료 Brief",
     `📅 ${formatKoreanDate(input.now ?? new Date())} · Team ${teamLabel}`,
@@ -126,6 +131,7 @@ export function buildSessionCloseBrief(input: SessionCloseInput): string {
     ...(manifestLine ? [manifestLine] : []),
     `- 기대 가설: ${hypothesis}`,
     `- 💬 추천 다음 행동: ${nextAction}`,
+    ...todayRawLines,
     "",
     "수고하셨습니다.",
     "",
