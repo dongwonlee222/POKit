@@ -10,6 +10,7 @@ import {
   markSessionClose,
   markReleaseStart,
   markReleaseComplete,
+  markCycleStart,
 } from "../../scripts/internal/workflow-state.ts";
 
 function fixture() {
@@ -96,4 +97,33 @@ test("markReleaseComplete: last_release_version 갱신 + target_version 비움",
   assert.equal(done.last_release_version, "v0.18.0");
   assert.equal(done.target_version, null);
   assert.equal(done.state, "idle");
+});
+
+test("markCycleStart: target_version 설정 + state=active", () => {
+  const dir = mkTempDir();
+  const now = new Date("2026-05-18T07:00:00.000Z");
+  const s = markCycleStart(dir, "0.17.4", now);
+  assert.equal(s.target_version, "0.17.4");
+  assert.equal(s.state, "active");
+  assert.equal(s.updated_at, "2026-05-18T07:00:00.000Z");
+});
+
+test("markCycleStart: 기존 last_release_version 보존", () => {
+  const dir = mkTempDir();
+  markReleaseComplete(dir, "0.17.3"); // last_release_version=0.17.3, state=idle
+  const s = markCycleStart(dir, "0.17.4", new Date("2026-05-18T07:00:00.000Z"));
+  assert.equal(s.target_version, "0.17.4");
+  assert.equal(s.last_release_version, "0.17.3");
+  assert.equal(s.state, "active");
+});
+
+test("markCycleStart: idempotent (같은 값 두 번)", () => {
+  const dir = mkTempDir();
+  const t1 = new Date("2026-05-18T07:00:00.000Z");
+  const t2 = new Date("2026-05-18T08:00:00.000Z");
+  markCycleStart(dir, "0.17.4", t1);
+  const s = markCycleStart(dir, "0.17.4", t2);
+  assert.equal(s.target_version, "0.17.4");
+  // updated_at만 갱신
+  assert.equal(s.updated_at, t2.toISOString());
 });

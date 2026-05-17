@@ -194,6 +194,29 @@ export function markSessionClose(rootDir = process.cwd(), now: Date = new Date()
 }
 
 /** release 진입 시 호출: state='releasing' + target_version 갱신. */
+/** cycle 진입 시 호출: target_version 설정 + state='active'. */
+export function markCycleStart(
+  rootDir: string,
+  targetVersion: string,
+  now: Date = new Date(),
+): WorkflowState {
+  const existing = loadWorkflowState(rootDir);
+  const next: WorkflowState = {
+    schema_version: 1,
+    current_cycle_id: existing?.current_cycle_id ?? null,
+    current_cycle_name: existing?.current_cycle_name ?? null,
+    target_version: targetVersion,
+    last_release_version: existing?.last_release_version ?? null,
+    state: "active",
+    updated_at: now.toISOString(),
+    last_session_at: existing?.last_session_at,
+    last_session_closed_at: existing?.last_session_closed_at,
+    active_issue_ids: existing?.active_issue_ids,
+  };
+  saveWorkflowState(next, rootDir);
+  return next;
+}
+
 export function markReleaseStart(
   rootDir: string,
   targetVersion: string,
