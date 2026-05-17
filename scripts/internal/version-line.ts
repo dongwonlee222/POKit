@@ -36,16 +36,18 @@ function findAsIsIndex(description: string): number {
 function findTopVersionLine(
   description: string,
 ): { start: number; end: number } | null {
-  // 상단(0 ~ ## AS-IS) 범위 안에서 ## 버전 헤더 위치 + 본문 끝 라인.
-  const asIsIdx = findAsIsIndex(description);
-  if (asIsIdx < 0) return null; // ## AS-IS 없으면 표준 description 아님
+  // 상단(0 ~ 다음 ## 헤더) 범위 안에서 ## 버전 헤더 위치 + 본문 끝 라인.
+  // ## AS-IS 가 없어도 다른 ## 헤더(예: ## 목표)를 경계로 사용.
   const lines = description.split("\n");
-  for (let i = 0; i < asIsIdx; i++) {
+  for (let i = 0; i < lines.length; i++) {
     if (lines[i].trim() === VERSION_HEADING) {
-      // ## 버전 헤더 ~ 다음 ## 헤더 또는 ## AS-IS 직전까지
       let end = i + 1;
-      while (end < asIsIdx && !lines[end].trim().startsWith("## ")) end++;
+      while (end < lines.length && !lines[end].trim().startsWith("## ")) end++;
       return { start: i, end };
+    }
+    // ## 버전이 아닌 다른 ## 헤더가 먼저 나오면 종료 (상단 영역 끝)
+    if (lines[i].trim().startsWith("## ") && lines[i].trim() !== VERSION_HEADING) {
+      return null;
     }
   }
   return null;

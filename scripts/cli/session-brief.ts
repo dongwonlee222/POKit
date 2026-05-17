@@ -10,6 +10,8 @@ import { renderProgressBar } from "../internal/render/ascii.ts";
 import { loadMessageCatalog, renderMessage } from "../internal/message-catalog.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 import { getActiveCycleTargetVersion } from "../internal/manifest-lookup.ts";
+import { loadWorkflowState } from "../internal/workflow-state.ts";
+import { readVersionLine } from "../internal/version-line.ts";
 import { readNextAction } from "../internal/next-action-wizard.ts";
 import { parseReleaseManifest, releaseManifestPath, type ReleaseUnresolved } from "../internal/release-manifest.ts";
 
@@ -81,7 +83,12 @@ export function buildSessionBrief(input: SessionBriefInput): string {
     const resumeNext = readResumeBriefNextAction(rootDir);
     // Precedence: next-action.yaml > resume-brief.md > dynamic recommendation
     const nextActionText = nextActionData?.intent ?? resumeNext ?? recommendation.summary;
-    const targetVersion = nextActionData?.target_version ?? getActiveCycleTargetVersion(rootDir) ?? "(미정)";
+    const workflowState = loadWorkflowState(rootDir);
+    const wfTarget = workflowState?.target_version ?? undefined;
+    const targetVersion = nextActionData?.target_version ?? wfTarget ?? getActiveCycleTargetVersion(rootDir) ?? "(미정)";
+    const assignedCounts = wfTarget
+      ? countAssignedIssues(input.context, wfTarget)
+      : null;
     const top3 = resolved.primaryCandidates.slice(0, 3);
     const nextIssuesLine = nextActionData?.issues.length
       ? `- 다음 Cycle 후보 이슈: ${nextActionData.issues.join(", ")}`
@@ -92,7 +99,12 @@ export function buildSessionBrief(input: SessionBriefInput): string {
       `📅 ${formatKoreanDate(now)} · Team ${teamLabel}`,
       "",
       `- 마지막 스프린트 배포 버전: ${version}`,
-      `- 다음 스프린트 target version: ${targetVersion}`,
+      ...(assignedCounts && assignedCounts.total > 0
+        ? [
+            `🎯 다음 target version: v${targetVersion} (${assignedCounts.total}건 할당됨)`,
+            `   └─ carry-over ${assignedCounts.carryOver}건 / fresh ${assignedCounts.fresh}건`,
+          ]
+        : [`- 다음 스프린트 target version: ${targetVersion}`]),
       ...(nextIssuesLine ? [nextIssuesLine] : []),
       `- 💬 추천 다음 행동: ${nextActionText}`,
       "",
@@ -135,6 +147,23 @@ export function buildSessionBrief(input: SessionBriefInput): string {
 }
 
 // POKIT-173 (M4) — 직전 release manifest의 unresolved 항목을 start brief에 카드로 노출.
+function countAssignedIssues(
+  context: WorkingCycleContext | WorkingContext,
+  targetVersion: string,
+): { total: number; carryOver: number; fresh: number } {
+  const issues: Issue[] = "backlogIssues" in context ? context.backlogIssues : [];
+  let carryOver = 0;
+  let fresh = 0;
+  for (const issue of issues) {
+    if (!issue.description) continue;
+    const parsed = readVersionLine(issue.description);
+    if (parsed.version !== targetVersion) continue;
+    if (parsed.carryOverFrom) carryOver++;
+    else fresh++;
+  }
+  return { total: carryOver + fresh, carryOver, fresh };
+}
+
 function buildUnresolvedCard(rootDir: string, latestVersion: string): string[] {
   if (!latestVersion || latestVersion === "(unreleased)") return [];
   const versionToken = latestVersion.startsWith("v") ? latestVersion.slice(1) : latestVersion;
