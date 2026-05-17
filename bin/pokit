@@ -27,6 +27,7 @@ Available verbs:
   role-check  Validate docs/_details/role-map.yaml — path existence + max_lines
   retro-check Inspect prior release manifest wiring + dispatch pokit:gap issues
   next-action Run next-action wizard (박제 목표·이슈·의도 입력)
+  release    Run 8-step release dispatcher (POKIT-167)
   help      Show this help message
 
 All verbs go through scripts/internal/verb-dispatch.ts.

@@ -28,6 +28,7 @@ export const VERB_ROUTES: Record<string, VerbRoute> = {
   sweep:      { path: "scripts/cli/collected-sweep.ts" },
   "retro-check": { path: "scripts/cli/retro-check.ts" },
   "next-action": { path: "scripts/cli/next-action.ts" },
+  release:    { path: "scripts/cli/release.ts" },
 };
 
 export type DispatchInput = {

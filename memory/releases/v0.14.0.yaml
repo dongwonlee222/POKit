@@ -1,0 +1,43 @@
+version: 0.14.0
+released_at: "2026-05-17T00:00:00Z"
+cycle_id: 2026-W20
+issues:
+  - id: POKIT-115
+    title: Memory MVP — Active Profile Manifest
+    state: Done
+    type: feature
+  - id: POKIT-116
+    title: Memory MVP — Working Notes Frontmatter
+    state: Done
+    type: feature
+  - id: POKIT-117
+    title: Memory MVP — Collected Data Governance
+    state: Done
+    type: feature
+changelog:
+  - Active Profile Manifest 스키마 + 템플릿
+  - Working Notes frontmatter 검증
+  - Collected Data Governance — retention/sidecar 정책
+artifacts:
+  code_paths:
+    - scripts/internal/profile.ts
+    - scripts/internal/working-notes.ts
+    - scripts/internal/collected-governance.ts
+  doc_paths:
+    - docs/architecture/
+    - memory/manifests/
+  skills: []
+wiring_status:
+  intended:
+    - active_profile_manifest
+    - working_notes_validation
+    - collected_governance
+  actual: []
+  gaps:
+    - category: structural
+      note: active_profile_manifest 스키마만 만들고 production 호출 0건
+    - category: structural
+      note: working_notes_validation CLI 호출 진입점 미연결
+    - category: structural
+      note: collected_governance 자동 sweep 미연결 (sweep verb는 v0.15.0에서 추가됨)
+git_tag: v0.14.0

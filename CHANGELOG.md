@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.15.1 - 2026-05-17
+
+### Added
+
+- POKIT-167 — Linear write 단일 진입점 + release manifest 기반 + 8단계 release dispatcher:
+  - `scripts/internal/backlog-outline.ts` `renderLinearBacklogDescription` — 4섹션(AS-IS/TO-BE/성공 검증/담당 에이전트) 추가, 타입 확장.
+  - `scripts/internal/release-manifest.ts` 신규 — `memory/releases/v<VERSION>.yaml` schema + parse/render/write 모듈 (`memory/releases/SCHEMA.md` 동봉).
+  - `scripts/internal/retro-check.ts` + `scripts/cli/retro-check.ts` — 이전 버전 wiring 갭 3분류(structural/partial/bitrot) + `pokit:gap` 라벨 디스패치.
+  - `scripts/internal/next-action-wizard.ts` + `scripts/cli/next-action.ts` — target version·issues·의도 박제 입력 wizard, `memory/next-action.yaml` 저장. `session-brief.ts`가 이 파일을 우선 참조.
+  - `scripts/cli/release.ts` — `./bin/pokit release <version>` 8단계 dispatcher (버전검증 → safety scan → tag/push → manifest 생성 → cycle close → retro-check → next-action wizard → resume-brief 박제).
+  - `.claude/hooks/block-linear-curl.sh` — Linear GraphQL 직접 호출 PreToolUse 차단 + `--allow-raw-linear` escape hatch.
+  - `skills/backlog-memo/SKILL.md` 신규 (로컬 dry-run 진입점), `skills/backlog-manager` → `skills/linear-backlog-manager` 리네임 + 4섹션 강제·raw curl 금지 명시.
+  - `memory/releases/v0.13.0.yaml`, `v0.14.0.yaml`, `v0.15.0.yaml` 백필 3건 — v0.14.0에 structural gap 3건 기록.
+  - `scripts/internal/planCreateIssue`가 `LinearBacklogDescriptionInput` 강제 + `backlog-seed-plan.ts` 5건 마이그레이션.
+
+### Changed
+
+- `bin/pokit` + `scripts/internal/verb-dispatch.ts` — `retro-check`, `next-action`, `release` verb 등록 (총 16 verbs).
+- `skills/backlog-router/SKILL.md` — 2단계 라우팅 분기(backlog-memo / linear-backlog-manager) 추가.
+- 문서 동기: `docs/PRD.md`, `docs/plans/IMPLEMENTATION_PLAN.md`, `docs/history/DESIGN.md`에서 backlog-manager → linear-backlog-manager 갱신.
+
 ## v0.15.0 - 2026-05-17
 
 ### Added

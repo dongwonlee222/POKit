@@ -1,0 +1,42 @@
+version: 0.15.0
+released_at: "2026-05-16T16:46:29Z"
+cycle_id: 2026-W20
+issues:
+  - id: POKIT-163
+    title: session-brief 라벨 명확화 + 다음 스프린트 target version
+    state: Done
+    type: feature
+  - id: POKIT-165
+    title: 정보 탐색 자동 위임 — research-gate
+    state: Done
+    type: feature
+  - id: POKIT-118
+    title: Collected Data Sweep 리포트
+    state: Done
+    type: feature
+changelog:
+  - session-brief 라벨 변경 + 다음 스프린트 target version 라인 추가
+  - research-gate — 읽기 전용 탐색 자동 위임 + plan-gate --mode research|build
+  - Collected Data Sweep — pokit sweep verb 신규, retention/sidecar 리포트 (자동 삭제 없음)
+artifacts:
+  code_paths:
+    - scripts/cli/session-brief.ts
+    - scripts/cli/session-start.ts
+    - scripts/cli/collected-sweep.ts
+    - scripts/internal/manifest-lookup.ts
+    - scripts/internal/intent-classifier.ts
+  doc_paths:
+    - docs/_details/subagent-contract.md
+  skills:
+    - plan-gate
+wiring_status:
+  intended:
+    - session_brief_labels
+    - research_gate
+    - collected_sweep
+  actual:
+    - session_brief_labels
+    - research_gate
+    - collected_sweep
+  gaps: []
+git_tag: v0.15.0

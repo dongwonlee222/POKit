@@ -161,3 +161,13 @@ LLM이 판단하지 말아야 할 것:
 - `state`, `labels`, `source`, `releaseKind`, `targetVersion`, `runId` 필드 이름
 
 반복 형식은 `scripts/backlog-outline.ts`가 렌더링하고, `tests/backlog-outline.test.mjs`가 고정한다.
+
+## 구현 진입점 (POKIT-167, v0.15.1)
+
+Linear write는 다음 단일 경로만 통과한다 (3겹 hook):
+
+1. **SKILL 진입** — `linear-backlog-manager` 스킬 (raw idea → memo 단계는 `backlog-memo`).
+2. **타입 hook** — `planCreateIssue` 가 `LinearBacklogDescriptionInput` 만 받음 (raw description string 금지).
+3. **Bash hook** — `.claude/hooks/block-linear-curl.sh` 가 Linear GraphQL 직접 호출 차단.
+
+표준 본문 렌더러는 `scripts/internal/backlog-outline.ts::renderLinearBacklogDescription`. AS-IS / TO-BE / 성공 검증 / 담당 에이전트 4섹션을 강제한다.

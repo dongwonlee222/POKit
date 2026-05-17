@@ -1,0 +1,21 @@
+version: 0.13.0
+released_at: "2026-05-16T13:00:00Z"
+cycle_id: 2026-W20
+issues:
+  - id: POKIT-130
+    title: v0.13.0 설계 지속성 게이트 (early)
+    state: Done
+    type: feature
+changelog:
+  - session-brief / start 출력 개편 사전 단계
+artifacts:
+  code_paths:
+    - scripts/cli/session-brief.ts
+    - scripts/cli/session-start.ts
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+git_tag: v0.13.0

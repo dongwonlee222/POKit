@@ -1,0 +1,62 @@
+version: 0.15.1
+released_at: "2026-05-17T04:27:06.314Z"
+cycle_id: 2026-W20
+issues:
+  - id: POKIT-167
+    title: Release · pokit release → close → next-action wizard 통합 플로우
+    state: Done
+    type: feature
+changelog:
+  - renderLinearBacklogDescription 4섹션 추가
+  - memory/releases yaml manifest + writer (SCHEMA.md)
+  - Linear write 3겹 hook (SKILL / Bash hook / 타입)
+  - backlog-memo 신규 + backlog-manager → linear-backlog-manager 리네임
+  - "retro-check 모듈 + pokit:gap 디스패치"
+  - next-action wizard + session-brief 통합
+  - ./bin/pokit release 8단계 dispatcher
+  - v0.13.0/v0.14.0/v0.15.0 manifest 백필
+artifacts:
+  code_paths:
+    - scripts/internal/backlog-outline.ts
+    - scripts/internal/release-manifest.ts
+    - scripts/internal/retro-check.ts
+    - scripts/internal/next-action-wizard.ts
+    - scripts/internal/backlog-seed-plan.ts
+    - scripts/internal/linear.ts
+    - scripts/internal/verb-dispatch.ts
+    - scripts/cli/release.ts
+    - scripts/cli/retro-check.ts
+    - scripts/cli/next-action.ts
+    - scripts/cli/session-brief.ts
+    - bin/pokit
+    - .claude/hooks/block-linear-curl.sh
+  doc_paths:
+    - memory/releases/SCHEMA.md
+    - memory/releases/v0.13.0.yaml
+    - memory/releases/v0.14.0.yaml
+    - memory/releases/v0.15.0.yaml
+    - CHANGELOG.md
+    - docs/PRD.md
+    - docs/plans/IMPLEMENTATION_PLAN.md
+    - docs/history/DESIGN.md
+  skills:
+    - backlog-memo
+    - linear-backlog-manager
+    - backlog-router
+wiring_status:
+  intended:
+    - renderLinearBacklogDescription
+    - release_manifest_writer
+    - retro_check
+    - next_action_wizard
+    - release_dispatcher
+    - block_linear_curl_hook
+  actual:
+    - renderLinearBacklogDescription
+    - release_manifest_writer
+    - retro_check
+    - next_action_wizard
+    - release_dispatcher
+    - block_linear_curl_hook
+  gaps: []
+git_tag: v0.15.1
