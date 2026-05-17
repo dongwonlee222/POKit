@@ -28,6 +28,7 @@ Available verbs:
   retro-check Inspect prior release manifest wiring + dispatch pokit:gap issues
   next-action Run next-action wizard (기록 목표·이슈·의도 입력)
   release    Run 8-step release dispatcher (POKIT-167)
+  release-backfill  Migrate artifacts + write INDEX.md for past releases (POKIT-204)
   backlog-promote  Batch-promote memory/backlog-raw/ memos to Linear (POKIT-198)
   help      Show this help message
 

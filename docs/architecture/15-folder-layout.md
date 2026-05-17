@@ -41,7 +41,9 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 |------|------|----------------|
 | `memory/` | **cross-run 학습/맥락** | `notes/`, `manifests/`, `problem-reviews/`, `context-map.yaml`, `decision-log.*`, `resume-brief.md` |
 | `artifacts/` | **per-run 산출물** (버전 무관) | `prds/`, `criteria/`, `sprints/`, `analyses/`, `cross-runtime-diff/` |
-| `releases/` | **버전 단위 산출물 묶음** (POKIT-175 M6) | `v<버전>/manifest.yaml`, `v<버전>/{prds,criteria,sprints,gaps}/`, `v<버전>/retro.md`, `v<버전>/unresolved.md` |
+| `releases/` | **버전 단위 산출물 묶음** (POKIT-175 M6 + POKIT-204) | `v<버전>/manifest.yaml`, `v<버전>/INDEX.md`, `v<버전>/{prds,criteria,sprints,backlog,backlog-raw,gaps}/`, `v<버전>/retro.md`, `v<버전>/unresolved.md` |
+
+> 📦 **Artifact Migration (POKIT-204)**: `pokit release` 의 [4.7/8] 단계가 `artifacts/{prds,criteria,backlog}/` 와 `memory/backlog-raw/` 에서 버전 매칭(frontmatter `linked_release` / `version` / `target_version` / `proposed_labels:release:vX` / 부모 디렉토리 이름)되는 파일을 `releases/v<X>/` 로 자동 이동한다. [4.8/8] 단계가 `INDEX.md` 를 생성한다 — 한 화면에 이슈·완료·미결·changelog·산출물 링크. 과거 버전 backfill: `./bin/pokit release-backfill [version]`.
 
 > ⚠ **manifest 경로 가드 (POKIT-173 회귀 방지)**: 코드에서 release manifest 경로는 반드시 `releaseManifestPath(version, rootDir)` 헬퍼(`scripts/internal/release-manifest.ts`) 경유. `memory/releases/v<X>.yaml` 또는 `releases/v<X>/manifest.yaml` 같은 문자열 하드코딩 금지. M6 같은 경로 마이그레이션이 다시 일어나도 헬퍼만 갱신하면 모든 호출처가 자동 추종한다. 회귀 테스트: `tests/session-brief.test.mjs` "renders unresolved card from latest release manifest".
 | `docs/plans/` | 제작 plan | `CYCLE_BRIEF_CLOSE_PLAN.md`, `GOAL_LOOP.md`, `IMPLEMENTATION_PLAN.md` |

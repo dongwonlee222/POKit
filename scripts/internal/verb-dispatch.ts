@@ -29,6 +29,7 @@ export const VERB_ROUTES: Record<string, VerbRoute> = {
   "retro-check": { path: "scripts/cli/retro-check.ts" },
   "next-action": { path: "scripts/cli/next-action.ts" },
   release:    { path: "scripts/cli/release.ts" },
+  "release-backfill": { path: "scripts/cli/release-backfill.ts" },
   "backlog-promote": { path: "scripts/cli/backlog-promote.ts" },
 };
 

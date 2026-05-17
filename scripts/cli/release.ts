@@ -20,6 +20,11 @@ import {
   writeReleaseManifest,
 } from "../internal/release-manifest.ts";
 import { backfillForRelease } from "../internal/manifest-backfill.ts";
+import {
+  formatMigrateReport,
+  migrateArtifactsToRelease,
+} from "../internal/release-artifacts-migrate.ts";
+import { writeReleaseIndex } from "../internal/release-index.ts";
 
 type Opts = {
   version: string;
@@ -153,6 +158,33 @@ const main = async () => {
   } else if (opts.dryRun) {
     console.log("");
     console.log(`[4.5/8] Manifest Backfill (dry-run skip)`);
+  }
+
+  // [4.7/8] Artifact Migration (POKIT-204) — artifacts + backlog-raw → releases/v<X>/
+  console.log("");
+  console.log(`[4.7/8] Artifact Migration → releases/v${opts.version}/`);
+  try {
+    const result = migrateArtifactsToRelease(opts.version, {
+      rootDir: opts.rootDir,
+      dryRun: opts.dryRun,
+    });
+    console.log(formatMigrateReport(result));
+  } catch (err: any) {
+    console.error(`  ⚠ migration 실패: ${err.message} (다음 단계 계속 진행)`);
+  }
+
+  // [4.8/8] Release INDEX.md 생성 (POKIT-204)
+  console.log("");
+  console.log(`[4.8/8] Release INDEX.md 생성`);
+  if (opts.dryRun) {
+    console.log(`  (dry-run) INDEX.md 생성 skip`);
+  } else {
+    try {
+      const indexPath = writeReleaseIndex(opts.version, opts.rootDir);
+      console.log(`  ✓ INDEX.md 생성: ${indexPath}`);
+    } catch (err: any) {
+      console.error(`  ⚠ INDEX.md 생성 실패: ${err.message} (다음 단계 계속 진행)`);
+    }
   }
 
   // [5/8] Cycle Close (간소화 — close 호출)

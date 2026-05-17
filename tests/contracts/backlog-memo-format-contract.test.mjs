@@ -9,6 +9,14 @@ import { join, relative } from "node:path";
 import test from "node:test";
 
 const ARTIFACTS_DIR = new URL("../../artifacts/backlog", import.meta.url).pathname;
+const RELEASES_DIR = new URL("../../releases", import.meta.url).pathname;
+
+// POKIT-204: memo 파일이 releases/v<X>/backlog/ 로 이관됨. 두 위치 모두 스캔.
+function resolveBacklogDir(version) {
+  const released = join(RELEASES_DIR, version, "backlog");
+  if (existsSync(released)) return released;
+  return join(ARTIFACTS_DIR, version);
+}
 
 // ── 헬퍼 ────────────────────────────────────────────────────────────────────
 
@@ -142,7 +150,7 @@ test("renderLocalBacklogMemo: 빈 코드블럭(``` 만 있는 경우) throw — 
 // ── artifact 전수 스캔 ────────────────────────────────────────────────────────
 
 test("v0.16.0 메모 전수 스캔 — ## 시각화 섹션 강제", () => {
-  const v016Dir = join(ARTIFACTS_DIR, "v0.16.0");
+  const v016Dir = resolveBacklogDir("v0.16.0");
   const files = collectMemos(v016Dir);
 
   assert.ok(files.length > 0, `v0.16.0 메모 파일이 없습니다: ${v016Dir}`);
@@ -190,7 +198,7 @@ test("v0.16.0 메모 전수 스캔 — ## 시각화 섹션 강제", () => {
 });
 
 test("v0.15.2 메모 전수 스캔 — 시각화 누락 warn-only (block 아님)", () => {
-  const v015Dir = join(ARTIFACTS_DIR, "v0.15.2");
+  const v015Dir = resolveBacklogDir("v0.15.2");
   const files = collectMemos(v015Dir);
 
   if (files.length === 0) {
