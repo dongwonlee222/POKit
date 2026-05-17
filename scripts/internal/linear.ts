@@ -4,6 +4,11 @@ import {
   type LinearBacklogDescriptionInput,
   renderLinearBacklogDescription,
 } from "./backlog-outline.ts";
+import { renderDryRunPlan } from "./dry-run-format.ts";
+import { parseArgs } from "node:util";
+import { readFile, writeFile, realpath, stat } from "node:fs/promises";
+import { resolve as resolvePath } from "node:path";
+import { pathToFileURL } from "node:url";
 
 export type Plan = {
   idempotencyKey: string;
@@ -1413,4 +1418,526 @@ export async function applyAssignLabelToIssue(plan: Plan, options: ApplyOptions 
     throw new Error("Linear issueUpdate returned success=false.");
   }
   return normalizeIssue(data.issueUpdate.issue);
+}
+
+// ── CLI entry ──────────────────────────────────────────────────────────────────
+
+const MAX_DESCRIPTION_FILE_BYTES = 512 * 1024;
+
+async function readDescriptionFile(path: string): Promise<string> {
+  const abs = resolvePath(path);
+  let realPath: string;
+  try {
+    realPath = await realpath(abs);
+  } catch {
+    throw new Error(`파일이 없습니다: ${path}`);
+  }
+  const info = await stat(realPath);
+  if (info.size > MAX_DESCRIPTION_FILE_BYTES) {
+    throw new Error(
+      `파일 크기 초과 (512 KB 한도): ${path} (${(info.size / 1024).toFixed(1)} KB)`,
+    );
+  }
+  return await readFile(realPath, "utf8");
+}
+
+function printUsage(): void {
+  console.error(`사용법: node --experimental-strip-types scripts/internal/linear.ts <subcommand> [옵션]
+
+서브명령:
+  update <ISSUE_ID>       이슈 상태·description 업데이트
+  create                  새 이슈 생성 (raw, 4섹션 없음)
+  assign-label <ISSUE_ID> 이슈에 라벨 할당
+
+공통 옵션:
+  --apply                 실제 Linear write 실행 (기본: dry-run)
+  --actor <NAME>          --apply 시 필수. 작업 수행 에이전트 이름
+  --format <json|pretty>  dry-run 출력 형식. json(기본) 또는 pretty(3섹션 형식)
+  --help, -h              이 도움말 출력
+
+subcommand별 옵션:
+  update:
+    --state <NAME>                       워크플로우 상태 이름 (예: Done)
+    --description-append-file <PATH>     이슈 description에 append할 파일
+
+  create:
+    --title <T>                          이슈 제목 (필수)
+    --labels <CSV>                       쉼표 구분 라벨명 (예: Improvement,Bug)
+    --description-file <PATH>            description 파일 (raw markdown)
+
+  assign-label:
+    --label <NAME>                       할당할 라벨명 (필수)
+
+dry-run(기본): plan을 JSON으로 stdout에 출력. --apply 없으면 Linear API 호출 없음.
+--format pretty: JSON 대신 3섹션 dry-run plan 형식으로 출력.
+`);
+}
+
+function validateActor(actor: string | undefined, isApply: boolean): string {
+  if (!isApply) return "";
+  if (!actor || actor.trim().length === 0) {
+    const err = new Error("--actor 가 비어 있습니다. --apply 시 actor 필수입니다.");
+    (err as any).exitCode = 2;
+    throw err;
+  }
+  return actor.trim();
+}
+
+export type DecisionLogEntry = {
+  id: string;
+  timestamp: string;
+  title: string;
+  summary: string;
+  decision: string;
+  linear_refs: string[];
+  actor: string;
+};
+
+/**
+ * Pure helper — renders a DecisionLogEntry as YAML block (2-space indent, array item style).
+ * No I/O. Testable in isolation.
+ */
+export function renderDecisionLogEntry(entry: DecisionLogEntry): string {
+  function escapeYaml(value: string): string {
+    return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, " ").replace(/\r/g, "");
+  }
+  const refsLines = entry.linear_refs.map((ref) => `      - ${ref}`).join("\n");
+  return [
+    `  - id: ${entry.id}`,
+    `    timestamp: "${entry.timestamp}"`,
+    `    title: "${escapeYaml(entry.title)}"`,
+    `    summary: "${escapeYaml(entry.summary)}"`,
+    `    decision: "${escapeYaml(entry.decision)}"`,
+    `    alternatives_rejected: []`,
+    `    evidence: []`,
+    `    linear_refs:`,
+    refsLines,
+    `    actor: "${escapeYaml(entry.actor)}"`,
+  ].join("\n");
+}
+
+/**
+ * Pure helper — inserts a new entry at the top of the decisions: array
+ * and updates latest_decision_at. No I/O.
+ *
+ * Strategy (line-based, no full YAML parse):
+ * 1. Find the `decisions:` line — everything between it and `latest_decision_at:` is the decisions array.
+ * 2. Find the `latest_decision_at:` line — used as the section end marker.
+ * 3. Prepend the new entry into the decisions block.
+ * 4. Update latest_decision_at value.
+ */
+export function rewriteDecisionLogYaml(raw: string, newEntry: DecisionLogEntry): string {
+  const lines = raw.split("\n");
+
+  // Find decisions: and latest_decision_at: line indices
+  let decisionsLineIdx = -1;
+  let latestLineIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^decisions:\s*$/.test(lines[i])) {
+      decisionsLineIdx = i;
+    }
+    if (/^latest_decision_at:/.test(lines[i])) {
+      latestLineIdx = i;
+      break; // first occurrence (there should be only one)
+    }
+  }
+
+  if (decisionsLineIdx === -1 || latestLineIdx === -1) {
+    throw new Error(
+      "decision-log.yaml 구조 이상: decisions: 또는 latest_decision_at: 라인을 찾을 수 없음.",
+    );
+  }
+
+  // Lines before decisions:
+  const beforeDecisions = lines.slice(0, decisionsLineIdx + 1); // includes "decisions:"
+  // Lines of the decisions array body (between decisions: and latest_decision_at:)
+  const decisionBodyLines = lines.slice(decisionsLineIdx + 1, latestLineIdx);
+  // Lines after latest_decision_at: (may include dangling entries from old appendFile bug)
+  const afterLatest = lines.slice(latestLineIdx + 1);
+
+  // Build new entry block
+  const newEntryBlock = renderDecisionLogEntry(newEntry);
+  // New latest_decision_at line
+  const latestLine = `latest_decision_at: "${newEntry.timestamp}"`;
+
+  // Strip any trailing blank lines from decisionBodyLines before re-joining
+  const bodyTrimmed = decisionBodyLines.join("\n").trimEnd();
+
+  // Assemble: header + new entry + blank line + existing body + blank line before latest + latest
+  // (the blank line between entries is conventional but not strictly required)
+  const newContent = [
+    beforeDecisions.join("\n"),
+    newEntryBlock,
+    "",
+    bodyTrimmed,
+    latestLine,
+  ].join("\n");
+
+  // afterLatest is dropped — any dangling content after latest_decision_at is discarded.
+  // (The data migration in Step 2 moves them into the array before this function runs.)
+
+  // Ensure single trailing newline
+  return newContent.trimEnd() + "\n";
+}
+
+export async function appendDecisionLog(
+  entry: DecisionLogEntry,
+  yamlPath?: string,
+): Promise<void> {
+  const logPath = yamlPath ?? resolvePath(
+    new URL(".", import.meta.url).pathname,
+    "../../memory/decision-log.yaml",
+  );
+  const raw = await readFile(logPath, "utf8");
+  const updated = rewriteDecisionLogYaml(raw, entry);
+  await writeFile(logPath, updated, "utf8");
+}
+
+async function cmdUpdate(args: string[]): Promise<void> {
+  const issueId = args[0];
+  if (!issueId || issueId.startsWith("--")) {
+    const err = new Error("ISSUE_ID 가 필요합니다. 예: update POKIT-187 --state Done");
+    (err as any).exitCode = 2;
+    throw err;
+  }
+
+  const { values } = parseArgs({
+    args: args.slice(1),
+    options: {
+      state: { type: "string" },
+      "description-append-file": { type: "string" },
+      apply: { type: "boolean", default: false },
+      actor: { type: "string" },
+      format: { type: "string", default: "json" },
+    },
+    strict: false,
+  });
+
+  const isApply = !!values["apply"];
+  const actorName = validateActor(values["actor"] as string | undefined, isApply);
+  const outputFormat = values["format"] as string;
+
+  const input: IssueUpdateInput = { issueIdentifier: issueId };
+  if (values["state"]) {
+    input.stateName = values["state"] as string;
+  }
+  if (values["description-append-file"]) {
+    input.descriptionAppend = await readDescriptionFile(
+      values["description-append-file"] as string,
+    );
+  }
+
+  const plan = await planUpdateIssue(input);
+
+  if (!isApply) {
+    if (outputFormat === "pretty") {
+      const hasDescAppend = !!input.descriptionAppend;
+      const bodyLines: string[] = [];
+      if (input.stateName) bodyLines.push(`- 상태 변경: → ${input.stateName}`);
+      if (hasDescAppend) bodyLines.push(`- description append: ${input.descriptionAppend!.split("\n").length}줄`);
+      const body = bodyLines.length > 0 ? bodyLines.join("\n") : "(변경 항목 없음)";
+      const rollback = hasDescAppend ? "manual" as const : "auto" as const;
+      const rollbackGuide = hasDescAppend ? "Linear UI 수동 편집" : undefined;
+      console.log(renderDryRunPlan(
+        { kind: "update-issue", identifier: issueId },
+        { body },
+        {
+          idempotencyKey: plan.idempotencyKey,
+          expectedImpact: "Linear API 1건 (issue update)",
+          rollback,
+          rollbackGuide,
+        },
+      ));
+    } else {
+      console.log(JSON.stringify({ "dry-run": true, plan }, null, 2));
+    }
+    return;
+  }
+
+  // apply 분기
+  if (process.env["POKIT_TEST_MOCK"] === "1") {
+    console.log(
+      JSON.stringify({
+        mock: true,
+        action: "apply",
+        actor: actorName,
+        plan,
+      }),
+    );
+    return;
+  }
+
+  const result = await applyUpdateIssue(plan, { approved: true, actor: actorName });
+
+  const now = new Date().toISOString();
+  try {
+    await appendDecisionLog({
+      id: `dec-${now.slice(0, 10).replace(/-/g, "")}-cli-update-${issueId.toLowerCase()}`,
+      timestamp: now,
+      title: `CLI update ${issueId}`,
+      summary: `CLI apply: update ${issueId} ${input.stateName ? `state→${input.stateName}` : ""} ${input.descriptionAppend ? "description append" : ""}`.trim(),
+      decision: `applyUpdateIssue 성공. actor: ${actorName}`,
+      linear_refs: [issueId],
+      actor: actorName,
+    });
+  } catch (logErr) {
+    console.error(`⚠️ decision-log append 실패: ${(logErr as Error).message}`);
+    const exitErr = new Error("decision-log append 실패");
+    (exitErr as any).exitCode = 4;
+    throw exitErr;
+  }
+
+  console.log(JSON.stringify({ success: true, issue: result }));
+}
+
+async function cmdCreate(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      title: { type: "string" },
+      labels: { type: "string" },
+      "description-file": { type: "string" },
+      apply: { type: "boolean", default: false },
+      actor: { type: "string" },
+      format: { type: "string", default: "json" },
+    },
+    strict: false,
+  });
+
+  if (!values["description-file"]) {
+    const err = new Error(
+      "--description-file 이 필요합니다. 예: create --title '...' --labels Improvement --description-file /tmp/desc.md",
+    );
+    (err as any).exitCode = 2;
+    throw err;
+  }
+
+  const rawDescription = await readDescriptionFile(values["description-file"] as string);
+  const title = (values["title"] as string | undefined) ?? "(제목 없음)";
+  const labelsList = values["labels"]
+    ? (values["labels"] as string).split(",").map((l) => l.trim()).filter(Boolean)
+    : [];
+
+  const isApply = !!values["apply"];
+  const actorName = validateActor(values["actor"] as string | undefined, isApply);
+  const outputFormat = values["format"] as string;
+
+  // dry-run plan 수동 구성 (planCreateIssue는 description 객체 구조를 요구하므로 CLI는 raw plan 구성)
+  const plan: Plan = {
+    idempotencyKey: `linear:create_issue:${title}`,
+    summary: `Create Linear issue: ${title}`,
+    writes: [
+      {
+        type: "create_issue",
+        target: "backlog",
+        payload: { title, labels: labelsList, rawDescription },
+      },
+    ],
+  };
+
+  if (!isApply) {
+    console.warn(
+      "CLI create는 raw 이슈만 생성합니다. 4섹션 description은 update --description-append-file로 추가하세요.",
+    );
+    if (outputFormat === "pretty") {
+      const bodyLines = [
+        `- 제목: ${title}`,
+        labelsList.length > 0 ? `- 라벨: ${labelsList.join(", ")}` : null,
+        `- description: ${rawDescription.split("\n").length}줄`,
+      ].filter(Boolean) as string[];
+      console.log(renderDryRunPlan(
+        { kind: "create-issue", identifier: "backlog" },
+        { body: bodyLines.join("\n") },
+        {
+          idempotencyKey: plan.idempotencyKey,
+          expectedImpact: "Linear API 1건 (issue create)",
+          rollback: "manual",
+          rollbackGuide: "Linear UI 수동 삭제",
+        },
+      ));
+    } else {
+      console.log(JSON.stringify({ "dry-run": true, plan }, null, 2));
+    }
+    return;
+  }
+
+  // apply 분기
+  if (process.env["POKIT_TEST_MOCK"] === "1") {
+    console.log(
+      JSON.stringify({
+        mock: true,
+        action: "apply",
+        actor: actorName,
+        plan,
+      }),
+    );
+    return;
+  }
+
+  const err = new Error(
+    "CLI create --apply는 현재 미지원입니다. raw description을 4섹션 IssueInput으로 변환하는 로직이 필요합니다.",
+  );
+  (err as any).exitCode = 1;
+  throw err;
+}
+
+async function cmdAssignLabel(args: string[]): Promise<void> {
+  const issueId = args[0];
+  if (!issueId || issueId.startsWith("--")) {
+    const err = new Error(
+      "ISSUE_ID 가 필요합니다. 예: assign-label POKIT-187 --label Improvement",
+    );
+    (err as any).exitCode = 2;
+    throw err;
+  }
+
+  const { values } = parseArgs({
+    args: args.slice(1),
+    options: {
+      label: { type: "string" },
+      apply: { type: "boolean", default: false },
+      actor: { type: "string" },
+      format: { type: "string", default: "json" },
+    },
+    strict: false,
+  });
+
+  if (!values["label"]) {
+    const err = new Error("--label 이 필요합니다. 예: assign-label POKIT-187 --label Improvement");
+    (err as any).exitCode = 2;
+    throw err;
+  }
+
+  const labelName = values["label"] as string;
+  const isApply = !!values["apply"];
+  const actorName = validateActor(values["actor"] as string | undefined, isApply);
+  const outputFormat = values["format"] as string;
+
+  // dry-run: labelId 없이 plan 구성 (listLabels는 API 호출이므로 dry-run에서 생략)
+  const plan: Plan = {
+    idempotencyKey: `linear:assign_label:${issueId}:${labelName}`,
+    summary: `Assign ${labelName} to ${issueId}`,
+    writes: [
+      {
+        type: "update_issue",
+        target: issueId,
+        payload: { issueIdentifier: issueId, labelName },
+      },
+    ],
+  };
+
+  if (!isApply) {
+    if (outputFormat === "pretty") {
+      console.log(renderDryRunPlan(
+        { kind: "update-issue", identifier: issueId },
+        { body: `- 라벨 할당: ${labelName}` },
+        {
+          idempotencyKey: plan.idempotencyKey,
+          expectedImpact: "Linear API 1건 (label assign)",
+          rollback: "auto",
+        },
+      ));
+    } else {
+      console.log(JSON.stringify({ "dry-run": true, plan }, null, 2));
+    }
+    return;
+  }
+
+  // apply 분기: labelName → labelId resolve
+  if (process.env["POKIT_TEST_MOCK"] === "1") {
+    console.log(
+      JSON.stringify({
+        mock: true,
+        action: "apply",
+        actor: actorName,
+        plan,
+      }),
+    );
+    return;
+  }
+
+  const labels = await listLabels();
+  const found = labels.find(
+    (l) => l.name.toLowerCase() === labelName.toLowerCase(),
+  );
+  if (!found) {
+    const available = labels.map((l) => l.name).join(", ");
+    const err = new Error(
+      `라벨을 찾을 수 없습니다: "${labelName}". 사용 가능: ${available}`,
+    );
+    (err as any).exitCode = 3;
+    throw err;
+  }
+
+  const applyPlan = await planAssignLabelToIssue({
+    issueId: found.id,
+    issueIdentifier: issueId,
+    labelId: found.id,
+    labelName: found.name,
+  });
+
+  const result = await applyAssignLabelToIssue(applyPlan, {
+    approved: true,
+    actor: actorName,
+  });
+
+  const now = new Date().toISOString();
+  try {
+    await appendDecisionLog({
+      id: `dec-${now.slice(0, 10).replace(/-/g, "")}-cli-assign-label-${issueId.toLowerCase()}`,
+      timestamp: now,
+      title: `CLI assign-label ${issueId} ${labelName}`,
+      summary: `CLI apply: assign label "${labelName}" to ${issueId}. actor: ${actorName}`,
+      decision: `applyAssignLabelToIssue 성공`,
+      linear_refs: [issueId],
+      actor: actorName,
+    });
+  } catch (logErr) {
+    console.error(`⚠️ decision-log append 실패: ${(logErr as Error).message}`);
+    const exitErr = new Error("decision-log append 실패");
+    (exitErr as any).exitCode = 4;
+    throw exitErr;
+  }
+
+  console.log(JSON.stringify({ success: true, issue: result }));
+}
+
+async function cliMain(): Promise<void> {
+  const argv = process.argv.slice(2);
+  const sub = argv[0];
+
+  if (!sub || sub === "--help" || sub === "-h") {
+    printUsage();
+    process.exit(2);
+  }
+
+  try {
+    switch (sub) {
+      case "create":
+        await cmdCreate(argv.slice(1));
+        break;
+      case "update":
+        await cmdUpdate(argv.slice(1));
+        break;
+      case "assign-label":
+        await cmdAssignLabel(argv.slice(1));
+        break;
+      default:
+        console.error(
+          `알 수 없는 서브명령: ${sub}. 사용 가능: create, update, assign-label`,
+        );
+        process.exit(2);
+    }
+  } catch (err) {
+    console.error(`❌ ${(err as Error).message}`);
+    process.exit((err as any).exitCode ?? 3);
+  }
+}
+
+// ESM 진입점 체크
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  cliMain().catch((err) => {
+    console.error(err);
+    process.exit(3);
+  });
 }

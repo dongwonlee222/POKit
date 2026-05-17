@@ -52,6 +52,7 @@ const publicSafetyRules: PublicSafetyRule[] = [
 const scannerFixturePaths = new Set([
   "scripts/cli/public-safety-scan.ts",
   "tests/public-safety-scan.test.mjs",
+  "tests/integration/public-safety-scan.test.mjs",
 ]);
 
 export function scanPublicFiles(files: PublicFile[]): PublicSafetyViolation[] {

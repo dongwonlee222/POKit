@@ -623,7 +623,77 @@ export type BuildReleaseManifestOptions = {
   docPaths?: string[];
   skills?: string[];
   unresolved?: ReleaseUnresolved[];
+  /** A2 (POKIT-178) — wiring intended 자동 추출용 PRD 파일 경로 배열 */
+  prdPaths?: string[];
+  /** A2 (POKIT-178) — wiring intended 자동 추출용 CHANGELOG 경로 (기본: <rootDir>/CHANGELOG.md) */
+  changelogPath?: string;
+  /** A2 (POKIT-178) — 수동 intended 목록 (자동 추출과 merge; 수동 우선) */
+  intendedManual?: string[];
 };
+
+// ---------- A2 (POKIT-178) — extractIntendedWiring 자동 추출 ----------
+
+/**
+ * PRD 본문과 CHANGELOG 섹션 텍스트에서 wiring intended 식별자를 자동 추출한다.
+ *
+ * 추출 패턴:
+ * 1. 인라인 백틱 식별자 — camelCase 함수명 (소문자 시작, 중간에 대문자 포함)
+ *    예: `buildReleaseManifest`, `renderLinearBacklogDescription`
+ * 2. "wiring intended:" 또는 "production 호출:" 마커 다음 줄의 식별자
+ *
+ * False positive 회피:
+ * - `` `--apply` ``, `` `--dry-run` `` 같은 플래그 제외 (- 또는 _ 로 시작)
+ * - 경로(`/` 포함), 확장자(`.` 포함), `:` 포함 식별자 제외
+ * - 공백 포함 텍스트 제외
+ * - 코드 펜스(```...```) 블록 내부는 무시 (모듈 정의)
+ */
+export function extractIntendedWiring(prdContent: string, changelogSection: string): string[] {
+  const combined = prdContent + "\n" + changelogSection;
+
+  // 1. 코드 펜스 블록 제거 (```...``` 사이 내용 무시)
+  const stripped = combined.replace(/```[\s\S]*?```/g, "");
+
+  const results = new Set<string>();
+
+  // 2. 인라인 백틱 식별자 추출 — camelCase 패턴 (소문자 시작 + 중간 대문자 포함)
+  //    패턴: 소문자 시작, 영숫자만 포함, 최소 하나의 대문자 포함
+  //    거부: /, -, ., :, 공백 포함 시 건너뜀
+  const backtickRe = /`([^`]+)`/g;
+  const camelCaseRe = /^[a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*$/;
+  let m: RegExpExecArray | null;
+  while ((m = backtickRe.exec(stripped)) !== null) {
+    const id = m[1];
+    if (camelCaseRe.test(id)) {
+      results.add(id);
+    }
+  }
+
+  // 3. 명시 마커 다음 줄 추출 — "wiring intended:" 또는 "production 호출:"
+  const lines = stripped.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/wiring intended\s*:/i.test(line) || /production 호출\s*:/i.test(line)) {
+      // 마커 라인 자체에서도 추출
+      const markerInline = line.replace(/.*(?:wiring intended|production 호출)\s*:\s*/i, "");
+      for (const token of markerInline.split(/[\s,]+/)) {
+        const t = token.replace(/^`|`$/g, "").trim();
+        if (camelCaseRe.test(t)) results.add(t);
+      }
+      // 다음 줄도 확인
+      if (i + 1 < lines.length) {
+        const next = lines[i + 1].trim();
+        // 불릿(-) 또는 단순 텍스트
+        const nextTokens = next.replace(/^\s*-\s*/, "").split(/[\s,]+/);
+        for (const token of nextTokens) {
+          const t = token.replace(/^`|`$/g, "").trim();
+          if (camelCaseRe.test(t)) results.add(t);
+        }
+      }
+    }
+  }
+
+  return [...results].sort();
+}
 
 /**
  * Build a release manifest skeleton from CHANGELOG + (optional) Linear cycle issues.
@@ -633,7 +703,8 @@ export type BuildReleaseManifestOptions = {
  * - issues: 호출자가 Linear cycle context를 넘겨주거나 빈 배열로 시작
  * - changelog: CHANGELOG.md의 `## v<version>` 섹션 bullets 자동 파싱
  * - artifacts: 호출자가 git diff로 채워 넘기거나 빈 배열로 시작
- * - wiring_status: intended/actual/gaps 모두 빈 배열로 초기화 → [6/8] retro-check가 채움
+ * - wiring_status.intended: A2 (POKIT-178) — prdPaths + changelogPath에서 자동 추출.
+ *   추출 0건이면 stderr 경고. opts.intendedManual 있으면 merge (수동 우선).
  */
 export function buildReleaseManifest(version: string, opts: BuildReleaseManifestOptions = {}): ReleaseManifest {
   validateSemver(version);
@@ -641,6 +712,48 @@ export function buildReleaseManifest(version: string, opts: BuildReleaseManifest
   const now = opts.now ?? new Date();
 
   const changelog = opts.changelog ?? parseChangelogSection(rootDir, version);
+
+  // A2 (POKIT-178) — wiring intended 자동 추출
+  const changelogPath = opts.changelogPath ?? join(rootDir, "CHANGELOG.md");
+  const prdContents = (opts.prdPaths ?? []).map((p) => {
+    if (existsSync(p)) return readFileSync(p, "utf8");
+    process.stderr.write(`⚠️ prdPath 미존재: ${p}\n`);
+    return "";
+  }).join("\n");
+  const changelogContent = existsSync(changelogPath)
+    ? readFileSync(changelogPath, "utf8")
+    : "";
+  // 해당 버전 섹션만 추출
+  const changelogSectionText = (() => {
+    if (!changelogContent) return "";
+    const headerRe = new RegExp(`^## v?${escapeRegExp(version)}\\b`, "m");
+    const headerMatch = headerRe.exec(changelogContent);
+    if (!headerMatch) return "";
+    const headerLineEnd = changelogContent.indexOf("\n", headerMatch.index);
+    const start = headerLineEnd >= 0 ? headerLineEnd + 1 : headerMatch.index + headerMatch[0].length;
+    const tail = changelogContent.slice(start);
+    const nextHeader = tail.search(/^## v?\d+\.\d+\.\d+/m);
+    return nextHeader >= 0 ? tail.slice(0, nextHeader) : tail;
+  })();
+
+  const autoIntended = extractIntendedWiring(prdContents, changelogSectionText);
+  const manualIntended = opts.intendedManual ?? [];
+
+  let intended: string[];
+  if (manualIntended.length > 0 || autoIntended.length > 0) {
+    // 수동 우선: 수동 먼저, 자동에서 수동에 없는 것만 추가
+    const manualSet = new Set(manualIntended);
+    const merged = [...manualIntended, ...autoIntended.filter((x) => !manualSet.has(x))];
+    intended = merged;
+  } else {
+    intended = [];
+  }
+
+  if (intended.length === 0) {
+    process.stderr.write(
+      "⚠️ wiring intended 자동 추출 실패: PRD/CHANGELOG에 백틱 식별자 또는 'wiring intended:' 마커 부재\n",
+    );
+  }
 
   const manifest: ReleaseManifest = {
     version,
@@ -654,7 +767,7 @@ export function buildReleaseManifest(version: string, opts: BuildReleaseManifest
       skills: opts.skills ?? [],
     },
     wiring_status: {
-      intended: [],
+      intended,
       actual: [],
       gaps: [],
     },
@@ -680,7 +793,8 @@ export function parseChangelogSection(rootDir: string, version: string): string[
   const headerRe = new RegExp(`^## v?${escapeRegExp(version)}\\b`, "m");
   const headerMatch = headerRe.exec(content);
   if (!headerMatch) return [];
-  const start = headerMatch.index + headerMatch[0].length;
+  const headerLineEnd = content.indexOf("\n", headerMatch.index);
+  const start = headerLineEnd >= 0 ? headerLineEnd + 1 : headerMatch.index + headerMatch[0].length;
   const tail = content.slice(start);
   const nextHeader = tail.search(/^## v?\d+\.\d+\.\d+/m);
   const section = nextHeader >= 0 ? tail.slice(0, nextHeader) : tail;

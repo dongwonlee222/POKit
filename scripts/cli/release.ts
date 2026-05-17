@@ -121,7 +121,10 @@ const main = async () => {
     console.log(`  (dry-run) manifest 자동 생성 skip: ${manifestPath}`);
   } else {
     console.log(`  manifest 미존재 — 자동 생성 시작: ${manifestPath}`);
-    const manifest = buildReleaseManifest(opts.version, { rootDir: opts.rootDir });
+    const manifest = buildReleaseManifest(opts.version, {
+      rootDir: opts.rootDir,
+      changelogPath: join(opts.rootDir ?? process.cwd(), "CHANGELOG.md"),
+    });
     const writtenPath = await writeReleaseManifest(opts.version, manifest, opts.rootDir);
     console.log(`  ✓ 자동 생성 완료: ${writtenPath}`);
     console.log(`    - issues: ${manifest.issues.length}건 (cycle ${manifest.cycle_id})`);

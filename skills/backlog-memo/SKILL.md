@@ -51,6 +51,7 @@ export type LocalBacklogMemoInput = {
   proposedState: string;
   nonChanges: string[];
   idempotencyKey: string;
+  visualization: string;  // ASCII 본문, 빈 문자열 불가 (throw)
 };
 
 export function renderLocalBacklogMemo(input: LocalBacklogMemoInput): string
@@ -101,11 +102,37 @@ scope-hash: title의 앞 8자 소문자 슬러그 (공백→하이픈, 특수문
 - 수정 요청 → Step 3~4 반복.
 - "됐어" / "그냥 저장" / 그 외 모호한 응답 → 메모로 종료. 외부 등록 없음.
 
+## 시각화 가이드
+
+`## 시각화` 섹션은 메모 본문의 첫 번째 섹션이며 필수다. 빈 코드블럭 금지.
+
+작성 원칙:
+1. **Before / After 좌우 대비** — 변화를 한눈에 보여준다
+2. **사용자 시점·시스템 시점 중 택일** — 명령 비교는 사용자 시점, 데이터 흐름은 시스템 시점
+3. **화살표·박스** — `│ ▼ ─ ┌ └ ┐ ┘` 문자 일관 사용
+4. **이모지 마커** — ✅(완료) 🔄(진행) ⏸(대기) ❌(실패) ⚠(주의) 📎(첨부)
+5. **80자 폭 이내** — 터미널 가독성 확보
+
+예시 (Before/After 패턴):
+```
+Before:                     After:
+┌──────────────┐            ┌──────────────┐
+│ AS-IS 텍스트  │            │ ## 시각화     │
+│ TO-BE 텍스트  │            │ (ASCII 그림)  │
+└──────────────┘            │ AS-IS 텍스트  │
+사용자: 머릿속 재구성 필요    └──────────────┘
+                            사용자: 즉시 이해 ✅
+```
+
+최소 길이: 50자 이상 (placeholder 거부).
+
 ## Self-Verification Checklist
 
 출력 전 확인:
+- [ ] `## 시각화` 섹션이 본문 최상단에 존재
+- [ ] 시각화 본문이 비어있지 않음 (50자 이상)
 - [ ] 출력에 "Linear에 아직 등록되지 않았습니다" 문구 포함
 - [ ] `api.linear.app` 호출 흔적 없음
 - [ ] GraphQL mutation 없음
 - [ ] idempotency key 형식 `memo-YYYYMMDD-*` 준수
-- [ ] `renderLocalBacklogMemo` 출력 섹션 구조 일치 (요약 / 출처 / 제안 Linear 형태 / 바꾸지 않을 것 / idempotency key)
+- [ ] `renderLocalBacklogMemo` 출력 섹션 구조 일치 (시각화 / 요약 / 출처 / 제안 Linear 형태 / 바꾸지 않을 것 / idempotency key)

@@ -10,7 +10,7 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 
 1. **사용자가 봐야 하나?** → 아니면 Internal (gitignore)
 2. **per-run vs cross-run?** → per-run = `artifacts/`, cross-run = `memory/`
-3. **POKit 자체 작업 히스토리?** → `dogfood/`
+3. **버전 단위 릴리스 산출물?** → `releases/v<버전>/`
 4. **외부 공유용 sanitized sample?** → `examples/`
 5. **선언적 yaml?** → `workflows/`
 6. **빈 양식?** → `templates/`
@@ -20,7 +20,7 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 
 판단이 안 되면 본 문서의 §3 "5가지 경계 결정"을 참조한다.
 
-## 1. 폴더 책임 정의 (14개)
+## 1. 폴더 책임 정의 (13개)
 
 ### Public (사용자가 `git clone` 시 봄)
 
@@ -44,7 +44,6 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `releases/` | **버전 단위 산출물 묶음** (POKIT-175 M6) | `v<버전>/manifest.yaml`, `v<버전>/{prds,criteria,sprints,gaps}/`, `v<버전>/retro.md`, `v<버전>/unresolved.md` |
 
 > ⚠ **manifest 경로 가드 (POKIT-173 회귀 방지)**: 코드에서 release manifest 경로는 반드시 `releaseManifestPath(version, rootDir)` 헬퍼(`scripts/internal/release-manifest.ts`) 경유. `memory/releases/v<X>.yaml` 또는 `releases/v<X>/manifest.yaml` 같은 문자열 하드코딩 금지. M6 같은 경로 마이그레이션이 다시 일어나도 헬퍼만 갱신하면 모든 호출처가 자동 추종한다. 회귀 테스트: `tests/session-brief.test.mjs` "renders unresolved card from latest release manifest".
-| `dogfood/` | POKit 자체 작업 히스토리 (legacy) | 자체 운영하며 만든 PRD, criteria, sprint |
 | `docs/plans/` | 제작 plan | `CYCLE_BRIEF_CLOSE_PLAN.md`, `GOAL_LOOP.md`, `IMPLEMENTATION_PLAN.md` |
 | `docs/history/` | 설계 히스토리 | `DESIGN.md` 히스토리 부분 |
 | `.claude/` | 에이전트 도구 로컬 상태 | `worktrees/` |
@@ -66,7 +65,6 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `memory/` | 🟡 부분 | yaml/md 일부 ✅, `notes/` `manifests/` `problem-reviews/` `profiles/` `resume-brief.md` ❌ |
 | `artifacts/` | ❌ Internal | `.gitkeep` + `sprints/README.md`만 ✅ |
 | `releases/` | 🟡 부분 | `manifest.yaml` ✅ tracked, hotfix 산출물(`prds/criteria/sprints/`)은 frontmatter version 매핑 (POKIT-175) |
-| `dogfood/` | ❌ Internal | 현 위치 `examples/dogfood/`는 과거 history 유지, 신규는 gitignore |
 | `.claude/` | ❌ Internal | gitignore |
 
 LLM은 새 파일 만들기 전 이 표를 확인한다. 표에 없는 최상위 폴더는 [tests/folder-layout-contract.test.mjs](../../tests/folder-layout-contract.test.mjs) 가 차단한다.
@@ -111,11 +109,9 @@ POKit 운영 중 자주 헷갈렸던 경계 5건을 명확히 한다.
 
 → `memory/problem-reviews/`로 이동.
 
-### 3.5 dogfood 위치
+### 3.5 dogfood 위치 (제거 — v0.16.0 POKIT-175)
 
-POKit이 자기 자신을 운영하며 남긴 PRD/criteria/sprint는 **외부 공유 sample이 아니다**. examples 안에 있으면 사용자가 "외부 sample"로 오해한다.
-
-→ 최상위 `dogfood/`로 승격. 신규 추가는 gitignore (과거 history는 유지).
+POKit이 자기 자신을 운영하며 남긴 PRD/criteria/sprint는 `dogfood/`에 보관되었으나, v0.16.0에서 `releases/v*/` 단위 묶음으로 전환하면서 디렉토리를 제거했다. 신규 버전 산출물은 `releases/v<버전>/`에 저장한다.
 
 ## 4. 레거시 이동 매핑
 
@@ -129,7 +125,6 @@ v0.10.0에서 정리할 25개 이동 대상.
 | `workflows/cross-runtime-diff-checklist.md` | `docs/_details/cross-runtime-diff.md` | 문서는 docs |
 | `workflows/cross-runtime-diff-tests.md` | (위로 통합) | |
 | `workflows/cross-runtime-diff-results/` | `artifacts/cross-runtime-diff/` | 결과물은 artifacts |
-| `examples/dogfood/` (9 files) | `dogfood/` (최상위) | 자체 작업 ≠ sample |
 | `examples/day2-dry-run/` | `tests/fixtures/day2-dry-run/` | test fixture |
 | `examples/definition/POKIT-89/` | `examples/definition-pipeline-sample/` | 익명화 |
 | `docs/CYCLE_BRIEF_CLOSE_PLAN.md` | `docs/plans/` | 제작 plan |
@@ -148,7 +143,6 @@ v0.10.0에서 정리할 25개 이동 대상.
 | `memory/problem-reviews/` | ❌ | Problem Review 이동지 |
 | `artifacts/analyses/` | ❌ | 일회성 분석 분류 |
 | `artifacts/cross-runtime-diff/` | ❌ | cross-runtime 결과 |
-| `dogfood/` | ❌ | 자체 작업 히스토리 승격 |
 | `docs/plans/` | ❌ | 제작 plan 분리 |
 | `docs/history/` | ❌ | 설계 히스토리 |
 | `tests/fixtures/day2-dry-run/` | ✅ | examples에서 이동 |
@@ -182,3 +176,4 @@ POKIT-132 완료 시 본 문서를 갱신한다.
 ## 변경 이력
 
 - v0.10.0 — 최초 작성 (F-1 by 폴더 audit + 외부 사례 조사)
+- v0.16.0 — dogfood/ 제거 (POKIT-175 B1): 디렉토리 삭제, §1·§2·§3.5·§4·§5 갱신, contract test + .gitignore 동기화

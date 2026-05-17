@@ -55,6 +55,7 @@ export type LocalBacklogMemoInput = {
   proposedState: string;
   nonChanges: string[];
   idempotencyKey: string;
+  visualization: string;  // ASCII 본문, 빈 문자열 불가
 };
 
 export type SubIssueTaskChecklistInput = {
@@ -122,8 +123,25 @@ export function renderLinearBacklogDescription(input: LinearBacklogDescriptionIn
 }
 
 export function renderLocalBacklogMemo(input: LocalBacklogMemoInput): string {
+  const vizBody = input.visualization?.trim() ?? "";
+  if (!vizBody) {
+    throw new Error(
+      "renderLocalBacklogMemo: visualization 필드가 비어있습니다. ASCII 시각화(최소 50자)를 제공하세요.",
+    );
+  }
+  if (vizBody.length < 50) {
+    throw new Error(
+      `renderLocalBacklogMemo: visualization 최소 50자 필요 (현재 ${vizBody.length}자). placeholder 거부.`,
+    );
+  }
+
   return [
     `# Backlog Memo: ${input.title}`,
+    "",
+    "## 시각화",
+    "```",
+    vizBody,
+    "```",
     "",
     "## 요약",
     fallback(input.summary),

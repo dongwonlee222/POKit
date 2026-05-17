@@ -64,7 +64,5 @@ memory/collected/
 docs/plans/
 # Internal: 설계 히스토리 (DESIGN.md 분할 예정)
 docs/history/
-# Internal: dogfood 신규 (과거 examples/dogfood/는 history 유지)
-dogfood/
 # Internal: Claude Code 로컬 상태 (worktrees 등). 스킬은 plugin manifest로 배포.
 .claude/

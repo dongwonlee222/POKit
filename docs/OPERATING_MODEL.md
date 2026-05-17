@@ -142,7 +142,7 @@ Architecture flow references: `docs/architecture/07-backlog-intake-flow.md`, `do
 ## Artifact Policy
 
 - `artifacts/` is the local workspace for generated PRDs, criteria, manifests, and run summaries.
-- `examples/` is the public workspace for reusable fixtures and dogfood samples.
+- `examples/` is the public workspace for reusable fixtures and sanitized samples.
 - Public commits should exclude credentials, customer data, private project details, local memory, generated artifacts, and live workspace outputs.
 
 ## Distribution Model

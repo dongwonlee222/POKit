@@ -1,6 +1,6 @@
 {
   "name": "pokit",
-  "version": "0.15.3",
+  "version": "0.16.0",
   "private": true,
   "type": "module",
   "bin": {
@@ -19,6 +19,10 @@
     "end": "node --experimental-strip-types scripts/cli/session-close.ts",
     "safety": "node --experimental-strip-types scripts/cli/public-safety-scan.ts",
     "sweep": "node --experimental-strip-types scripts/cli/collected-sweep.ts",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test 'tests/**/*.test.mjs'",
+    "test:contracts": "node --experimental-strip-types --test 'tests/contracts/*.test.mjs'",
+    "test:hooks": "node --experimental-strip-types --test 'tests/hooks/*.test.mjs'",
+    "test:internal": "node --experimental-strip-types --test 'tests/internal/*.test.mjs'",
+    "test:integration": "node --experimental-strip-types --test 'tests/integration/*.test.mjs'"
   }
 }

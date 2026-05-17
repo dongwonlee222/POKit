@@ -194,9 +194,3 @@ paths:
     role: "프로젝트 설정 — 환경·팀·통합 설정"
     source_of_truth: true
     notes: "[added]"
-
-  # ── 독푸드 ───────────────────────────────────────────────────────
-  - path: "dogfood/"
-    role: "POKit 자체 사용 기록·독푸드 스프린트·히스토리"
-    source_of_truth: false
-    notes: "[added]"
