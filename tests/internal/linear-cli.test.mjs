@@ -341,6 +341,29 @@ test("rewriteDecisionLogYaml: 새 entry에 alternatives_rejected와 evidence 필
   assert.ok(result.includes("evidence: []"), `evidence: [] 없음\n${result}`);
 });
 
+test("appendDecisionLogMarkdown: yaml entry와 1:1 매핑되는 md section 추가 (POKIT-196)", async () => {
+  const { appendDecisionLogMarkdown } = await import(
+    "../../scripts/internal/linear.ts"
+  );
+  const entry = {
+    id: "dec-test-md-sync",
+    timestamp: "2026-05-17T20:00:00.000Z",
+    title: "decision-log md sync 테스트",
+    summary: "yaml+md 동시 갱신 검증",
+    decision: "appendDecisionLogMarkdown PASS",
+    actor: "test-agent",
+    linear_refs: ["POKIT-196"],
+  };
+  const before = "# Decision Log\n\nexisting content.\n";
+  const after = appendDecisionLogMarkdown(before, entry);
+  assert.ok(after.includes("existing content."), "기존 본문 보존");
+  assert.ok(after.includes("dec-test-md-sync"), "id 박힘");
+  assert.ok(after.includes("2026-05-17T20:00:00.000Z"), "timestamp 박힘");
+  assert.ok(after.includes("POKIT-196"), "linear_refs 박힘");
+  assert.ok(after.includes("**요약**"), "요약 섹션");
+  assert.ok(after.includes("**결정**"), "결정 섹션");
+});
+
 test("appendDecisionLog: 두 번 연속 호출 시 둘 다 배열 안에 위치 (dangling 없음)", () => {
   const tmpDecisionLog = join(mkdtempSync(join(tmpdir(), "decision-log-test-")), "decision-log.yaml");
   writeFileSync(tmpDecisionLog, FIXTURE_YAML, "utf8");

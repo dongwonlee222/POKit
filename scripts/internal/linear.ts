@@ -1592,14 +1592,49 @@ export function rewriteDecisionLogYaml(raw: string, newEntry: DecisionLogEntry):
 export async function appendDecisionLog(
   entry: DecisionLogEntry,
   yamlPath?: string,
+  mdPath?: string,
 ): Promise<void> {
-  const logPath = yamlPath ?? resolvePath(
-    new URL(".", import.meta.url).pathname,
-    "../../memory/decision-log.yaml",
-  );
+  const baseDir = new URL(".", import.meta.url).pathname;
+  const logPath = yamlPath ?? resolvePath(baseDir, "../../memory/decision-log.yaml");
+  const markdownPath = mdPath ?? resolvePath(baseDir, "../../memory/decision-log.md");
+
   const raw = await readFile(logPath, "utf8");
   const updated = rewriteDecisionLogYaml(raw, entry);
   await writeFile(logPath, updated, "utf8");
+
+  // POKIT-196: md 동시 갱신 (yaml + md 일관성)
+  try {
+    const mdRaw = await readFile(markdownPath, "utf8");
+    const mdUpdated = appendDecisionLogMarkdown(mdRaw, entry);
+    await writeFile(markdownPath, mdUpdated, "utf8");
+  } catch (err) {
+    // md 부재 시 무시 (yaml은 이미 기록됨, md는 호환성 채널)
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+  }
+}
+
+/**
+ * decision-log.md 본문 끝에 새 entry section을 append.
+ * yaml entry 와 1:1 매핑되도록 ID·timestamp·refs를 포함한다.
+ */
+export function appendDecisionLogMarkdown(raw: string, entry: DecisionLogEntry): string {
+  const refs = entry.linear_refs.length > 0
+    ? entry.linear_refs.map((r) => `\`${r}\``).join(", ")
+    : "(none)";
+  const section = [
+    "",
+    `## ${entry.timestamp} — ${entry.title}`,
+    "",
+    `- **id**: \`${entry.id}\``,
+    `- **actor**: ${entry.actor}`,
+    `- **refs**: ${refs}`,
+    "",
+    `**요약**: ${entry.summary}`,
+    "",
+    `**결정**: ${entry.decision}`,
+    "",
+  ].join("\n");
+  return raw.trimEnd() + "\n" + section;
 }
 
 async function cmdUpdate(args: string[]): Promise<void> {
