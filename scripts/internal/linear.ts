@@ -1,5 +1,9 @@
 import { assertExternalWriteAllowed, type ExternalWriteApplyOptions } from "./external-write/guard.ts";
 import { getActiveProfile, loadDotEnvOnce } from "./profile.ts";
+import {
+  type LinearBacklogDescriptionInput,
+  renderLinearBacklogDescription,
+} from "./backlog-outline.ts";
 
 export type Plan = {
   idempotencyKey: string;
@@ -13,7 +17,7 @@ export type Plan = {
 
 export type IssueInput = {
   title: string;
-  description?: string;
+  description?: LinearBacklogDescriptionInput;
   labels?: string[];
   cycleId?: string;
 };
@@ -786,8 +790,11 @@ export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): 
   if (!payload.title) {
     throw new Error("Refusing create issue apply without title.");
   }
+  const renderedBody = payload.description
+    ? renderLinearBacklogDescription(payload.description)
+    : "";
   const description = [
-    payload.description,
+    renderedBody,
     payload.labels?.length ? `\n\nPOKit labels requested: ${payload.labels.join(", ")}` : "",
     `\n\nPOKit idempotency key: ${plan.idempotencyKey}`,
   ].filter(Boolean).join("");

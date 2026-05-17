@@ -875,7 +875,21 @@ test("applyCreateIssue creates an issue only with approval and idempotency key",
   const { applyCreateIssue, planCreateIssue } = await loadLinearModule();
   const plan = await planCreateIssue({
     title: "Seed issue",
-    description: "Seed description",
+    description: {
+      purpose: "Seed description",
+      userVisibleChange: "-",
+      doneCondition: "-",
+      scope: "-",
+      outOfScope: "-",
+      evidence: [],
+      release: { kind: "none" },
+      linearVariables: {
+        state: "Backlog",
+        labels: ["pokit:criteria"],
+        source: "linear",
+        idempotencyKey: "seed:test",
+      },
+    },
     labels: ["pokit:criteria"],
   });
 

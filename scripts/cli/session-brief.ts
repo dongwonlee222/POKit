@@ -10,6 +10,7 @@ import { renderProgressBar } from "../internal/render/ascii.ts";
 import { loadMessageCatalog, renderMessage } from "../internal/message-catalog.ts";
 import { buildSprintDryRunSummary, type SprintDryRunSummary } from "./sprint-runner.ts";
 import { getActiveCycleTargetVersion } from "../internal/manifest-lookup.ts";
+import { readNextAction } from "../internal/next-action-wizard.ts";
 
 export type SessionBriefInput = {
   now?: Date;
@@ -74,17 +75,23 @@ export function buildSessionBrief(input: SessionBriefInput): string {
 
   if (input.variant === "start") {
     const version = readReleaseVersion(rootDir);
-    const targetVersion = getActiveCycleTargetVersion(rootDir) ?? "(미정)";
     const teamLabel = profile.linearTeamKey ?? "POKIT";
+    const nextActionData = readNextAction(rootDir);
     const resumeNext = readResumeBriefNextAction(rootDir);
-    const nextActionText = resumeNext ?? recommendation.summary;
+    // Precedence: next-action.yaml > resume-brief.md > dynamic recommendation
+    const nextActionText = nextActionData?.intent ?? resumeNext ?? recommendation.summary;
+    const targetVersion = nextActionData?.target_version ?? getActiveCycleTargetVersion(rootDir) ?? "(미정)";
     const top3 = resolved.primaryCandidates.slice(0, 3);
+    const nextIssuesLine = nextActionData?.issues.length
+      ? `- 다음 Cycle 후보 이슈: ${nextActionData.issues.join(", ")}`
+      : null;
     return [
       "🪧 POKit 시작 Brief",
       `📅 ${formatKoreanDate(now)} · Team ${teamLabel}`,
       "",
       `- 마지막 스프린트 배포 버전: ${version}`,
       `- 다음 스프린트 target version: ${targetVersion}`,
+      ...(nextIssuesLine ? [nextIssuesLine] : []),
       `- 💬 추천 다음 행동: ${nextActionText}`,
       "",
       "📋 Linear 우선순위 Top 3",
