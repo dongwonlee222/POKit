@@ -3,18 +3,41 @@ released_at: "2026-05-17T06:42:20.564Z"
 cycle_id: n/a
 issues: []
 changelog:
-  - 2026-05-17
   - "`scripts/cli/session-brief.ts` `buildUnresolvedCard` — 옛 경로 `memory/releases/v<X>.yaml` 하드코딩을 `releaseManifestPath()` 헬퍼 경유로 교체. POKIT-175(M6) 마이그레이션 직후 unresolved 카드 미렌더 버그 해소. (commit 408090e)"
-  - "회귀 가드 (POKIT-173 회귀 방지) — 동일 클래스의 미래 버그 차단 (commit 07ed02c):"
+  - "회귀 가드 (POKIT-173 회귀 방지) — 동일 클래스의 미래 버그 차단 (commit 07ed02c)"
   - "`tests/session-brief.test.mjs` — `buildSessionBrief` start variant의 unresolved 카드 렌더 회귀 테스트 1건 신설."
-  - "`docs/architecture/15-folder-layout.md` — `releases/` 항목 옆 가드 문구. \"release manifest 경로는 `releaseManifestPath()` 헬퍼 경유 필수, 하드코딩 금지\" + 회귀 테스트 참조."
-  - semver PATCH 자리(hotfix) 활용 운영 방침 첫 적용 — 작은 fix도 release manifest에 박제해 추적 채널 단일화 (Unreleased 섹션 신설 회피).
-  - "`./bin/pokit release 0.15.3` dispatcher [4/8]가 manifest를 **자동 생성** — POKIT-171(M2) buildReleaseManifest dogfood 검증."
+  - "`docs/architecture/15-folder-layout.md` — `releases/` 항목 옆 manifest 경로 가드 문구."
+  - semver PATCH 자리(hotfix) 활용 운영 방침 첫 적용 — 작은 fix도 release manifest에 박제해 추적 채널 단일화.
+  - "`./bin/pokit release 0.15.3` dispatcher [4/8]가 manifest를 자동 생성 — POKIT-171(M2) buildReleaseManifest dogfood 검증."
 artifacts:
-  code_paths: []
-  doc_paths: []
+  code_paths:
+    - scripts/cli/session-brief.ts
+  doc_paths:
+    - tests/session-brief.test.mjs
+    - docs/architecture/15-folder-layout.md
   skills: []
 wiring_status:
-  intended: []
-  actual: []
+  intended:
+    - buildUnresolvedCard
+    - releaseManifestPath
+  actual:
+    - buildUnresolvedCard
+    - releaseManifestPath
   gaps: []
+unresolved:
+  - id: artifacts-migration
+    note: "artifacts/{prds,criteria,sprints}/ → releases/v*/{prds,criteria,sprints}/ 마이그레이션 (M6 후속, 별도 cycle)"
+    owner: human
+  - id: pokit-159-retrieval-impl
+    note: "POKIT-159 위치기억 retrieval 구현 (M9 메모 참조, 별도 cycle 진입 시)"
+    owner: POKIT-159
+  - id: wiring-intended-auto-extract
+    note: "buildReleaseManifest 시 PRD/CHANGELOG에서 wiring intended 자동 추출 (M7 후속)"
+    owner: human
+  - id: build-release-manifest-carry-forward
+    note: "buildReleaseManifest 시 직전 release의 unresolved 자동 carry-forward (M4 인계 메커니즘 강화)"
+    owner: human
+  - id: parse-changelog-section-date-line
+    note: "parseChangelogSection이 ## 헤더 라인의 날짜를 첫 bullet으로 잡는 사소한 false positive 제거"
+    owner: human
+git_tag: v0.15.3
