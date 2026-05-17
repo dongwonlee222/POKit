@@ -34,6 +34,12 @@ export type WorkflowState = {
   last_session_closed_at?: string;
   /** active issue id 목록 (cycle 안) */
   active_issue_ids?: string[];
+  /** POKIT-205: 내부 10단계 현재 위치 (1-10) */
+  flow_step_internal?: number;
+  /** POKIT-205: display 5단계 현재 위치 (1-5) — flow_step_internal 에서 자동 계산 */
+  flow_step_display?: number;
+  /** POKIT-205: 현재 작업 중인 Linear issue id (예: "POKIT-205") */
+  flow_issue?: string | null;
 };
 
 const WORKFLOW_STATE_PATH = "memory/workflow-state.yaml";
@@ -64,6 +70,15 @@ export function renderWorkflowState(state: WorkflowState): string {
     for (const id of state.active_issue_ids) {
       lines.push(`  - ${id}`);
     }
+  }
+  if (state.flow_step_internal !== undefined) {
+    lines.push(`flow_step_internal: ${state.flow_step_internal}`);
+  }
+  if (state.flow_step_display !== undefined) {
+    lines.push(`flow_step_display: ${state.flow_step_display}`);
+  }
+  if (state.flow_issue !== undefined && state.flow_issue !== null) {
+    lines.push(`flow_issue: ${yamlScalar(state.flow_issue)}`);
   }
   return lines.join("\n") + "\n";
 }
@@ -115,6 +130,13 @@ export function parseWorkflowState(raw: string): WorkflowState {
         break;
       case "schema_version":
         out.schema_version = Number(value) as 1;
+        break;
+      case "flow_step_internal":
+      case "flow_step_display":
+        (out as any)[key] = value === "" || value === "null" ? undefined : Number(value);
+        break;
+      case "flow_issue":
+        (out as any)[key] = value === "null" || value === "" ? null : value;
         break;
     }
   }
