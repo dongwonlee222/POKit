@@ -1,7 +1,47 @@
 version: 0.16.0
 released_at: "2026-05-17T11:38:53.387Z"
 cycle_id: n/a
-issues: []
+issues:
+  - id: POKIT-187
+    title: "WF10 — block-linear-api.sh hook 엔드포인트 단일 앵커"
+    state: Done
+    type: feature
+  - id: POKIT-188
+    title: "WF11 — tests/ 카테고리 정리 + dispatcher"
+    state: Done
+    type: feature
+  - id: POKIT-189
+    title: "WF12 — scripts/internal/linear.ts CLI 진입점"
+    state: Done
+    type: feature
+  - id: POKIT-190
+    title: "WF13 — linear.ts CLI decision-log append 버그 수정"
+    state: Done
+    type: fix
+  - id: POKIT-178
+    title: "A2 — buildReleaseManifest wiring intended 자동 추출"
+    state: Done
+    type: feature
+  - id: POKIT-179
+    title: "A4 — parseChangelogSection 헤더 false positive 제거"
+    state: Done
+    type: fix
+  - id: POKIT-175
+    title: "B1 — dogfood 제거 + folder-layout 갱신"
+    state: Done
+    type: feature
+  - id: POKIT-181
+    title: "C4 Phase 1 — frontmatter 표준 모듈"
+    state: "In Progress"
+    type: feature
+  - id: POKIT-185
+    title: "C8 — dry-run 3섹션 표준"
+    state: Done
+    type: feature
+  - id: POKIT-186
+    title: "C9 — backlog-memo 시각화 강제"
+    state: Done
+    type: feature
 changelog:
   - "POKIT-187 (WF10) — `block-linear-api.sh` hook: 엔드포인트 단일 앵커 `api\\.linear\\.app` + 명령어 시작 화이트리스트 + suffix-chain 차단. urllib/fetch/axios/gh/wget/httpx 6 클라이언트 우회 차단. 회귀 테스트 13/13 PASS."
   - "POKIT-189 (WF12) — `scripts/internal/linear.ts` CLI 진입점: subcommand 3종(create/update/assign-label) + `--format json|pretty` + `--actor` 강제 + 파일 입력 검증(512KB + realpath). node --experimental-strip-types로 tsx 의존 제거."
@@ -25,5 +65,87 @@ wiring_status:
     - appendDecisionLog
     - buildReleaseManifest
     - parseChangelogSection
-  actual: []
+    - extractIntendedWiring
+    - renderDryRunPlan
+    - parseFrontmatter
+    - renderFrontmatter
+    - validateKind
+    - scanArtifacts
+    - migrateFile
+    - renderLocalBacklogMemo
+    - planUpdateIssue
+    - applyUpdateIssue
+    - planCreateIssue
+    - applyCreateIssue
+  actual:
+    - releaseManifestPath
+    - buildSessionBrief
+    - buildUnresolvedCard
+    - appendDecisionLog
+    - parseFrontmatter
+    - migrateFile
+    - parseChangelogSection
+    - extractIntendedWiring
+    - renderDryRunPlan
+    - planUpdateIssue
+    - applyUpdateIssue
+    - planCreateIssue
+    - applyCreateIssue
+    - validateKind
+    - scanArtifacts
+    - renderLocalBacklogMemo
+    - renderFrontmatter
   gaps: []
+unresolved:
+  - id: artifacts-migration
+    note: "artifacts/{prds,criteria,sprints}/ → releases/v*/{prds,criteria,sprints}/ 마이그레이션 (M6 후속, v0.17 cycle 검토)"
+    owner: agent
+    routed_to: bl-2026-05-17-007    # v0.17.2 (C4 Phase 2와 묶음)
+  - id: pokit-159-retrieval-impl
+    note: "POKIT-159 위치기억 retrieval 구현"
+    owner: POKIT-159
+    routed_to: POKIT-159             # v0.17.2 권장 (기존 Linear 이슈)
+  - id: c4-phase2-full-migration
+    note: "C4 Phase 2 — 나머지 95 파일(criteria 29 / prds 3 / sprints / docs / notes / problem-reviews) 전수 마이그레이션 + contract test warn→block 전환"
+    owner: agent
+    routed_to: bl-2026-05-17-007    # v0.17.2
+  - id: wf15-manifest-backfill
+    note: "release dispatcher [4.5/8] manifest backfill 자동화 (POKIT-192) — issues 자동 수집 + carry-forward + wiring.actual probe + owner=human N cycle 카운트 정책"
+    owner: POKIT-192
+    routed_to: bl-2026-05-17-003    # v0.17.2 (POKIT-192 description append)
+  - id: dogfood-references-cleanup
+    note: "docs/PRD.md·DESIGN.md 등의 historical dogfood 참조 (의도 유지 vs 정리 결정 필요)"
+    owner: agent
+    routed_to: bl-2026-05-17-006    # v0.17.1 (정리 방향 결정 완료)
+  - id: backlog-key-deduplication
+    note: "마이그레이션 후 신/구 frontmatter 키 공존 (id/action/proposedLabels/proposedState — schema_version 외) 정리"
+    owner: agent
+    absorbed_by: bl-2026-05-17-002  # v0.17.1 raw 양식 정의에 포함
+  - id: title-yaml-quoting
+    note: "백로그 메모 title의 `[v0.16.0] ...` YAML array 파싱 위험 — 따옴표 강제"
+    owner: agent
+    absorbed_by: bl-2026-05-17-002  # v0.17.1 raw 양식 정의에 포함
+  - id: decision-log-md-sync
+    note: "linear.ts CLI가 decision-log.yaml만 append, .md 동기화 부재"
+    owner: agent
+    routed_to: bl-2026-05-17-005    # v0.17.1
+  - id: assign-label-cumulative
+    note: "linear.ts CLI assign-label apply는 덮어쓰기. 라벨 누적 보존 로직 부재"
+    owner: agent
+    routed_to: bl-2026-05-17-008    # v0.17.2
+  - id: cli-create-apply-support
+    note: "linear.ts CLI create --apply 미지원 (description 객체 구조 vs raw string 불일치)"
+    owner: agent
+    routed_to: bl-2026-05-17-004    # v0.17.1
+  - id: hook-whitelist-node-flags
+    note: "block-linear-api.sh 화이트리스트가 `node --experimental-strip-types` 플래그 미매칭 (defense-in-depth 보강)"
+    owner: agent
+    routed_to: bl-2026-05-17-009    # v0.17.2
+  - id: artifact-frontmatter-section-order
+    note: "renderLocalBacklogMemo 본문 섹션 순서가 실제 양식(시각화/AS-IS/TO-BE/...)과 차이 (Phase 2 정렬)"
+    owner: agent
+    absorbed_by: bl-2026-05-17-002  # v0.17.1 raw 양식 정의에 포함
+  - id: tests-regression-naming-helpers
+    note: "regression `v<ver>-<bug>.test.mjs` 명명 표준화, `_setup/` 공통 helper, tests/ci/ 분리 (WF11 후속)"
+    owner: agent
+    routed_to: bl-2026-05-17-010    # v0.17.2
