@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { renderCycleProgress } from "./cycle-progress.ts";
 import { getWorkingContext, type Issue, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
 import { loadBacklogRawSummaries, renderTodayRawLines } from "../internal/backlog-raw-collector.ts";
+import { markSessionClose } from "../internal/workflow-state.ts";
 import { profileMemoryPath } from "../internal/profile.ts";
 import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 import {
@@ -122,6 +123,8 @@ export function buildSessionCloseBrief(input: SessionCloseInput): string {
   const today = (input.now ?? new Date()).toISOString().slice(0, 10);
   const rawSummaries = loadBacklogRawSummaries(rootDir);
   const todayRawLines = renderTodayRawLines(rawSummaries, today);
+  // POKIT-182: workflow-state.yaml 갱신 (best-effort)
+  try { markSessionClose(rootDir, input.now ?? new Date()); } catch { /* ignore */ }
   return [
     "🎉 POKit 종료 Brief",
     `📅 ${formatKoreanDate(input.now ?? new Date())} · Team ${teamLabel}`,

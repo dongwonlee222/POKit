@@ -59,6 +59,7 @@ memory/resume-brief.md
 memory/decision-log.md
 memory/decision-log.yaml
 memory/collected/
+memory/workflow-state.yaml
 
 # Internal: 제작 plan 문서 (사용자 노출 안 함)
 docs/plans/

@@ -5,6 +5,7 @@ import { loadHookMap } from "../internal/hook-map.ts";
 import { getWorkingContext, type WorkingContext, type WorkingCycleContext } from "../internal/linear.ts";
 import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 import { loadBacklogRawSummaries, renderPendingRawLines } from "../internal/backlog-raw-collector.ts";
+import { markSessionStart } from "../internal/workflow-state.ts";
 
 export type SessionStartInput = SessionBriefInput & {
   rootDir?: string;
@@ -34,6 +35,8 @@ export function buildSessionStart(input: SessionStartInput): string {
   // POKIT-194: raw 백로그 정리/승격 대기 노출
   const rawSummaries = loadBacklogRawSummaries(rootDir);
   const pendingRawLines = renderPendingRawLines(rawSummaries);
+  // POKIT-182: workflow-state.yaml 자동 갱신 (best-effort, fail-silent)
+  try { markSessionStart(rootDir); } catch { /* ignore */ }
   return [
     brief.trimEnd(),
     ...(manifestLine ? [manifestLine] : []),
