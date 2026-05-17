@@ -23,6 +23,11 @@ export type Plan = {
 export type IssueInput = {
   title: string;
   description?: LinearBacklogDescriptionInput;
+  /**
+   * Pre-rendered markdown description (CLI 경유 시 사용).
+   * description (구조)와 동시 지정 금지 — rawDescription 우선.
+   */
+  rawDescription?: string;
   labels?: string[];
   cycleId?: string;
 };
@@ -795,9 +800,13 @@ export async function applyCreateIssue(plan: Plan, options: ApplyOptions = {}): 
   if (!payload.title) {
     throw new Error("Refusing create issue apply without title.");
   }
-  const renderedBody = payload.description
-    ? renderLinearBacklogDescription(payload.description)
-    : "";
+  if (payload.description && payload.rawDescription) {
+    throw new Error(
+      "Refusing create issue apply: description (structured) and rawDescription cannot both be set.",
+    );
+  }
+  const renderedBody = payload.rawDescription
+    ?? (payload.description ? renderLinearBacklogDescription(payload.description) : "");
   const description = [
     renderedBody,
     payload.labels?.length ? `\n\nPOKit labels requested: ${payload.labels.join(", ")}` : "",
@@ -1722,18 +1731,12 @@ async function cmdCreate(args: string[]): Promise<void> {
   const actorName = validateActor(values["actor"] as string | undefined, isApply);
   const outputFormat = values["format"] as string;
 
-  // dry-run plan 수동 구성 (planCreateIssue는 description 객체 구조를 요구하므로 CLI는 raw plan 구성)
-  const plan: Plan = {
-    idempotencyKey: `linear:create_issue:${title}`,
-    summary: `Create Linear issue: ${title}`,
-    writes: [
-      {
-        type: "create_issue",
-        target: "backlog",
-        payload: { title, labels: labelsList, rawDescription },
-      },
-    ],
-  };
+  // planCreateIssue 경유 — rawDescription은 IssueInput의 선택 필드
+  const plan = await planCreateIssue({
+    title,
+    labels: labelsList,
+    rawDescription,
+  });
 
   if (!isApply) {
     console.warn(
@@ -1774,11 +1777,13 @@ async function cmdCreate(args: string[]): Promise<void> {
     return;
   }
 
-  const err = new Error(
-    "CLI create --apply는 현재 미지원입니다. raw description을 4섹션 IssueInput으로 변환하는 로직이 필요합니다.",
-  );
-  (err as any).exitCode = 1;
-  throw err;
+  const issue = await applyCreateIssue(plan, { approved: true, actor: actorName });
+  if (outputFormat === "pretty") {
+    console.log(`Linear 이슈 생성: ${issue.identifier} ${issue.title}`);
+    console.log(`URL: ${issue.url ?? "(none)"}`);
+  } else {
+    console.log(JSON.stringify({ success: true, issue }));
+  }
 }
 
 async function cmdAssignLabel(args: string[]): Promise<void> {

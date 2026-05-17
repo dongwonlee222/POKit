@@ -165,6 +165,33 @@ test("dry-run (--apply 없음): LINEAR_API_KEY 없어도 실행 가능 — plan�
   );
 });
 
+test("create --apply with POKIT_TEST_MOCK=1: exit 0, mock=true 출력, 미지원 에러 없음 (POKIT-195)", () => {
+  const { exitCode, stdout, stderr } = runCli(
+    [
+      "create",
+      "--title",
+      "Test Apply Issue",
+      "--labels",
+      "Improvement",
+      "--description-file",
+      testDescFile,
+      "--apply",
+      "--actor",
+      "test-agent",
+    ],
+    { env: { POKIT_TEST_MOCK: "1", LINEAR_API_KEY: "mock-key-for-test" } },
+  );
+  assert.equal(exitCode, 0, `create --apply with mock should exit 0. stderr: ${stderr}`);
+  assert.ok(
+    stdout.includes('"mock":true') || stdout.includes("mock"),
+    `mock branch should emit mock=true. got stdout: ${stdout}`,
+  );
+  assert.ok(
+    !stderr.includes("미지원"),
+    `create --apply 가 더 이상 "미지원" 에러로 종료되면 안 됨. stderr: ${stderr}`,
+  );
+});
+
 test("--apply with LINEAR_API_KEY mock: apply 함수 경로로 분기 확인 (POKIT_TEST_MOCK=1 sentinel)", () => {
   // POKIT_TEST_MOCK=1 sentinel이 구현되면 실제 API 없이 apply 분기 검증 가능
   // 현재 CLI 미구현이므로 FAIL 예상 — T2 구현 시 mock 전략 반영 필요
