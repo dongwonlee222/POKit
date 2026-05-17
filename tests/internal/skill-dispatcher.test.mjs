@@ -15,10 +15,10 @@ async function loadDispatchModule() {
 // loadSkillManifests
 // ──────────────────────────────────────────────
 
-test("loadSkillManifests loads all 12 SKILL manifests", async () => {
+test("loadSkillManifests loads all 13 SKILL manifests", async () => {
   const { loadSkillManifests } = await loadDispatchModule();
   const manifests = loadSkillManifests(SKILLS_DIR);
-  assert.equal(manifests.length, 12, `Expected 12 manifests, got ${manifests.length}`);
+  assert.equal(manifests.length, 13, `Expected 13 manifests, got ${manifests.length}`);
 });
 
 test("loadSkillManifests: each manifest has required fields", async () => {

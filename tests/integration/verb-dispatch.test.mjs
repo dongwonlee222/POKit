@@ -8,11 +8,11 @@ async function loadModule() {
   return import(`../../scripts/internal/verb-dispatch.ts?cacheBust=${Date.now()}`);
 }
 
-test("isKnownVerb identifies all 16 verbs", async () => {
+test("isKnownVerb identifies all 17 verbs", async () => {
   const { isKnownVerb, listKnownVerbs } = await loadModule();
   const verbs = listKnownVerbs();
-  assert.equal(verbs.length, 16);
-  for (const v of ["start", "brief", "run", "close", "retro", "hotfix", "audit", "guard", "progress", "end", "safety", "role-check", "sweep", "retro-check", "next-action", "release"]) {
+  assert.equal(verbs.length, 17);
+  for (const v of ["start", "brief", "run", "close", "retro", "hotfix", "audit", "guard", "progress", "end", "safety", "role-check", "sweep", "retro-check", "next-action", "release", "backlog-promote"]) {
     assert.ok(isKnownVerb(v), `expected ${v} to be a known verb`);
   }
   assert.equal(isKnownVerb("nonsense"), false);
