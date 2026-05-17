@@ -541,6 +541,11 @@ function readUnresolved(ctx: ParseContext, parentIndent: number, inlineRest: str
       if (!kv) fail("unresolved", `unparseable line: ${inner.text}`);
       if (kv[1] === "note") item.note = unquote(kv[2]);
       else if (kv[1] === "owner") item.owner = unquote(kv[2]);
+      else if (kv[1] === "cycle_count") item.cycle_count = Number(unquote(kv[2]));
+      else if (kv[1] === "carried_from") item.carried_from = unquote(kv[2]);
+      else if (kv[1] === "escalated_at") item.escalated_at = unquote(kv[2]);
+      else if (kv[1] === "routed_to") item.routed_to = unquote(kv[2]);
+      else if (kv[1] === "absorbed_by") item.absorbed_by = unquote(kv[2]);
       else fail("unresolved", `unknown key "${kv[1]}"`);
     }
     if (!item.id) fail("unresolved[].id", "expected non-empty string");

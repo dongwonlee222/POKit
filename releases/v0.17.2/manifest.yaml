@@ -45,3 +45,10 @@ wiring_status:
     - saveWorkflowState
     - snapshotWiringActual
   gaps: []
+unresolved:
+  - id: pokit-159-retrieval-impl-bc
+    note: "POKIT-159 retrieval 159b (소스 어댑터 3개 추가) + 159c (pokit start 통합)"
+    owner: POKIT-159
+    cycle_count: 3
+    carried_from: "0.16.0"
+    routed_to: bl-2026-05-17-stub-159b   # placeholder — 159b 진입 시 신규 메모
