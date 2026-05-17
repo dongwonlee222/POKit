@@ -72,6 +72,8 @@ type AssignLabelToIssuePayload = {
   issueIdentifier: string;
   labelId: string;
   labelName: string;
+  /** POKIT-200: 라벨 누적(add) vs 덮어쓰기(replace). 기본 'add' = 기존 라벨 보존. */
+  mode?: "add" | "replace";
 };
 
 const LINEAR_CYCLE_DESCRIPTION_MAX_LENGTH = 255;
@@ -1387,6 +1389,19 @@ export async function applyAssignLabelToIssue(plan: Plan, options: ApplyOptions 
   if (!payload.issueId || !payload.labelId) {
     throw new Error("Refusing label assignment apply without issueId and labelId.");
   }
+
+  // POKIT-200: 기본 'add' 모드 — 기존 라벨 보존 + 신규 union
+  const mode = payload.mode ?? "add";
+  let labelIds: string[];
+  if (mode === "replace") {
+    labelIds = [payload.labelId];
+  } else {
+    const existingIds = await fetchIssueLabelIds(payload.issueId);
+    labelIds = existingIds.includes(payload.labelId)
+      ? existingIds
+      : [...existingIds, payload.labelId];
+  }
+
   const data = await linearGraphql<{
     issueUpdate: {
       success: boolean;
@@ -1420,13 +1435,33 @@ export async function applyAssignLabelToIssue(plan: Plan, options: ApplyOptions 
   `, {
     issueId: payload.issueId,
     input: {
-      labelIds: [payload.labelId],
+      labelIds,
     },
   });
   if (!data.issueUpdate.success) {
     throw new Error("Linear issueUpdate returned success=false.");
   }
   return normalizeIssue(data.issueUpdate.issue);
+}
+
+async function fetchIssueLabelIds(issueId: string): Promise<string[]> {
+  const data = await linearGraphql<{
+    issue: { labels: { nodes: Array<{ id: string }> } } | null;
+  }>(
+    `
+      query IssueLabels($id: String!) {
+        issue(id: $id) {
+          labels {
+            nodes {
+              id
+            }
+          }
+        }
+      }
+    `,
+    { id: issueId },
+  );
+  return data.issue?.labels.nodes.map((n) => n.id) ?? [];
 }
 
 // ── CLI entry ──────────────────────────────────────────────────────────────────
@@ -1835,6 +1870,7 @@ async function cmdAssignLabel(args: string[]): Promise<void> {
     args: args.slice(1),
     options: {
       label: { type: "string" },
+      mode: { type: "string", default: "add" },
       apply: { type: "boolean", default: false },
       actor: { type: "string" },
       format: { type: "string", default: "json" },
@@ -1849,19 +1885,26 @@ async function cmdAssignLabel(args: string[]): Promise<void> {
   }
 
   const labelName = values["label"] as string;
+  const modeRaw = (values["mode"] as string) ?? "add";
+  if (modeRaw !== "add" && modeRaw !== "replace") {
+    const err = new Error("--mode 는 add 또는 replace 만 허용됩니다.");
+    (err as any).exitCode = 2;
+    throw err;
+  }
+  const mode = modeRaw as "add" | "replace";
   const isApply = !!values["apply"];
   const actorName = validateActor(values["actor"] as string | undefined, isApply);
   const outputFormat = values["format"] as string;
 
   // dry-run: labelId 없이 plan 구성 (listLabels는 API 호출이므로 dry-run에서 생략)
   const plan: Plan = {
-    idempotencyKey: `linear:assign_label:${issueId}:${labelName}`,
-    summary: `Assign ${labelName} to ${issueId}`,
+    idempotencyKey: `linear:assign_label:${issueId}:${labelName}:${mode}`,
+    summary: `Assign ${labelName} to ${issueId} (mode=${mode})`,
     writes: [
       {
         type: "update_issue",
         target: issueId,
-        payload: { issueIdentifier: issueId, labelName },
+        payload: { issueIdentifier: issueId, labelName, mode },
       },
     ],
   };
@@ -1870,10 +1913,12 @@ async function cmdAssignLabel(args: string[]): Promise<void> {
     if (outputFormat === "pretty") {
       console.log(renderDryRunPlan(
         { kind: "update-issue", identifier: issueId },
-        { body: `- 라벨 할당: ${labelName}` },
+        { body: `- 라벨 할당: ${labelName} (mode=${mode})` },
         {
           idempotencyKey: plan.idempotencyKey,
-          expectedImpact: "Linear API 1건 (label assign)",
+          expectedImpact: mode === "replace"
+            ? "Linear API 1건 (label replace — 기존 라벨 덮어쓰기)"
+            : "Linear API 1건 (label add — 기존 라벨 보존)",
           rollback: "auto",
         },
       ));
@@ -1909,11 +1954,14 @@ async function cmdAssignLabel(args: string[]): Promise<void> {
     throw err;
   }
 
+  // POKIT-200: 기존 버그 동반 수정 — issueId는 issue identifier(POKIT-XXX),
+  //            labelId는 label UUID. 이전 코드는 둘 다 found.id (label UUID) 였음.
   const applyPlan = await planAssignLabelToIssue({
-    issueId: found.id,
+    issueId: issueId,
     issueIdentifier: issueId,
     labelId: found.id,
     labelName: found.name,
+    mode,
   });
 
   const result = await applyAssignLabelToIssue(applyPlan, {

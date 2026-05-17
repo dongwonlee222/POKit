@@ -80,6 +80,49 @@ test("assign-label subcommand: dry-run by default — exit 0, stdout에 dry-run 
   );
 });
 
+test("assign-label: --mode 기본=add, dry-run 출력에 mode 노출 (POKIT-200)", () => {
+  const { exitCode, stdout } = runCli([
+    "assign-label",
+    "POKIT-187",
+    "--label",
+    "Improvement",
+  ]);
+  assert.equal(exitCode, 0);
+  assert.ok(
+    stdout.includes("add") || stdout.includes("mode"),
+    `default mode 'add' should appear in dry-run. got: ${stdout}`,
+  );
+});
+
+test("assign-label: --mode replace 명시 시 plan에 반영 (POKIT-200)", () => {
+  const { exitCode, stdout } = runCli([
+    "assign-label",
+    "POKIT-187",
+    "--label",
+    "Improvement",
+    "--mode",
+    "replace",
+  ]);
+  assert.equal(exitCode, 0);
+  assert.ok(
+    stdout.includes("replace"),
+    `mode=replace should appear in plan. got: ${stdout}`,
+  );
+});
+
+test("assign-label: --mode 잘못된 값이면 exit != 0 (POKIT-200)", () => {
+  const { exitCode, stderr } = runCli([
+    "assign-label",
+    "POKIT-187",
+    "--label",
+    "Improvement",
+    "--mode",
+    "merge-something",
+  ]);
+  assert.notEqual(exitCode, 0);
+  assert.ok(stderr.includes("--mode"), `stderr should explain --mode constraint. got: ${stderr}`);
+});
+
 // ── Argv 검증 ───────────────────────────────────────────────────────────────
 
 test("subcommand 없음: exit != 0, stderr에 usage 또는 subcommand 안내 포함", () => {
