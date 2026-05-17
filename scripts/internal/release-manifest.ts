@@ -40,10 +40,16 @@ export type ReleaseRetro = {
 };
 
 // POKIT-173 (M4) — 미결 인계 기록용. 다음 release 시작 시 brief 카드로 노출.
+// POKIT-192 — cycle_count / carried_from / escalated_at / routed_to / absorbed_by 추가.
 export type ReleaseUnresolved = {
   id: string;
   note: string;
   owner: string; // "human" | "<verb-name>" | "<Linear-issue-id>"
+  cycle_count?: number;
+  carried_from?: string;
+  escalated_at?: string;
+  routed_to?: string;
+  absorbed_by?: string;
 };
 
 export type ReleaseManifest = {

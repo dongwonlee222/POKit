@@ -19,6 +19,7 @@ import {
   renderReleaseManifest,
   writeReleaseManifest,
 } from "../internal/release-manifest.ts";
+import { backfillForRelease } from "../internal/manifest-backfill.ts";
 
 type Opts = {
   version: string;
@@ -131,6 +132,27 @@ const main = async () => {
     console.log(`    - changelog: ${manifest.changelog.length} bullet`);
     console.log(`    - wiring intended/actual/gaps: ${manifest.wiring_status.intended.length}/${manifest.wiring_status.actual.length}/${manifest.wiring_status.gaps.length}`);
     console.log(`    ※ issues·artifacts·wiring_status는 빈 상태로 시작. 후속 단계가 채움.`);
+  }
+
+  // [4.5/8] Manifest Backfill (POKIT-192) — issues + carry-forward + wiring.actual + escalation
+  if (existsSync(manifestPath) && !opts.dryRun) {
+    console.log("");
+    console.log(`[4.5/8] Manifest Backfill (POKIT-192)`);
+    try {
+      const current = parseReleaseManifest(readFileSync(manifestPath, "utf8"));
+      const result = await backfillForRelease(current, { rootDir: opts.rootDir });
+      const written = await writeReleaseManifest(opts.version, result.manifest, opts.rootDir);
+      console.log(`  ✓ backfill 완료: ${written}`);
+      console.log(`    - issues_added: ${result.log.issues_added}`);
+      console.log(`    - carry_forward: ${result.log.carry_forward_count}`);
+      console.log(`    - wiring actual/gaps: ${result.log.wiring_actual}/${result.log.wiring_gaps}`);
+      console.log(`    - escalations: ${result.log.escalations}`);
+    } catch (err: any) {
+      console.error(`  ⚠ backfill 실패: ${err.message} (다음 단계 계속 진행)`);
+    }
+  } else if (opts.dryRun) {
+    console.log("");
+    console.log(`[4.5/8] Manifest Backfill (dry-run skip)`);
   }
 
   // [5/8] Cycle Close (간소화 — close 호출)
