@@ -22,7 +22,7 @@ trigger_phrases:
 
 사용자 발화에 `Linear` 또는 `linear` 단어가 없으면 즉시 거부하고 다음 메시지를 출력한 후 종료한다:
 
-> "백로그 등록은 먼저 backlog-memo로 dry-run 박제가 필요합니다. Linear에 직접 올리려면 'Linear 백로그 등록' 또는 'Linear에 올려'라고 명시해주세요."
+> "백로그 등록은 먼저 backlog-memo로 dry-run 미리보기가 필요합니다. Linear에 직접 올리려면 'Linear 백로그 등록' 또는 'Linear에 올려'라고 명시해주세요."
 
 이 가드는 봇 채널·자동 실행 환경에서 의도하지 않은 Linear write를 차단한다.
 
@@ -141,7 +141,7 @@ idempotencyKey: linear:update_issue:<issueIdentifier>:<YYYYMMDD>:<scope-hash>
 | LLM이 description 마크다운 직접 작성 (Create) | 4섹션 구조 일관성 깨짐 — renderLinearBacklogDescription 경유 필수 |
 | 4섹션 누락 상태로 등록 진행 | 백로그 품질 기준 미달 — 누락 섹션 보충 후 재시도 |
 | 사용자 승인 없이 apply* 호출 | External Write Rule 위반 |
-| 기존 description 덮어쓰기 (Update) | 박제 데이터 손실 — composeAppendedDescription 헬퍼로 append만 허용 |
+| 기존 description 덮어쓰기 (Update) | 기록 데이터 손실 — composeAppendedDescription 헬퍼로 append만 허용 |
 
 ## External Write Rule
 

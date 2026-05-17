@@ -121,7 +121,7 @@ export async function runNextActionWizard(opts: WizardOptions): Promise<NextActi
   const write = (msg: string) => opts.stdout.write(msg);
 
   write("\n=== POKit Next-Action Wizard ===\n");
-  write("다음 Cycle의 행동 계획을 입력합니다. (release 완료 박제)\n\n");
+  write("다음 Cycle의 행동 계획을 입력합니다. (release 완료 기록)\n\n");
 
   // Q1: target version
   let targetVersion = "";

@@ -15,7 +15,7 @@ Approval should happen at the user's intent level. If the user approves a clear 
 
 When the approved intent is to complete a specific Cycle task, POKit treats local edits, verification, commit, and Linear Done transition as one coherent task-completion flow. The user should not have to separately approve "commit this task" or "mark this task Done" after already asking to complete the Cycle task.
 
-직전 assistant 메시지가 명시적 **dry-run 박제 + 승인 게이트**(예: "위 내용으로 진행할까요?", "ㄱㄱ 주세요")를 제시했다면, 사용자가 일반 긍정 응답("그렇게 하자"·"ㄱㄱ"·"OK"·"진행")으로 답해도 외부 write 진입을 허용한다. 별도 키워드(`Linear`·`apply` 등) 재발화 요구 금지. 원래 룰의 목적("자동 환경에서 의도 없이 write 차단")은 dry-run 게이트 통과 시점에 이미 달성됨. 본 규칙은 진입 에이전트(Claude Code·Codex 등) 무관 동일 적용.
+직전 assistant 메시지가 명시적 **dry-run 미리보기 + 승인 게이트**(예: "위 내용으로 진행할까요?", "ㄱㄱ 주세요")를 제시했다면, 사용자가 일반 긍정 응답("그렇게 하자"·"ㄱㄱ"·"OK"·"진행")으로 답해도 외부 write 진행을 허용한다. 별도 키워드(`Linear`·`apply` 등) 재언급 요구 금지. 원래 룰의 목적("자동 환경에서 의도 없이 write 차단")은 dry-run 게이트 통과 시점에 이미 달성됨. 본 규칙은 호출 에이전트(Claude Code·Codex 등) 무관 동일 적용.
 
 plan-gate 표를 출력한 후 같은 세션에서 이미 큰 단위 승인("쭉 진행"·"진행 합시다"·"OK 다 해줘")을 받았다면, 매 task spawn마다 재승인을 묻지 않는다. 위험 분기(파괴/외부 송신/scope 벗어남)에서만 멈춘다. 사용자가 "잠깐"·"멈춰"·"확인 좀" 등 명시적 중단 발화 시 즉시 정지.
 

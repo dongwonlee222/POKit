@@ -22,6 +22,6 @@
 
 ## 백로그 라우팅 규약
 
-- "백로그" 관련 모호 표현(추가/등록/만들어/올려)은 모두 `backlog-memo` 스킬로 진입한다. dry-run 박제 후 사용자 명시 승인 시에만 Linear write로 진행한다.
+- "백로그" 관련 모호 표현(추가/등록/만들어/올려)은 모두 `backlog-memo` 스킬로 진입한다. dry-run 미리보기 후 사용자 명시 승인 시에만 Linear write로 진행한다.
 - `linear-backlog-manager`(또는 향후 `linear-issue-manager`) 진입은 사용자 발화에 `Linear` 단어가 명시된 경우에만 허용한다. "OK 등록해"·"등록해" 같은 모호 표현은 거부한다.
 - 글로벌 nexus의 `backlog-add` 스킬은 POKit cwd(`workspace/pokit/`)에서 호출하지 않는다.

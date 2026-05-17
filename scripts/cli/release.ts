@@ -167,8 +167,8 @@ const main = async () => {
   step(7, TOTAL, "🎯 Next Action Wizard");
   run("node", ["--experimental-strip-types", "scripts/cli/next-action.ts"], { ...opts, allowFail: true });
 
-  // [8/8] Resume Brief 박제 + GitHub Release
-  step(8, TOTAL, "Resume Brief 박제 + 다음 start 브리프 preview");
+  // [8/8] Resume Brief 기록 + GitHub Release
+  step(8, TOTAL, "Resume Brief 기록 + 다음 start 브리프 preview");
   if (!opts.skipGithubRelease) {
     const releaseTitle = `${tagName} — Release via pokit release dispatcher`;
     run("gh", [

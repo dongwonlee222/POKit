@@ -39,7 +39,7 @@ export type ReleaseRetro = {
   try: string[];
 };
 
-// POKIT-173 (M4) — 미결 인계 박제용. 다음 release 시작 시 brief 카드로 노출.
+// POKIT-173 (M4) — 미결 인계 기록용. 다음 release 시작 시 brief 카드로 노출.
 export type ReleaseUnresolved = {
   id: string;
   note: string;

@@ -42,7 +42,7 @@ POKit Workflow Productization — 명령 중심에서 스킬 중심으로, 산�
 
 ### Notes
 
-- semver PATCH 자리(hotfix) 활용 운영 방침 첫 적용 — 작은 fix도 release manifest에 박제해 추적 채널 단일화 (Unreleased 섹션 신설 회피).
+- semver PATCH 자리(hotfix) 활용 운영 방침 첫 적용 — 작은 fix도 release manifest에 기록해 추적 채널 단일화 (Unreleased 섹션 신설 회피).
 - `./bin/pokit release 0.15.3` dispatcher [4/8]가 manifest를 **자동 생성** — POKIT-171(M2) buildReleaseManifest dogfood 검증.
 
 ## v0.15.2 - 2026-05-17
@@ -80,7 +80,7 @@ POKit Workflow Productization — 명령 중심에서 스킬 중심으로, 산�
 
 ### Notes
 
-- M8 (POKIT-170 보류 처리) / M9 (POKIT-159 link append) 는 M10 SKILL 첫 사용 케이스로 본 릴리스 내 처리. `releases/v0.15.2/manifest.yaml` `unresolved:` 박제 확인.
+- M8 (POKIT-170 보류 처리) / M9 (POKIT-159 link append) 는 M10 SKILL 첫 사용 케이스로 본 릴리스 내 처리. `releases/v0.15.2/manifest.yaml` `unresolved:` 기록 확인.
 
 ## v0.15.1 - 2026-05-17
 
@@ -90,8 +90,8 @@ POKit Workflow Productization — 명령 중심에서 스킬 중심으로, 산�
   - `scripts/internal/backlog-outline.ts` `renderLinearBacklogDescription` — 4섹션(AS-IS/TO-BE/성공 검증/담당 에이전트) 추가, 타입 확장.
   - `scripts/internal/release-manifest.ts` 신규 — `memory/releases/v<VERSION>.yaml` schema + parse/render/write 모듈 (`memory/releases/SCHEMA.md` 동봉).
   - `scripts/internal/retro-check.ts` + `scripts/cli/retro-check.ts` — 이전 버전 wiring 갭 3분류(structural/partial/bitrot) + `pokit:gap` 라벨 디스패치.
-  - `scripts/internal/next-action-wizard.ts` + `scripts/cli/next-action.ts` — target version·issues·의도 박제 입력 wizard, `memory/next-action.yaml` 저장. `session-brief.ts`가 이 파일을 우선 참조.
-  - `scripts/cli/release.ts` — `./bin/pokit release <version>` 8단계 dispatcher (버전검증 → safety scan → tag/push → manifest 생성 → cycle close → retro-check → next-action wizard → resume-brief 박제).
+  - `scripts/internal/next-action-wizard.ts` + `scripts/cli/next-action.ts` — target version·issues·의도 기록 입력 wizard, `memory/next-action.yaml` 저장. `session-brief.ts`가 이 파일을 우선 참조.
+  - `scripts/cli/release.ts` — `./bin/pokit release <version>` 8단계 dispatcher (버전검증 → safety scan → tag/push → manifest 생성 → cycle close → retro-check → next-action wizard → resume-brief 기록).
   - `.claude/hooks/block-linear-curl.sh` — Linear GraphQL 직접 호출 PreToolUse 차단 + `--allow-raw-linear` escape hatch.
   - `skills/backlog-memo/SKILL.md` 신규 (로컬 dry-run 진입점), `skills/backlog-manager` → `skills/linear-backlog-manager` 리네임 + 4섹션 강제·raw curl 금지 명시.
   - `memory/releases/v0.13.0.yaml`, `v0.14.0.yaml`, `v0.15.0.yaml` 백필 3건 — v0.14.0에 structural gap 3건 기록.
@@ -238,7 +238,7 @@ POKit Workflow Productization — 명령 중심에서 스킬 중심으로, 산�
 
 - `docs/architecture/15-folder-layout.md` 신규 — 14개 폴더 책임 정의 + 배포 표(Public/Internal) + 5가지 경계 결정 + 외부 사례 인용. 작업자 LLM이 매 세션 cold start에서 헷갈리지 않게 하기 위한 단일 출처.
 - `AGENTS.md` Core Principle 섹션 신설 — "모든 구조 결정은 LLM 명확성을 최우선으로 한다".
-- `docs/ROADMAP.md` North Star/현재 목표/Identity Fit Check Q8에 LLM 명확성 박제.
+- `docs/ROADMAP.md` North Star/현재 목표/Identity Fit Check Q8에 LLM 명확성 기록.
 - `tests/folder-layout-contract.test.mjs` 신규 — 최상위 폴더가 §2 배포 표에 등록된 것만 허용, Internal 폴더는 `.gitignore` 동기화 검증.
 - 신규 폴더: `memory/notes/`, `memory/manifests/`, `memory/problem-reviews/`, `artifacts/analyses/`, `artifacts/cross-runtime-diff/`, `dogfood/`, `docs/plans/`, `docs/history/`, `tests/fixtures/day2-dry-run/`.
 
@@ -260,13 +260,13 @@ POKit Workflow Productization — 명령 중심에서 스킬 중심으로, 산�
 - `examples/`는 이제 3개만 (`backlog-intake/`, `definition-pipeline-sample/`, `signal-watch/` — 모두 sanitized).
 - `scripts/internal/problem-error-review.ts`, `scripts/cli/session-brief.ts`: Problem Review 경로를 `memory/problem-reviews/`로.
 - `scripts/ci/release-md-audit.ts`: DESIGN 검증 블록 제거 (untracked → audit 대상 아님).
-- `tests/agents-md-size-regression.test.mjs`: AGENTS.md 라인 ceiling 40 → 45 (Core Principle 박제 ~4줄 사유).
+- `tests/agents-md-size-regression.test.mjs`: AGENTS.md 라인 ceiling 40 → 45 (Core Principle 기록 ~4줄 사유).
 - README.md, docs/VERSIONING.md, docs/OPERATING_MODEL.md: DESIGN.md Public 참조 제거.
 - `.gitignore`: `docs/plans/`, `docs/history/`, `dogfood/`, `memory/manifests/`, `memory/problem-reviews/`, `.claude/` 추가. `artifacts/manifests/` whitelist 제거 (memory로 이동).
 
 ### Docs / Policy
 
-- LLM 명확성을 POKit North Star/현재 목표/Identity Fit Check에 박제. 가벼움의 기준은 분량이 아니라 작업자 LLM이 헷갈리지 않는 구조다.
+- LLM 명확성을 POKit North Star/현재 목표/Identity Fit Check에 기록. 가벼움의 기준은 분량이 아니라 작업자 LLM이 헷갈리지 않는 구조다.
 - Public/Internal 2-tier 분리 — 사용자가 `git clone` 시 보는 표면적은 9개 폴더 + 루트 파일만. memory/artifacts/dogfood/docs/plans/docs/history는 Internal.
 - 5가지 경계 명확화: memory↔artifacts, workflows↔scripts, examples↔templates, artifacts/backlog↔memory, dogfood 위치.
 

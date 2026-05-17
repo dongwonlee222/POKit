@@ -93,7 +93,7 @@ Linear description은 실행 판단에 필요한 변수와 완료 조건을 고�
 - 타임라인: <ISO 날짜 또는 cycle id>
 ```
 
-모호한 표기(`Claude`, `Codex`) 금지. 정확한 모델 ID로 책임 경로를 박제한다.
+모호한 표기(`Claude`, `Codex`) 금지. 정확한 모델 ID로 책임 경로를 기록한다.
 
 정본 renderer:
 
