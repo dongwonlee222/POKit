@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.15.3 - 2026-05-17
+
+### Fixed
+
+- `scripts/cli/session-brief.ts` `buildUnresolvedCard` — 옛 경로 `memory/releases/v<X>.yaml` 하드코딩을 `releaseManifestPath()` 헬퍼 경유로 교체. POKIT-175(M6) 마이그레이션 직후 unresolved 카드 미렌더 버그 해소. (commit 408090e)
+
+### Added
+
+- 회귀 가드 (POKIT-173 회귀 방지) — 동일 클래스의 미래 버그 차단 (commit 07ed02c):
+  - `tests/session-brief.test.mjs` — `buildSessionBrief` start variant의 unresolved 카드 렌더 회귀 테스트 1건 신설.
+  - `docs/architecture/15-folder-layout.md` — `releases/` 항목 옆 가드 문구. "release manifest 경로는 `releaseManifestPath()` 헬퍼 경유 필수, 하드코딩 금지" + 회귀 테스트 참조.
+
+### Notes
+
+- semver PATCH 자리(hotfix) 활용 운영 방침 첫 적용 — 작은 fix도 release manifest에 박제해 추적 채널 단일화 (Unreleased 섹션 신설 회피).
+- `./bin/pokit release 0.15.3` dispatcher [4/8]가 manifest를 **자동 생성** — POKIT-171(M2) buildReleaseManifest dogfood 검증.
+
 ## v0.15.2 - 2026-05-17
 
 ### Added
