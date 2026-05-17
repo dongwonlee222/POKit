@@ -118,6 +118,45 @@ test("applyFilter: id 필터", () => {
   assert.equal(filtered[0].frontmatter.id, "bl-2026-05-17-200");
 });
 
+// POKIT-205: 기본 필터에서 promoted/dropped 자동 제외
+const PROMOTED_MEMO = SAMPLE_MEMO.replace("status: refined", "status: promoted").replace(
+  "bl-2026-05-17-100",
+  "bl-2026-05-17-300",
+);
+const DROPPED_MEMO = SAMPLE_MEMO.replace("status: refined", "status: dropped").replace(
+  "bl-2026-05-17-100",
+  "bl-2026-05-17-301",
+);
+
+test("applyFilter: 빈 필터는 promoted/dropped 자동 제외 (중복등록 방지)", () => {
+  const memos = [
+    parseMemoFile("/p1", "m1.md", SAMPLE_MEMO),
+    parseMemoFile("/p2", "m2.md", PROMOTED_MEMO),
+    parseMemoFile("/p3", "m3.md", DROPPED_MEMO),
+  ];
+  const filtered = applyFilter(memos, {});
+  assert.equal(filtered.length, 1);
+  assert.equal(filtered[0].frontmatter.status, "refined");
+});
+
+test("applyFilter: --status all 명시 시 promoted/dropped 포함", () => {
+  const memos = [
+    parseMemoFile("/p1", "m1.md", SAMPLE_MEMO),
+    parseMemoFile("/p2", "m2.md", PROMOTED_MEMO),
+    parseMemoFile("/p3", "m3.md", DROPPED_MEMO),
+  ];
+  const filtered = applyFilter(memos, { status: "all" });
+  assert.equal(filtered.length, 3);
+});
+
+test("applyFilter: ids 명시 시 promoted 도 포함 (사용자 명시 의도)", () => {
+  const memos = [
+    parseMemoFile("/p1", "m1.md", PROMOTED_MEMO),
+  ];
+  const filtered = applyFilter(memos, { ids: ["bl-2026-05-17-300"] });
+  assert.equal(filtered.length, 1);
+});
+
 test("buildCreateInput: title에 target_version 접두사 + footer 포함", () => {
   const memo = parseMemoFile("/p1", "bl-test.md", SAMPLE_MEMO);
   const input = buildCreateInput(memo, "pokit:criteria");

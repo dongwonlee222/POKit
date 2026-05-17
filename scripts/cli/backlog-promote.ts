@@ -15,7 +15,8 @@
  *   --apply                   실제 Linear write (사용자 승인 후)
  *   --actor <NAME>            --apply 시 필수
  *   --target <version>        target_version 필터 (예: v0.17.1)
- *   --status <status>         status 필터 (refined / raw / promoted / dropped)
+ *   --status <status>         status 필터 (refined / raw / promoted / dropped / all)
+ *                              ※ 기본(미지정)은 promoted/dropped 자동 제외 (POKIT-205 중복등록 방지)
  *   --id <bl-id>              메모 id 콤마 구분
  *   --label <name>            기본 라벨 (기본: pokit:criteria)
  *   --no-frontmatter-update   memo 갱신 스킵 (디버깅용)
@@ -136,12 +137,20 @@ export async function loadMemos(rootDir: string): Promise<MemoFile[]> {
   return memos.sort((a, b) => a.frontmatter.id.localeCompare(b.frontmatter.id));
 }
 
+// POKIT-205: 기본 안전장치 — 명시 필터 없을 때 promoted/dropped 자동 제외.
+// `--status all` 또는 ids 명시 시에만 전체 노출.
+const TERMINAL_STATUSES = new Set(["promoted", "dropped"]);
+
 export function applyFilter(memos: MemoFile[], filter: PromoteFilter): MemoFile[] {
+  const explicitAll = filter.status === "all";
+  const hasExplicitFilter = !!filter.status || !!filter.ids || !!filter.target;
   return memos.filter((memo) => {
     const fm = memo.frontmatter;
     if (filter.ids && !filter.ids.includes(fm.id)) return false;
     if (filter.target && fm.target_version !== filter.target) return false;
-    if (filter.status && fm.status !== filter.status) return false;
+    if (filter.status && filter.status !== "all" && fm.status !== filter.status) return false;
+    if (!hasExplicitFilter && TERMINAL_STATUSES.has(fm.status)) return false;
+    if (explicitAll) return true;
     return true;
   });
 }
