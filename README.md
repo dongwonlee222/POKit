@@ -290,6 +290,8 @@ Linear나 GitHub를 호출하지 않고 기본 실행 흐름을 확인하려면 
 
 예상 예시 산출물:
 
-- `dogfood/prds/POKIT-18.md`
-- `dogfood/criteria/POKIT-22.md`
-- `dogfood/sprints/2026-W20-dry-run-simulation.md`
+- `artifacts/prds/POKIT-18.md`
+- `artifacts/criteria/POKIT-22.md`
+- `artifacts/sprints/2026-W20-dry-run-simulation.md`
+
+> v0.17.2 마이그레이션(POKIT-199) 완료 후 `releases/v<버전>/{prds,criteria,sprints}/` 경로로 이동 예정.

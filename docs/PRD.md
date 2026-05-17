@@ -318,10 +318,10 @@ flowchart TD
 - 사용자가 새 컴퓨터에서 30분 안에 첫 PRD를 생성할 수 있다.
 - Cycle 실행 한 번으로 cycle 안의 PRD/criteria 대상 issue에 draft 산출물 또는 정보 부족 사유가 생성된다.
 - Codex CLI와 Claude Code 양쪽에서 동일한 입력에 대해 동일한 구조의 결과가 나온다.
-- 본인이 1주 dogfood 후 매일 사용할 만큼 반복 가치가 있다.
-- 1주 dogfood 동안 매일 최소 1회 POKit state brief를 확인한다.
-- 1주 dogfood 동안 평일 기준 최소 3회 cycle 실행 또는 cycle 준비 workflow를 실행한다.
-- 1주 dogfood 동안 `Needs Clarification` 항목의 24시간 내 응답률을 기록한다.
+- 본인이 1주 자체 사용 후 매일 사용할 만큼 반복 가치가 있다.
+- 1주 자체 사용 동안 매일 최소 1회 POKit state brief를 확인한다.
+- 1주 자체 사용 동안 평일 기준 최소 3회 cycle 실행 또는 cycle 준비 workflow를 실행한다.
+- 1주 자체 사용 동안 `Needs Clarification` 항목의 24시간 내 응답률을 기록한다.
 - PO가 백로그 일괄 처리 후 "무엇이 생성됐고 무엇이 승인 대기인지"를 1분 안에 파악할 수 있다.
 - 모든 산출물에는 참고한 issue, 사용한 맥락, 생성 근거가 함께 남는다.
 - 생성하지 못한 issue는 `Needs Clarification`과 필요한 질문이 summary 상단에 표시된다.

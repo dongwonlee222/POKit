@@ -6,7 +6,7 @@ POKit uses Linear as the official backlog and the current Codex/Claude session p
 
 ## Current Phase
 
-POKit Day 2 walking skeleton is complete. The project is now in dogfood validation: real Linear reads and approved writes are allowed only when represented by tracked Linear tasks and explicit approval.
+POKit Day 2 walking skeleton is complete. The project is now in self-use validation (POKit이 POKit을 운영하며 검증): real Linear reads and approved writes are allowed only when represented by tracked Linear tasks and explicit approval.
 
 Still out of scope: A/B test implementation, persona test implementation, PDF export, automatic cron, standalone CLI product.
 
