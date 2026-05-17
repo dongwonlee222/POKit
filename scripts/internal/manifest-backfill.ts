@@ -44,7 +44,9 @@ export function collectCycleIssues(
 }
 
 /**
- * 이전 release manifest 의 unresolved 항목 중 promoted_to/done 아닌 것을 현재 manifest 로 이월.
+ * 이전 release manifest 의 unresolved 항목 중 처리 안 된 것만 현재 manifest 로 이월.
+ * 처리됨 = routed_to/absorbed_by 가 채워져 있음 (= 다른 bl/POKIT으로 라우팅된 것).
+ * 처리 안 됨 = 그 두 필드가 비어있는 raw 미결.
  */
 export function carryForwardUnresolved(
   current: ReleaseManifest,
@@ -54,6 +56,7 @@ export function carryForwardUnresolved(
   const existingIds = new Set((current.unresolved ?? []).map((u) => u.id));
   const carryItems: ReleaseUnresolved[] = previous.unresolved
     .filter((u) => !existingIds.has(u.id))
+    .filter((u) => !u.routed_to && !u.absorbed_by) // 라우팅·흡수된 항목 제외
     .map((u) => ({
       ...u,
       cycle_count: (u.cycle_count ?? 1) + 1,
@@ -185,7 +188,16 @@ function compareSemver(a: string, b: string): number {
 }
 
 /**
- * releases/ 디렉토리에서 currentVersion 보다 낮은 가장 최근 release manifest 검색.
+ * releases/ 디렉토리에서 currentVersion 보다 낮은 release manifest 들을 walk-back 검색.
+ *
+ * 단순 "직전" 한 단계가 아니라:
+ * - 직전(가장 최근 prior)부터 시작
+ * - 그 manifest 의 unresolved (routed_to/absorbed_by 제외 한 raw) 가 비어있으면
+ *   → 더 이전 manifest 로 walk-back (POKIT-192 후속 영구 루프 차단)
+ * - raw unresolved 가 있는 첫 manifest 를 반환
+ * - 끝까지 0 이면 가장 직전 manifest 반환 (null 아님)
+ *
+ * 사유: v0.17.1 같은 사이가 비어있어도 v0.16.0 의 실 미결을 놓치지 않게.
  */
 export function findPreviousReleaseManifest(
   rootDir: string,
@@ -205,11 +217,24 @@ export function findPreviousReleaseManifest(
   }
   if (candidates.length === 0) return null;
   candidates.sort((a, b) => compareSemver(b.version, a.version));
-  try {
-    return parseReleaseManifest(readFileSync(candidates[0].path, "utf8"));
-  } catch {
-    return null;
+
+  let fallback: ReleaseManifest | null = null;
+  for (const cand of candidates) {
+    let parsed: ReleaseManifest;
+    try {
+      parsed = parseReleaseManifest(readFileSync(cand.path, "utf8"));
+    } catch {
+      continue;
+    }
+    if (!fallback) fallback = parsed;
+    const rawUnresolved = (parsed.unresolved ?? []).filter(
+      (u) => !u.routed_to && !u.absorbed_by,
+    );
+    if (rawUnresolved.length > 0) {
+      return parsed;
+    }
   }
+  return fallback;
 }
 
 export async function backfillForRelease(

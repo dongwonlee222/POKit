@@ -1,11 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkTempDir, writeFixture } from "../_setup/index.mjs";
+import { join } from "node:path";
 import {
   collectCycleIssues,
   carryForwardUnresolved,
   snapshotWiringActual,
   escalateUnresolved,
   runManifestBackfill,
+  findPreviousReleaseManifest,
 } from "../../scripts/internal/manifest-backfill.ts";
 
 function baseManifest(overrides = {}) {
@@ -49,6 +52,20 @@ test("carryForwardUnresolved: 이전 unresolved 이월 + cycle_count + carried_f
   assert.equal(result.unresolved?.[1].cycle_count, 3);
 });
 
+test("carryForwardUnresolved: routed_to / absorbed_by 있는 항목은 제외 (POKIT-192 후속)", () => {
+  const prev = baseManifest({
+    unresolved: [
+      { id: "raw-1", note: "real", owner: "human" },
+      { id: "routed", note: "handled", owner: "agent", routed_to: "bl-x" },
+      { id: "absorbed", note: "merged", owner: "agent", absorbed_by: "bl-y" },
+    ],
+  });
+  const curr = baseManifest();
+  const result = carryForwardUnresolved(curr, prev);
+  assert.equal(result.unresolved?.length, 1);
+  assert.equal(result.unresolved?.[0].id, "raw-1");
+});
+
 test("carryForwardUnresolved: 이미 존재하는 id 는 중복 추가 X", () => {
   const prev = baseManifest({
     unresolved: [{ id: "dup", note: "old", owner: "human" }],
@@ -81,6 +98,87 @@ test("escalateUnresolved: human + cycle_count>=threshold → agent + escalated_a
   assert.ok(result.unresolved?.[0].escalated_at);
   assert.equal(result.unresolved?.[1].owner, "human");
   assert.equal(result.unresolved?.[2].owner, "agent");
+});
+
+test("findPreviousReleaseManifest: 직전 prev 에 raw unresolved 있으면 그것 반환", () => {
+  const dir = mkTempDir();
+  writeFixture(
+    join(dir, "releases/v0.16.0/manifest.yaml"),
+    `version: 0.16.0
+released_at: "2026-05-17T00:00:00.000Z"
+cycle_id: c1
+issues: []
+changelog: []
+artifacts:
+  code_paths: []
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+unresolved:
+  - id: real-raw
+    note: real
+    owner: human
+`,
+  );
+  const prev = findPreviousReleaseManifest(dir, "0.17.0");
+  assert.ok(prev);
+  assert.equal(prev.version, "0.16.0");
+});
+
+test("findPreviousReleaseManifest: 직전 prev 가 비었으면 walk-back 으로 더 거슬러 검색 (POKIT-192 후속)", () => {
+  const dir = mkTempDir();
+  // v0.16.0: real unresolved
+  writeFixture(
+    join(dir, "releases/v0.16.0/manifest.yaml"),
+    `version: 0.16.0
+released_at: "2026-05-17T00:00:00.000Z"
+cycle_id: c1
+issues: []
+changelog: []
+artifacts:
+  code_paths: []
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+unresolved:
+  - id: real-raw
+    note: deep-raw
+    owner: human
+`,
+  );
+  // v0.17.1: 모두 routed (raw 0)
+  writeFixture(
+    join(dir, "releases/v0.17.1/manifest.yaml"),
+    `version: 0.17.1
+released_at: "2026-05-18T00:00:00.000Z"
+cycle_id: c2
+issues: []
+changelog: []
+artifacts:
+  code_paths: []
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+unresolved:
+  - id: routed-one
+    note: routed
+    owner: agent
+    routed_to: bl-x
+`,
+  );
+  // v0.17.2 입장에서 prev = v0.17.1 (routed only) → walk back → v0.16.0
+  const prev = findPreviousReleaseManifest(dir, "0.17.2");
+  assert.ok(prev);
+  assert.equal(prev.version, "0.16.0");
 });
 
 test("runManifestBackfill: 4단계 모두 실행 + log 생성", () => {
