@@ -24,6 +24,50 @@ import {
   markCycleStart,
 } from "../internal/workflow-state.ts";
 import { loadDotEnvOnce } from "../internal/profile.ts";
+import { insertVersionLine } from "../internal/version-line.ts";
+
+async function applyVersionLines(
+  issueIds: string[],
+  targetVersion: string,
+  carryOverIds: Set<string>,
+): Promise<void> {
+  loadDotEnvOnce();
+  if (!process.env.LINEAR_API_KEY) {
+    console.error("  ✗ LINEAR_API_KEY 미설정 — apply 불가");
+    process.exit(2);
+  }
+  const linear = await import("../internal/linear.ts");
+  const state = loadWorkflowState();
+  const prevVersion = state?.last_release_version ?? null;
+  const teamId = ""; // fetchIssueByIdentifier 가 내부에서 무시
+  for (const issueId of issueIds) {
+    try {
+      const existing = await linear.fetchIssueByIdentifier(teamId, issueId);
+      const carryOverFrom = carryOverIds.has(issueId) ? prevVersion ?? undefined : undefined;
+      const newDescription = insertVersionLine(
+        existing.description ?? "",
+        targetVersion,
+        carryOverFrom ?? undefined,
+      );
+      if (newDescription === (existing.description ?? "")) {
+        console.log(`  ⏭️  ${issueId} — 이미 v${targetVersion} 박혀있음 (skip)`);
+        continue;
+      }
+      const plan = await linear.planUpdateIssue({
+        issueIdentifier: issueId,
+        descriptionFull: newDescription,
+      });
+      await linear.applyUpdateIssue(plan, {
+        approved: true,
+        actor: "main_agent",
+      });
+      const tag = carryOverFrom ? `carry-over from v${carryOverFrom}` : "fresh";
+      console.log(`  ✅ ${issueId} — ## 버전 v${targetVersion} (${tag}) inserted`);
+    } catch (err: any) {
+      console.error(`  ✗ ${issueId} 실패: ${err.message}`);
+    }
+  }
+}
 
 async function fetchFreshIssues(): Promise<PlanIssue[]> {
   // Linear API 호출. .env 로드 후 LINEAR_API_KEY 없으면 빈 배열.
@@ -94,7 +138,7 @@ async function main() {
   console.log("");
   console.log(renderPlanTable(carryOver, freshFiltered, opts.version, prevVersion));
 
-  // [5] apply (T4에서 본격 구현)
+  // [5] apply — 선택 항목 description에 ## 버전 라인 insert
   if (opts.apply) {
     console.log("");
     if (opts.issues.length === 0) {
@@ -104,11 +148,12 @@ async function main() {
         );
         process.exit(2);
       }
-      console.error("  (T4 미구현 — 대화형 prompt 후속 cycle)");
+      console.error("  ✗ 대화형 prompt 미구현. --issues 사용 필수.");
       process.exit(1);
     }
-    console.log(`  📝 apply 대상: ${opts.issues.join(", ")}`);
-    console.log("  (T4 미구현 — Linear description update wire 후속)");
+    console.log(`📝 apply 대상: ${opts.issues.join(", ")}`);
+    console.log("");
+    await applyVersionLines(opts.issues, opts.version, carrySet);
   } else {
     console.log("");
     console.log("📌 다음 단계:");

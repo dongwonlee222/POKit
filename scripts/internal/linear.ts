@@ -1187,6 +1187,7 @@ export async function applyCreateLabel(plan: Plan, options: ApplyOptions = {}): 
 export type IssueUpdateInput = {
   issueIdentifier: string; // e.g. POKIT-170
   descriptionAppend?: string; // Markdown section to append to existing description
+  descriptionFull?: string; // Replace description entirely (POKIT-211 insert-at-top용)
   stateName?: string; // Target workflow state name e.g. "Cancelled"
   labels?: string[]; // Label names to set
 };
@@ -1234,7 +1235,7 @@ type LinearIssueQueryResult = {
   };
 };
 
-async function fetchIssueByIdentifier(
+export async function fetchIssueByIdentifier(
   _teamId: string,
   issueIdentifier: string,
 ): Promise<{ id: string; identifier: string; title: string; description: string; stateId: string; stateName: string }> {
@@ -1306,8 +1307,16 @@ export async function applyUpdateIssue(plan: Plan, options: ApplyOptions = {}): 
   if (!payload.issueIdentifier) {
     throw new Error("Refusing update issue apply without issueIdentifier.");
   }
-  if (payload.descriptionAppend === undefined && payload.stateName === undefined && payload.labels === undefined) {
-    throw new Error("Refusing update issue apply: no fields to update (descriptionAppend, stateName, or labels required).");
+  if (
+    payload.descriptionAppend === undefined &&
+    payload.descriptionFull === undefined &&
+    payload.stateName === undefined &&
+    payload.labels === undefined
+  ) {
+    throw new Error("Refusing update issue apply: no fields to update (descriptionAppend, descriptionFull, stateName, or labels required).");
+  }
+  if (payload.descriptionAppend !== undefined && payload.descriptionFull !== undefined) {
+    throw new Error("Refusing update issue apply: descriptionAppend and descriptionFull cannot both be set.");
   }
 
   const teamId = await resolveTeamId();
@@ -1317,6 +1326,9 @@ export async function applyUpdateIssue(plan: Plan, options: ApplyOptions = {}): 
 
   if (payload.descriptionAppend !== undefined) {
     updateInput.description = composeAppendedDescription(existing.description, payload.descriptionAppend);
+  }
+  if (payload.descriptionFull !== undefined) {
+    updateInput.description = payload.descriptionFull;
   }
   if (payload.stateName !== undefined) {
     updateInput.stateId = await resolveWorkflowStateId(teamId, payload.stateName);
