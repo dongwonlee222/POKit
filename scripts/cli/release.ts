@@ -25,6 +25,7 @@ import {
   migrateArtifactsToRelease,
 } from "../internal/release-artifacts-migrate.ts";
 import { writeReleaseIndex } from "../internal/release-index.ts";
+import { markReleaseComplete } from "../internal/workflow-state.ts";
 
 type Opts = {
   version: string;
@@ -237,6 +238,16 @@ const main = async () => {
     console.log("  (--no-github-release: skipped)");
   }
   run("node", ["--experimental-strip-types", "scripts/cli/session-brief.ts"], { ...opts, allowFail: true });
+
+  // POKIT-208 — workflow-state.yaml 갱신 (apply 모드만)
+  if (!opts.dryRun) {
+    try {
+      markReleaseComplete(opts.rootDir, opts.version);
+      console.log(`  ✓ workflow-state.yaml: last_release_version=${opts.version}, state=idle`);
+    } catch (err: any) {
+      console.error(`  ⚠ markReleaseComplete 실패: ${err.message}`);
+    }
+  }
 
   console.log(`\n✓ Release v${opts.version} 완료.`);
 };
