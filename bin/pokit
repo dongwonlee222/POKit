@@ -31,6 +31,7 @@ Available verbs:
   release-backfill  Migrate artifacts + write INDEX.md for past releases (POKIT-204)
   advance    Advance flow step (POKIT-205): idea|linear|build|test|release
   backlog-promote  Batch-promote memory/backlog-raw/ memos to Linear (POKIT-198)
+  plan      Planning gate — carry-over + fresh 통합 + version 할당 (POKIT-211)
   help      Show this help message
 
 All verbs go through scripts/internal/verb-dispatch.ts.

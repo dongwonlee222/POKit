@@ -32,6 +32,7 @@ export const VERB_ROUTES: Record<string, VerbRoute> = {
   "release-backfill": { path: "scripts/cli/release-backfill.ts" },
   advance:    { path: "scripts/cli/flow-advance.ts" },
   "backlog-promote": { path: "scripts/cli/backlog-promote.ts" },
+  plan:       { path: "scripts/cli/plan.ts" },
 };
 
 export type DispatchInput = {
