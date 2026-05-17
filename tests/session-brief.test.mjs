@@ -648,6 +648,53 @@ test("buildSessionBrief uses Operating Cycle order ahead of Linear backing numbe
   assert.match(brief, /“Operating Cycle 1 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘”/);
 });
 
+test("buildSessionBrief start variant renders unresolved card from latest release manifest (POKIT-173 regression)", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-brief-unresolved-"));
+  await mkdir(join(tempDir, "artifacts/cycles"), { recursive: true });
+  // package.json version → readReleaseVersion()이 "v0.15.99"를 latestVersion으로 인식하도록
+  await writeFile(join(tempDir, "package.json"), JSON.stringify({ name: "pokit-test", version: "0.15.99" }));
+  // releases/v0.15.99/manifest.yaml — releaseManifestPath() 헬퍼 경유 경로
+  await mkdir(join(tempDir, "releases/v0.15.99"), { recursive: true });
+  await writeFile(join(tempDir, "releases/v0.15.99/manifest.yaml"), [
+    "version: 0.15.99",
+    'released_at: "2026-05-17T00:00:00Z"',
+    "cycle_id: test-cycle",
+    "issues: []",
+    "changelog: []",
+    "artifacts:",
+    "  code_paths: []",
+    "  doc_paths: []",
+    "  skills: []",
+    "wiring_status:",
+    "  intended: []",
+    "  actual: []",
+    "  gaps: []",
+    "unresolved:",
+    "  - id: dummy-followup",
+    "    note: dummy followup note for regression test",
+    "    owner: human",
+    "",
+  ].join("\n"));
+  const { buildSessionBrief } = await loadBriefModule();
+
+  const brief = buildSessionBrief({
+    now: new Date("2026-05-17T09:00:00+09:00"),
+    rootDir: tempDir,
+    variant: "start",
+    context: {
+      source: "linear_active",
+      cycle: { id: "cycle-1", name: "Cycle 1" },
+      issues: [
+        { id: "issue-1", identifier: "POKIT-1", title: "x", description: "x", labels: [], state: "Todo" },
+      ],
+    },
+  });
+
+  // 카드 헤더 + 항목 모두 노출되어야 함. 누락 시 M4 메커니즘(POKIT-173) 회귀.
+  assert.match(brief, /🪧 이전 릴리스 미결 1건 \(v0\.15\.99\)/);
+  assert.match(brief, /\[dummy-followup\] dummy followup note for regression test \(owner: human\)/);
+});
+
 test("buildSessionBrief start variant shows last sprint label", async () => {
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-brief-start-label-"));
   await mkdir(join(tempDir, "artifacts/cycles"), { recursive: true });
