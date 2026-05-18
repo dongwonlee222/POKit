@@ -29,9 +29,17 @@ Claude Code에서 한 번 설치:
 
 → `skills/pokit-start`, `pokit-end` 등이 Claude Code에 자동 등록. 새 세션에서 "포킷 시작" 입력만 해도 스킬이 자동 발동. CLI도 함께 clone 받아 사용 가능.
 
-### 옵션 C — Codex 플러그인 메타데이터
+### 옵션 C — Codex 로컬 플러그인
 
-Codex 런타임은 repo의 `.codex-plugin/plugin.json`과 `skills/*/SKILL.md`를 기준으로 POKit local skill을 인식한다. 새 세션에서 `POKit 시작해줘` 또는 `POKit start`를 입력하면 `pokit-start` skill로 라우팅되어 `./bin/pokit start` 출력 계약을 따른다.
+Codex에서 repo-local plugin으로 설치:
+
+```bash
+./bin/install-codex-plugin
+```
+
+이 스크립트는 Codex marketplace 등록, local plugin cache 연결, `~/.codex/config.toml`의 `pokit@pokit-local` 활성화를 한 번에 처리한다. 실행 후 Codex를 재시작하거나 새 thread를 시작한다.
+
+POKit plugin은 `.agents/plugins/marketplace.json` → `plugins/pokit/.codex-plugin/plugin.json` → `plugins/pokit/skills` 경로로 노출된다. Codex의 자연어 skill 선택은 skill `description` 기반 implicit invocation이므로, 가장 확실한 호출은 `$pokit-start` 또는 `@pokit` 명시 호출이다. `포킷 시작`도 `pokit-start` skill description과 AGENTS 계약에 의해 라우팅되어야 한다.
 
 ## 0. Start With The LLM
 

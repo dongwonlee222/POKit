@@ -1,6 +1,6 @@
 {
   "name": "pokit",
-  "version": "0.17.5",
+  "version": "0.17.6",
   "private": true,
   "type": "module",
   "bin": {
@@ -19,6 +19,7 @@
     "end": "node --experimental-strip-types scripts/cli/session-close.ts",
     "safety": "node --experimental-strip-types scripts/cli/public-safety-scan.ts",
     "sweep": "node --experimental-strip-types scripts/cli/collected-sweep.ts",
+    "install:codex-plugin": "./bin/install-codex-plugin",
     "test": "node --experimental-strip-types --test 'tests/**/*.test.mjs'",
     "test:contracts": "node --experimental-strip-types --test 'tests/contracts/*.test.mjs'",
     "test:hooks": "node --experimental-strip-types --test 'tests/hooks/*.test.mjs'",

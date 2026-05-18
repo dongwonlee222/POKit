@@ -24,7 +24,7 @@
 ## 도구별 발동 메커니즘
 
 - **Claude Code**: `.claude-plugin/plugin.json`과 `skills/pokit-start/SKILL.md`, `skills/pokit-end/SKILL.md` 자동 로딩.
-- **Codex**: `.codex-plugin/plugin.json`과 위 SKILL.md 파일을 기준으로 동일 절차 실행.
+- **Codex**: `./bin/install-codex-plugin`이 `.agents/plugins/marketplace.json` 기반 local plugin을 설치/활성화한다. 자연어 호출은 skill `description` 기반 implicit invocation이므로, 확실한 호출은 `$pokit-start` 또는 `@pokit` 명시 호출이다.
 
 ## 출력 포맷
 

@@ -1,0 +1,20 @@
+{
+  "name": "pokit-local",
+  "interface": {
+    "displayName": "POKit Local"
+  },
+  "plugins": [
+    {
+      "name": "pokit",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pokit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

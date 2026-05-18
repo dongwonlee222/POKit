@@ -105,7 +105,7 @@ export async function scanTrackedPublicFiles(options: { cwd?: string } = {}): Pr
         content: await readFile(join(cwd, path), "utf8"),
       });
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      if (["ENOENT", "EISDIR"].includes((error as NodeJS.ErrnoException).code ?? "")) {
         continue;
       }
       throw error;

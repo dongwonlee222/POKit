@@ -89,27 +89,35 @@ flowchart LR
 ## 5분 시작하기
 
 1. 이 repo를 clone 또는 fork한 뒤, repo root를 Codex CLI나 Claude Code에서 엽니다.
-2. `.env.example`로 로컬 `.env`를 만듭니다.
+2. Codex에서 편하게 쓰려면 로컬 plugin을 한 번 설치합니다.
+
+```bash
+./bin/install-codex-plugin
+```
+
+Codex를 재시작하거나 새 thread를 연 뒤 `$pokit-start`로 시작할 수 있습니다.
+
+3. `.env.example`로 로컬 `.env`를 만듭니다.
 
 ```bash
 cp .env.example .env
 ```
 
-3. `.env`에 Linear API key를 넣습니다.
+4. `.env`에 Linear API key를 넣습니다.
 
 ```bash
 LINEAR_API_KEY=lin_api_...
 ```
 
-4. Codex나 Claude에서 이렇게 말합니다.
+5. Codex나 Claude에서 이렇게 말합니다.
 
 ```text
 포킷 시작해줘
 ```
 
-5. Linear 작업공간에 진행 중인 cycle issue가 없다면 [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues)의 안전한 샘플 issue를 하나 만들고, `pokit:prd` 또는 `pokit:criteria` label을 붙인 뒤 현재 cycle에 넣습니다.
+6. Linear 작업공간에 진행 중인 cycle issue가 없다면 [docs/ONBOARDING.md](docs/ONBOARDING.md#example-linear-issues)의 안전한 샘플 issue를 하나 만들고, `pokit:prd` 또는 `pokit:criteria` label을 붙인 뒤 현재 cycle에 넣습니다.
 
-6. 브리프가 보여주는 Cycle 단위 추천 행동을 확인하고 번호로 선택합니다.
+7. 브리프가 보여주는 Cycle 단위 추천 행동을 확인하고 번호로 선택합니다.
 
 ```text
 Cycle N 남은 Todo 전체를 우선순위대로 묶어서 완료까지 진행해줘

@@ -20,7 +20,7 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 
 판단이 안 되면 본 문서의 §3 "5가지 경계 결정"을 참조한다.
 
-## 1. 폴더 책임 정의 (13개)
+## 1. 폴더 책임 정의 (15개)
 
 ### Public (사용자가 `git clone` 시 봄)
 
@@ -32,6 +32,8 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `skills/` | skill 정의 | `<skill-name>/SKILL.md` + 부속 |
 | `.codex-plugin/` | Codex plugin manifest | `plugin.json` |
 | `.claude-plugin/` | Claude Code plugin manifest | `plugin.json` |
+| `.agents/` | Codex local marketplace | `plugins/marketplace.json` |
+| `plugins/` | Codex installable plugin roots | `pokit/.codex-plugin/plugin.json`, `pokit/skills` |
 | `workflows/` | **선언적 yaml만** | `agent-roles.yaml`, `hooks.yaml`, `messages.yaml`, `definition-pipeline.yaml` |
 | `templates/` | 빈 양식 (스켈레톤) | `definition-pipeline/*.md` 같은 채우기 전 양식 |
 | `examples/` | **외부 공유용 sanitized sample** | 익명화된 사용 예시 |
@@ -62,6 +64,8 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `skills/` | ✅ Public | |
 | `.codex-plugin/` | ✅ Public | Codex plugin manifest |
 | `.claude-plugin/` | ✅ Public | Claude Code plugin manifest |
+| `.agents/` | ✅ Public | Codex local marketplace |
+| `plugins/` | ✅ Public | installable plugin roots |
 | `workflows/` | ✅ Public | yaml 4개만 |
 | `templates/` | ✅ Public | |
 | `examples/` | ✅ Public | sanitized만 |

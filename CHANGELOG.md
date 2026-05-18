@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.17.6 - 2026-05-18
+
+### Added
+
+- Codex local plugin one-command installer. `./bin/install-codex-plugin` now registers the POKit local marketplace, links the local plugin cache, and enables `pokit@pokit-local` in `~/.codex/config.toml`. Regression: `tests/integration/codex-plugin-install.test.mjs`.
+- Codex installable plugin root. `.agents/plugins/marketplace.json` and `plugins/pokit/.codex-plugin/plugin.json` expose POKit as a repo-local plugin, with `plugins/pokit/skills` pointing to the canonical `skills/` directory.
+- Package script `npm run install:codex-plugin` for users who prefer npm script entrypoints.
+
+### Docs
+
+- README and onboarding now document the general-user Codex install path: clone, `npm install`, `./bin/install-codex-plugin`, restart Codex/new thread, then `$pokit-start`.
+- Session output contract clarifies that Codex plugin loading is installed through the local installer and that `$pokit-start` remains the deterministic invocation.
+
+### Tests
+
+- Local skill contract now verifies marketplace wiring, plugin manifest skill exposure, and plugin root shape.
+- Folder layout contract now recognizes `.agents/` and `plugins/` as public install-support folders.
+
 ## v0.17.5 - 2026-05-18
 
 ### Fixed

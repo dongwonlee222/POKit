@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdir, readFile } from "node:fs/promises";
+import { lstat, readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 
@@ -93,4 +93,25 @@ test("Claude and Codex plugin manifests exist and stay version-synced to package
     assert.match(plugin.repository, /POKit/);
     assert.ok(Array.isArray(plugin.keywords), `${name} keywords must be an array`);
   }
+});
+
+test("Codex plugin wiring exposes POKit through a repo marketplace", async () => {
+  const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+  const rootCodexPlugin = JSON.parse(await readFile(".codex-plugin/plugin.json", "utf8"));
+  const packagedCodexPlugin = JSON.parse(await readFile("plugins/pokit/.codex-plugin/plugin.json", "utf8"));
+  const marketplace = JSON.parse(await readFile(".agents/plugins/marketplace.json", "utf8"));
+  const packagedSkills = await lstat("plugins/pokit/skills");
+
+  assert.equal(rootCodexPlugin.skills, "./skills/");
+  assert.equal(packagedCodexPlugin.name, packageJson.name);
+  assert.equal(packagedCodexPlugin.version, packageJson.version);
+  assert.equal(packagedCodexPlugin.skills, "./skills/");
+  assert.ok(packagedSkills.isDirectory() || packagedSkills.isSymbolicLink(), "packaged plugin must expose skills/");
+
+  const pokitEntry = marketplace.plugins.find((plugin) => plugin.name === "pokit");
+  assert.ok(pokitEntry, "repo marketplace must include pokit");
+  assert.deepEqual(pokitEntry.source, { source: "local", path: "./plugins/pokit" });
+  assert.equal(pokitEntry.policy.installation, "AVAILABLE");
+  assert.equal(pokitEntry.policy.authentication, "ON_INSTALL");
+  assert.equal(pokitEntry.category, "Productivity");
 });
