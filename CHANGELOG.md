@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.17.9 - 2026-05-18
+
+### Fixed
+
+- Cold-start agent instructions now make MCP-capable runtimes explicitly MCP-first and forbid bare `pokit start` before Linear MCP payload injection. This prevents new sessions from following the API-key DNS approval loop when Linear Connector is available. Regression: `tests/contracts/agent-rules.test.mjs`.
+
+### Docs
+
+- Onboarding and `CLAUDE.md` now separate MCP-first skill invocation (`$pokit-start` / `@pokit`) from terminal/CI-only `pokit start`.
+
 ## v0.17.8 - 2026-05-18
 
 ### Added

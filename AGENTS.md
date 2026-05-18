@@ -3,7 +3,6 @@
 Default language: ko-KR. 사용자-facing 답변, 보고서, 로컬 artifact는 한국어를 기본으로 쓴다. API 이름, 파일명, 코드 식별자, 고유 product 용어만 영어를 허용한다.
 
 ## Core Principle
-
 모든 구조 결정은 **LLM 명확성**을 최우선으로 한다. 폴더·문서·메모리 위치는 매 세션 cold start 작업자가 즉시 인식 가능한 형태로 유지한다. 가벼움의 기준은 분량이 아니라 작업자 LLM이 헷갈리지 않는 구조다.
 
 ## Main Agent Orchestration Contract
@@ -16,11 +15,13 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 
 ## POKit session start contract
 
-- First run `pokit start`. Output must include `pokit:boot ok`.
-- Re-run after any session resume, context compaction, or handoff before continuing POKit work.
-- For "POKit 시작해줘" / "현재 상태 브리핑해줘" / "다음에 뭐 하면 돼?": `pokit start`.
+- MCP-capable runtimes are MCP-first. Do not run bare `pokit start` first when Linear MCP/Connector tools are available.
+- Follow `skills/pokit-start/SKILL.md`: read Linear through MCP/Connector, inject compact payload via `POKIT_LINEAR_CONTEXT_JSON`, then run `pokit start`. Output must include `pokit:boot ok` and `linear=mcp`.
+- If MCP/Connector is unavailable in an MCP-capable runtime, stop and tell the user to connect Linear instead of retrying bare `pokit start` with network approval.
+- For terminal/CI or runtimes without Linear MCP support, run `pokit start` directly with `LINEAR_API_KEY`.
+- Re-run the same environment-appropriate start flow after any session resume, context compaction, or handoff before continuing POKit work.
+- For "POKit 시작해줘" / "현재 상태 브리핑해줘" / "다음에 뭐 하면 돼?": use the environment-appropriate start flow above.
 - For detail or "1번 자세히": `pokit brief --detail {cycle|backlog|approvals}` or `pokit brief --candidate N`.
-
 - Session 시작/종료 출력 계약: [docs/_details/session-output-contract.md](docs/_details/session-output-contract.md)
 
 ## Verbs

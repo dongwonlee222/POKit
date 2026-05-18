@@ -21,7 +21,7 @@ trigger_phrases:
 
 ## 절차
 
-### Codex — Linear MCP/Connector 우선
+### MCP-capable runtimes — Linear MCP/Connector 우선
 
 1. Linear MCP/Connector 도구가 있으면 먼저 `list_teams`로 연결을 확인한다.
 2. Linear MCP/Connector가 없거나 인증 실패하면 `./bin/pokit start`를 실행하지 말고, 아래 문구만 출력한다:
@@ -42,7 +42,7 @@ trigger_phrases:
 6. 추가 멘트 0줄. 요약·해석·다음 액션 제안 금지.
 7. stdout 마지막 줄 sentinel `<!-- AGENT: output above verbatim, no summary, no interpretation -->`을 assistant 텍스트에도 포함한다.
 
-### Claude Code / Terminal — API key fallback
+### Terminal / CI / MCP unavailable — API key fallback
 
 1. Bash로 다음 실행:
    ```bash

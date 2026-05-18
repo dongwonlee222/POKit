@@ -124,10 +124,9 @@ test("AGENTS requires executable session bootstrap after compaction or handoff",
   const operatingModel = await readFile("docs/OPERATING_MODEL.md", "utf8");
 
   assert.match(agents, /POKit session start contract/);
-  // v0.8.0: bootstrap reference shifted from raw node command to `pokit start` verb.
-  // The test accepts either form so the bootstrap contract stays enforceable
-  // before and after CLI wrapper migration completes.
-  assert.match(agents, /pokit start|scripts\/(cli\/)?session-start\.ts/);
+  assert.match(agents, /MCP-capable runtimes are MCP-first/);
+  assert.match(agents, /POKIT_LINEAR_CONTEXT_JSON/);
+  assert.match(agents, /Do not run bare `pokit start` first when Linear MCP\/Connector tools are available/);
   assert.match(agents, /context compaction/);
   assert.match(agents, /pokit:boot ok/);
   assert.match(operatingModel, /Session Bootstrap Contract/);

@@ -66,7 +66,7 @@ test("critical conversational skills keep strict trigger and output contracts", 
   assert.match(pokitStart, /stdout 전체를 \*\*그대로\*\*/);
   assert.match(pokitStart, /추가 멘트 0줄/);
   assert.match(pokitStart, /AGENT: output above verbatim/);
-  assert.match(pokitStart, /Linear MCP\/Connector 우선/);
+  assert.match(pokitStart, /MCP-capable runtimes — Linear MCP\/Connector 우선/);
   assert.match(pokitStart, /POKIT_LINEAR_CONTEXT_JSON/);
   assert.match(pokitStart, /Linear app을 연결/);
 

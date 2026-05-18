@@ -8,7 +8,7 @@
 
 ## 출력 규칙
 
-- `./bin/pokit start` 또는 `./bin/pokit brief` 실행 후 stdout 전체를 그대로 assistant 텍스트로 출력한다. 요약·해석·추가 설명 금지.
+- Claude Code도 Linear MCP/Connector가 연결된 런타임이면 MCP-first 경로를 사용한다. MCP가 없으면 `.env`의 `LINEAR_API_KEY`를 전제로 `./bin/pokit start` 또는 `./bin/pokit brief`를 실행한다. 어떤 경로든 stdout 전체를 그대로 assistant 텍스트로 출력한다. 요약·해석·추가 설명 금지.
 
 ## 빠른 참조
 
@@ -16,6 +16,7 @@
   ```bash
   ./bin/pokit start
   ```
+- Linear MCP-first 세부 계약은 `AGENTS.md`와 `docs/_details/session-output-contract.md`를 따른다.
 - 자세한 계약: [`AGENTS.md`](./AGENTS.md)
 - 운영 모델: [`docs/OPERATING_MODEL.md`](./docs/OPERATING_MODEL.md)
 - 온보딩: [`docs/ONBOARDING.md`](./docs/ONBOARDING.md)
