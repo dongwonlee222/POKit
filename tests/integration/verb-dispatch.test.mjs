@@ -67,6 +67,36 @@ test("dispatchVerb catches subprocess failure and renders ASCII with mapping", a
   assert.ok(result.artifactPath);
 });
 
+test("dispatchVerb extracts Linear DNS failure from Node stack traces", async () => {
+  const { dispatchVerb } = await loadModule();
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-dispatch-linear-dns-"));
+  await mkdir(join(tempDir, "scripts/cli"), { recursive: true });
+  await mkdir(join(tempDir, "memory/problem-reviews"), { recursive: true });
+
+  await writeFile(
+    join(tempDir, "scripts/cli/session-start.ts"),
+    [
+      "const cause = new Error('getaddrinfo ENOTFOUND api.linear.app');",
+      "cause.code = 'ENOTFOUND';",
+      "cause.hostname = 'api.linear.app';",
+      "throw new TypeError('fetch failed', { cause });",
+      "",
+    ].join("\n"),
+  );
+
+  const result = await dispatchVerb({
+    verb: "start",
+    args: [],
+    rootDir: tempDir,
+    stdio: "pipe",
+  });
+
+  assert.equal(result.exitCode, 1);
+  assert.match(result.stderr, /Linear API 연결 실패/);
+  assert.match(result.stderr, /ENOTFOUND api\.linear\.app/);
+  assert.doesNotMatch(result.stderr, /node:internal\/modules\/run_main/);
+});
+
 test("dispatchVerb falls back when no specific mapping matches", async () => {
   const { dispatchVerb } = await loadModule();
   const tempDir = await mkdtemp(join(tmpdir(), "pokit-dispatch-fallback-"));

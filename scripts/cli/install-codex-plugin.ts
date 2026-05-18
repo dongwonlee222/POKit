@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -65,6 +65,22 @@ async function upsertCodexConfig(configPath: string, rootDir: string): Promise<v
   await writeFile(configPath, next);
 }
 
+async function installCliWrapper(home: string, rootDir: string): Promise<string> {
+  const binDir = join(home, ".local", "bin");
+  const wrapperPath = join(binDir, "pokit");
+  await mkdir(binDir, { recursive: true });
+  await writeFile(
+    wrapperPath,
+    [
+      "#!/usr/bin/env bash",
+      `exec "${join(rootDir, "bin", "pokit")}" "$@"`,
+      "",
+    ].join("\n"),
+  );
+  await chmod(wrapperPath, 0o755);
+  return wrapperPath;
+}
+
 async function install(): Promise<void> {
   const rootDir = projectRoot();
   const pluginRoot = join(rootDir, "plugins", "pokit");
@@ -88,15 +104,18 @@ async function install(): Promise<void> {
   const configPath = join(codexDir, "config.toml");
   await mkdir(dirname(configPath), { recursive: true });
   await upsertCodexConfig(configPath, rootDir);
+  const cliWrapper = await installCliWrapper(homeDir(), rootDir);
 
   console.log("POKit Codex plugin install ok");
   console.log(`- marketplace: ${MARKETPLACE_NAME}`);
   console.log(`- plugin: ${PLUGIN_KEY}`);
   console.log(`- cache: ${cacheLink}`);
+  console.log(`- cli: ${cliWrapper}`);
   console.log("");
   console.log("Next:");
   console.log("1. Restart Codex or open a new thread.");
-  console.log("2. Try: $pokit-start");
+  console.log("2. Try: pokit start");
+  console.log("3. Or in Codex plugin mode: $pokit-start");
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

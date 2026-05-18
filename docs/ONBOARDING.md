@@ -13,10 +13,11 @@ git clone https://github.com/dongwonlee222/POKit.git
 cd POKit
 npm install
 cp .env.example .env  # LINEAR_API_KEY, LINEAR_TEAM_ID 설정
-./bin/pokit start
+./bin/install-codex-plugin
+pokit start
 ```
 
-Codex, 터미널, 임의 도구에서 사용 가능. 스킬 자동 트리거는 LLM의 자율 판단.
+Codex, 터미널, 임의 도구에서 사용 가능. `./bin/install-codex-plugin`은 Codex plugin 등록과 함께 `~/.local/bin/pokit` CLI wrapper를 설치한다. 새 터미널에서 `pokit`을 찾지 못하면 `~/.local/bin`이 PATH에 있는지 확인한다. 스킬 자동 트리거는 LLM의 자율 판단.
 
 ### 옵션 B — Claude Code 플러그인 (자동 트리거)
 
@@ -38,8 +39,9 @@ Codex에서 repo-local plugin으로 설치:
 ```
 
 이 스크립트는 Codex marketplace 등록, local plugin cache 연결, `~/.codex/config.toml`의 `pokit@pokit-local` 활성화를 한 번에 처리한다. 실행 후 Codex를 재시작하거나 새 thread를 시작한다.
+또한 `~/.local/bin/pokit` wrapper를 설치하므로, 이후 세션에서는 repo root에서 `pokit start`로 시작한다.
 
-POKit plugin은 `.agents/plugins/marketplace.json` → `plugins/pokit/.codex-plugin/plugin.json` → `plugins/pokit/skills` 경로로 노출된다. Codex의 자연어 skill 선택은 skill `description` 기반 implicit invocation이므로, 가장 확실한 호출은 `$pokit-start` 또는 `@pokit` 명시 호출이다. `포킷 시작`도 `pokit-start` skill description과 AGENTS 계약에 의해 라우팅되어야 한다.
+POKit plugin은 `.agents/plugins/marketplace.json` → `plugins/pokit/.codex-plugin/plugin.json` → `plugins/pokit/skills` 경로로 노출된다. Codex의 자연어 skill 선택은 skill `description` 기반 implicit invocation이므로, 가장 확실한 호출은 `pokit start`, `$pokit-start`, 또는 `@pokit` 명시 호출이다. `포킷 시작`도 `pokit-start` skill description과 AGENTS 계약에 의해 라우팅되어야 한다.
 
 ## 0. Start With The LLM
 

@@ -56,6 +56,12 @@ function projectRoot(): string {
 
 function extractErrorMessage(stderr: string): string {
   const lines = stderr.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const dnsFailure =
+    stderr.match(/\b(ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ETIMEDOUT)\s+([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b/)
+    ?? stderr.match(/\b(ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ETIMEDOUT)\b[^\n]*hostname:\s*['"]([^'"]+)['"]/);
+  if (dnsFailure) {
+    return `fetch failed: ${dnsFailure[1]} ${dnsFailure[2]}`;
+  }
   for (const line of lines) {
     const match = line.match(/^(?:[A-Z][A-Za-z]*Error|Error):\s*(.+)$/);
     if (match) return match[1];

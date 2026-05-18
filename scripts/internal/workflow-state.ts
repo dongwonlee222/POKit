@@ -172,6 +172,9 @@ export function markSessionStart(rootDir = process.cwd(), now: Date = new Date()
     last_session_at: now.toISOString(),
     last_session_closed_at: existing?.last_session_closed_at,
     active_issue_ids: existing?.active_issue_ids,
+    flow_step_internal: existing?.flow_step_internal,
+    flow_step_display: existing?.flow_step_display,
+    flow_issue: existing?.flow_issue,
   };
   saveWorkflowState(next, rootDir);
   return next;

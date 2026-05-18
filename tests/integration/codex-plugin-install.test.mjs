@@ -45,6 +45,31 @@ test("install-codex-plugin enables pokit local plugin in an empty home", async (
   assert.equal(await realpath(linkPath), join(PROJECT_ROOT, "plugins/pokit"));
 });
 
+test("install-codex-plugin installs a PATH-ready pokit CLI wrapper", async () => {
+  const home = await tempHome();
+  const result = runInstaller(home);
+
+  assert.equal(result.status, 0, `stderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
+  assert.match(result.stdout, /pokit start/);
+
+  const wrapperPath = join(home, ".local/bin/pokit");
+  const wrapper = await readFile(wrapperPath, "utf8");
+  assert.match(wrapper, /^#!\/usr\/bin\/env bash/);
+  assert.match(wrapper, new RegExp(`exec "${PROJECT_ROOT.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/bin/pokit" "\\$@"`));
+
+  const help = spawnSync("pokit", ["help"], {
+    cwd: PROJECT_ROOT,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      HOME: home,
+      PATH: `${join(home, ".local/bin")}:${process.env.PATH ?? ""}`,
+    },
+  });
+  assert.equal(help.status, 0, `stderr:\n${help.stderr}\nstdout:\n${help.stdout}`);
+  assert.match(help.stdout, /Usage: pokit <verb>/);
+});
+
 test("install-codex-plugin is idempotent and re-enables a disabled plugin", async () => {
   const home = await tempHome();
   const first = runInstaller(home);

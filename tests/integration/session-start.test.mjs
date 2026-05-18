@@ -56,6 +56,7 @@ test("buildSessionStart renders brief with boot signature after reading context 
   assert.match(output, /📋 Linear 우선순위 Top 3/);
   assert.match(output, /1\. POKIT-128 Session Bootstrap Contract · (Urgent|High|Medium|Low|No priority)/);
   assert.match(output, /💬 추천 다음 행동: /);
+  assert.match(output, /POKit Flow:\s+○━━○━━○━━○━━○\s+0\/5\s+현재: Idle/);
   assert.doesNotMatch(output, /# POKit Brief/);
   assert.doesNotMatch(output, /Profile: default/);
   assert.match(output, /pokit:boot ok cycle=POKit Operating Cycle 1: Memory MVP Foundation hooks=loaded orchestrator=loaded read_order=4 linear=api-key/);

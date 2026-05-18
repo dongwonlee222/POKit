@@ -75,6 +75,23 @@ test("markSessionStart: 기존 state 보존 (cycle/target/last_release)", () => 
   assert.equal(state.last_release_version, "v0.17.1");
 });
 
+test("markSessionStart: 기존 flow 진행 상태 보존", () => {
+  const dir = mkTempDir();
+  saveWorkflowState(
+    {
+      ...fixture(),
+      flow_step_internal: 5,
+      flow_step_display: 3,
+      flow_issue: "POKIT-205",
+    },
+    dir,
+  );
+  const state = markSessionStart(dir, new Date("2026-05-18T11:00:00.000Z"));
+  assert.equal(state.flow_step_internal, 5);
+  assert.equal(state.flow_step_display, 3);
+  assert.equal(state.flow_issue, "POKIT-205");
+});
+
 test("markSessionClose: state=idle + last_session_closed_at", () => {
   const dir = mkTempDir();
   markSessionStart(dir, new Date("2026-05-18T10:00:00.000Z"));

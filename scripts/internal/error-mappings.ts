@@ -26,7 +26,7 @@ export function mapSessionStartError(message: string): VerbErrorReview | null {
     return {
       title: "session-start: Linear API 연결 실패",
       problem: "pokit start가 Linear API에 연결하지 못해 부팅을 중단했습니다.",
-      cause: "LINEAR_API_KEY가 없거나 만료됐거나 네트워크 오류입니다.",
+      cause: `LINEAR_API_KEY가 없거나 만료됐거나 네트워크 오류입니다. (${message})`,
       prevention: "LINEAR_API_KEY 환경변수를 확인하고 네트워크 상태를 점검하세요.",
     };
   }
@@ -38,7 +38,7 @@ export function mapSprintRunnerError(message: string): VerbErrorReview | null {
     return {
       title: "sprint-runner: Linear API 연결 실패",
       problem: "pokit run이 Linear API에 연결하지 못해 sprint runner를 중단했습니다.",
-      cause: "LINEAR_API_KEY가 없거나 만료됐거나 네트워크 오류입니다.",
+      cause: `LINEAR_API_KEY가 없거나 만료됐거나 네트워크 오류입니다. (${message})`,
       prevention: "LINEAR_API_KEY 환경변수를 확인하고 네트워크 상태를 점검하세요.",
     };
   }

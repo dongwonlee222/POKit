@@ -7,6 +7,8 @@ import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 import { loadBacklogRawSummaries, renderPendingRawLines } from "../internal/backlog-raw-collector.ts";
 import { markSessionStart } from "../internal/workflow-state.ts";
 import { getActiveProfile } from "../internal/profile.ts";
+import { getFlowState } from "../internal/flow-state.ts";
+import { renderFlowProgress } from "./cycle-progress.ts";
 
 export type SessionStartInput = SessionBriefInput & {
   rootDir?: string;
@@ -38,10 +40,13 @@ export function buildSessionStart(input: SessionStartInput): string {
   const pendingRawLines = renderPendingRawLines(rawSummaries);
   // POKIT-182: workflow-state.yaml 자동 갱신 (best-effort, fail-silent)
   try { markSessionStart(rootDir); } catch { /* ignore */ }
+  const flowLines = renderFlowProgress(getFlowState(rootDir));
   return [
     brief.trimEnd(),
     ...(manifestLine ? [manifestLine] : []),
     ...pendingRawLines,
+    "",
+    ...flowLines,
     "",
     `pokit:boot ok cycle=${cycle.name} hooks=${Object.keys(hooks).length ? "loaded" : "missing"} orchestrator=${orchestratorLoaded ? "loaded" : "missing"} read_order=${contextMap.readOrder.length} linear=api-key backlog_raw=${rawSummaries.length}`,
     "",

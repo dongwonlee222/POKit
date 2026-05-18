@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.17.7 - 2026-05-18
+
+### Fixed
+
+- Codex local installer now creates a PATH-ready `~/.local/bin/pokit` wrapper, so fresh installs can run `pokit start` directly instead of failing with `command not found`. Regression: `tests/integration/codex-plugin-install.test.mjs`.
+- `pokit start` now keeps flow progress visible and preserves existing flow state across session starts. Linear DNS failures are surfaced as `fetch failed: ENOTFOUND api.linear.app` instead of a generic Node stack tail. Regression: `tests/integration/session-start.test.mjs`, `tests/internal/workflow-state.test.mjs`, `tests/integration/verb-dispatch.test.mjs`.
+
+### Docs
+
+- Onboarding now routes fresh users through `./bin/install-codex-plugin` before `pokit start`, and explains the `~/.local/bin` PATH expectation.
+
 ## v0.17.6 - 2026-05-18
 
 ### Added
