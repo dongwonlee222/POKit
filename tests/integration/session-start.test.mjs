@@ -62,6 +62,51 @@ test("buildSessionStart renders brief with boot signature after reading context 
   assert.match(output, /pokit:boot ok cycle=POKit Operating Cycle 1: Memory MVP Foundation hooks=loaded orchestrator=loaded read_order=4 linear=api-key/);
 });
 
+test("buildSessionStart accepts Linear MCP issue payload as the start context", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "pokit-session-start-mcp-"));
+  await mkdir(join(tempDir, "memory"), { recursive: true });
+  await mkdir(join(tempDir, "docs/architecture"), { recursive: true });
+  await mkdir(join(tempDir, "workflows"), { recursive: true });
+  await writeFile(join(tempDir, "memory/resume-brief.md"), "# Resume Brief\n");
+  await writeFile(join(tempDir, "memory/current-cycle.yaml"), "cycle:\n  id: team-backlog\n");
+  await writeFile(join(tempDir, "docs/architecture/01-document-roles.md"), "# Document Roles\n");
+  await writeFile(join(tempDir, "docs/architecture/11-visualization-and-incident-response.md"), "# Stage Visualization And Incident Response\n");
+  await writeFile(join(tempDir, "workflows/hooks.yaml"), "hooks:\n  session_start:\n    - read_context_map\n");
+  await writeFile(join(tempDir, "memory/context-map.yaml"), [
+    "read_order:",
+    "  - memory/resume-brief.md",
+    "  - memory/current-cycle.yaml",
+    "  - docs/architecture/01-document-roles.md",
+    "  - docs/architecture/11-visualization-and-incident-response.md",
+    "",
+  ].join("\n"));
+  const { buildMcpTeamBacklogContext, buildSessionStart } = await loadSessionStartModule();
+
+  const mcpContext = buildMcpTeamBacklogContext({
+    teamName: "POKit",
+    issues: [
+      {
+        id: "issue-130",
+        identifier: "POKIT-130",
+        title: "MCP-first start",
+        description: "from connector",
+        priority: { value: 2, name: "High" },
+        status: "Backlog",
+        labels: [{ name: "Improvement" }],
+      },
+    ],
+  });
+  const output = buildSessionStart({
+    rootDir: tempDir,
+    now: new Date("2026-05-15T09:00:00+09:00"),
+    context: mcpContext,
+    linearSource: "mcp",
+  });
+
+  assert.match(output, /1\. POKIT-130 MCP-first start · High/);
+  assert.match(output, /pokit:boot ok cycle=Team Backlog .* linear=mcp /);
+});
+
 test("buildSessionStart resolves canonical memory read_order through active profile memory_dir", async () => {
   const previousProfile = process.env.POKIT_PROFILE;
   process.env.POKIT_PROFILE = "pokit";

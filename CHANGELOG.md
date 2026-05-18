@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.17.8 - 2026-05-18
+
+### Added
+
+- Codex `pokit-start` now uses Linear MCP/Connector first. MCP issue payloads can be injected through `POKIT_LINEAR_CONTEXT_JSON`, allowing `pokit start` to render the normal brief with `linear=mcp` without direct `api.linear.app` CLI network access. Regression: `tests/integration/session-start.test.mjs`.
+
+### Docs
+
+- `pokit-start` and onboarding now instruct Codex users to connect the Linear app when MCP is unavailable, while keeping `LINEAR_API_KEY` as the terminal/Claude/CI fallback.
+
 ## v0.17.7 - 2026-05-18
 
 ### Fixed

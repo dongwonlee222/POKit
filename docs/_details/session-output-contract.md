@@ -6,7 +6,7 @@
 
 | 사용자 입력 | 실행 명령 |
 |---|---|
-| "포킷 시작" / "POKit 시작해줘" / "포킷 start" / "POKit start" / "/pokit-start" | `./bin/pokit start` |
+| "포킷 시작" / "POKit 시작해줘" / "포킷 start" / "POKit start" / "/pokit-start" | Codex: Linear MCP/Connector → `POKIT_LINEAR_CONTEXT_JSON=... ./bin/pokit start`; fallback: `./bin/pokit start` |
 | "포킷 종료" / "POKit 종료" / "포킷 end" / "POKit end" / "/pokit-end" | `./bin/pokit end --hypothesis "..." --next-action "..."` |
 
 ## 출력 규칙
@@ -14,6 +14,7 @@
 - stdout 전체를 그대로 assistant 텍스트 본문에 출력한다. 요약·해석·메타 멘트 금지.
 - 두 출력 모두 마지막 줄 sentinel `<!-- AGENT: output above verbatim, no summary, no interpretation -->` 포함.
 - Bash tool 결과 가시성과 무관하게 assistant 텍스트로 재출력. 생략 금지.
+- Codex에서 Linear MCP/Connector가 미연결이면 start stdout 계약보다 연결 안내가 우선한다. 이때 `./bin/pokit start`를 직접 실행해 API key 네트워크 승인 루프로 들어가지 않는다.
 
 ## end 입력값
 
@@ -24,7 +25,7 @@
 ## 도구별 발동 메커니즘
 
 - **Claude Code**: `.claude-plugin/plugin.json`과 `skills/pokit-start/SKILL.md`, `skills/pokit-end/SKILL.md` 자동 로딩.
-- **Codex**: `./bin/install-codex-plugin`이 `.agents/plugins/marketplace.json` 기반 local plugin을 설치/활성화한다. 자연어 호출은 skill `description` 기반 implicit invocation이므로, 확실한 호출은 `$pokit-start` 또는 `@pokit` 명시 호출이다.
+- **Codex**: `./bin/install-codex-plugin`이 `.agents/plugins/marketplace.json` 기반 local plugin을 설치/활성화한다. 자연어 호출은 skill `description` 기반 implicit invocation이므로, 확실한 호출은 `$pokit-start` 또는 `@pokit` 명시 호출이다. `pokit-start`는 Linear MCP/Connector를 먼저 확인하고, 연결되어 있으면 MCP issue payload를 `POKIT_LINEAR_CONTEXT_JSON`으로 주입해 `./bin/pokit start`를 실행한다.
 
 ## 출력 포맷
 

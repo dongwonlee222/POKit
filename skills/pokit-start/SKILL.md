@@ -21,6 +21,29 @@ trigger_phrases:
 
 ## 절차
 
+### Codex — Linear MCP/Connector 우선
+
+1. Linear MCP/Connector 도구가 있으면 먼저 `list_teams`로 연결을 확인한다.
+2. Linear MCP/Connector가 없거나 인증 실패하면 `./bin/pokit start`를 실행하지 말고, 아래 문구만 출력한다:
+   ```text
+   Linear MCP/Connector가 연결되어 있지 않아 POKit 시작 브리프를 만들 수 없습니다.
+   Codex에서 Linear app을 연결한 뒤 새 세션에서 다시 "포킷 시작"을 실행하세요.
+   ```
+3. 연결되어 있으면 `list_issues`로 POKit 팀의 비보관 이슈를 읽고, 결과를 compact JSON으로 만든다:
+   ```json
+   {"teamName":"POKit","issues":[...]}
+   ```
+4. Bash로 MCP 결과를 주입해 다음 실행:
+   ```bash
+   POKIT_LINEAR_CONTEXT_JSON='<compact-json>' ./bin/pokit start
+   ```
+   이때 `pokit:boot ok ... linear=mcp ...`가 나와야 한다.
+5. stdout 전체를 **그대로** assistant 텍스트 본문에 출력한다.
+6. 추가 멘트 0줄. 요약·해석·다음 액션 제안 금지.
+7. stdout 마지막 줄 sentinel `<!-- AGENT: output above verbatim, no summary, no interpretation -->`을 assistant 텍스트에도 포함한다.
+
+### Claude Code / Terminal — API key fallback
+
 1. Bash로 다음 실행:
    ```bash
    ./bin/pokit start
