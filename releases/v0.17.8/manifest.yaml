@@ -1,0 +1,31 @@
+version: 0.17.8
+released_at: "2026-05-18T07:40:55.517Z"
+cycle_id: n/a
+issues: []
+changelog:
+  - "Codex `pokit-start` now uses Linear MCP/Connector first. MCP issue payloads can be injected through `POKIT_LINEAR_CONTEXT_JSON`, allowing `pokit start` to render the normal brief with `linear=mcp` without direct `api.linear.app` CLI network access. Regression: `tests/integration/session-start.test.mjs`."
+  - "`pokit-start` and onboarding now instruct Codex users to connect the Linear app when MCP is unavailable, while keeping `LINEAR_API_KEY` as the terminal/Claude/CI fallback."
+artifacts:
+  code_paths: []
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+unresolved:
+  - id: artifacts-migration
+    note: artifacts/{prds,criteria,sprints}/ → releases/v*/{prds,criteria,sprints}/ 마이그레이션 (M6 후속, 별도 cycle)
+    owner: agent
+  - id: pokit-159-retrieval-impl
+    note: POKIT-159 위치기억 retrieval 구현 (M9 메모 참조, 별도 cycle 진입 시)
+    owner: POKIT-159
+  - id: wiring-intended-auto-extract
+    note: buildReleaseManifest 시 PRD/CHANGELOG에서 wiring intended 자동 추출 (M7 후속)
+    owner: agent
+  - id: build-release-manifest-carry-forward
+    note: buildReleaseManifest 시 직전 release의 unresolved 자동 carry-forward (M4 인계 메커니즘 강화)
+    owner: agent
+  - id: parse-changelog-section-date-line
+    note: "parseChangelogSection이 ## 헤더 라인의 날짜를 첫 bullet으로 잡는 사소한 false positive 제거"
+    owner: agent
