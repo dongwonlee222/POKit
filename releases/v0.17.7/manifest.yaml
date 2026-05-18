@@ -1,0 +1,32 @@
+version: 0.17.7
+released_at: "2026-05-18T07:20:21.650Z"
+cycle_id: n/a
+issues: []
+changelog:
+  - "Codex local installer now creates a PATH-ready `~/.local/bin/pokit` wrapper, so fresh installs can run `pokit start` directly instead of failing with `command not found`. Regression: `tests/integration/codex-plugin-install.test.mjs`."
+  - "`pokit start` now keeps flow progress visible and preserves existing flow state across session starts. Linear DNS failures are surfaced as `fetch failed: ENOTFOUND api.linear.app` instead of a generic Node stack tail. Regression: `tests/integration/session-start.test.mjs`, `tests/internal/workflow-state.test.mjs`, `tests/integration/verb-dispatch.test.mjs`."
+  - Onboarding now routes fresh users through `./bin/install-codex-plugin` before `pokit start`, and explains the `~/.local/bin` PATH expectation.
+artifacts:
+  code_paths: []
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+unresolved:
+  - id: artifacts-migration
+    note: artifacts/{prds,criteria,sprints}/ → releases/v*/{prds,criteria,sprints}/ 마이그레이션 (M6 후속, 별도 cycle)
+    owner: agent
+  - id: pokit-159-retrieval-impl
+    note: POKIT-159 위치기억 retrieval 구현 (M9 메모 참조, 별도 cycle 진입 시)
+    owner: POKIT-159
+  - id: wiring-intended-auto-extract
+    note: buildReleaseManifest 시 PRD/CHANGELOG에서 wiring intended 자동 추출 (M7 후속)
+    owner: agent
+  - id: build-release-manifest-carry-forward
+    note: buildReleaseManifest 시 직전 release의 unresolved 자동 carry-forward (M4 인계 메커니즘 강화)
+    owner: agent
+  - id: parse-changelog-section-date-line
+    note: "parseChangelogSection이 ## 헤더 라인의 날짜를 첫 bullet으로 잡는 사소한 false positive 제거"
+    owner: agent
