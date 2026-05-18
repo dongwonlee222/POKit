@@ -1,0 +1,31 @@
+version: 0.17.9
+released_at: "2026-05-18T08:03:28.254Z"
+cycle_id: n/a
+issues: []
+changelog:
+  - "Cold-start agent instructions now make MCP-capable runtimes explicitly MCP-first and forbid bare `pokit start` before Linear MCP payload injection. This prevents new sessions from following the API-key DNS approval loop when Linear Connector is available. Regression: `tests/contracts/agent-rules.test.mjs`."
+  - Onboarding and `CLAUDE.md` now separate MCP-first skill invocation (`$pokit-start` / `@pokit`) from terminal/CI-only `pokit start`.
+artifacts:
+  code_paths: []
+  doc_paths: []
+  skills: []
+wiring_status:
+  intended: []
+  actual: []
+  gaps: []
+unresolved:
+  - id: artifacts-migration
+    note: artifacts/{prds,criteria,sprints}/ → releases/v*/{prds,criteria,sprints}/ 마이그레이션 (M6 후속, 별도 cycle)
+    owner: agent
+  - id: pokit-159-retrieval-impl
+    note: POKIT-159 위치기억 retrieval 구현 (M9 메모 참조, 별도 cycle 진입 시)
+    owner: POKIT-159
+  - id: wiring-intended-auto-extract
+    note: buildReleaseManifest 시 PRD/CHANGELOG에서 wiring intended 자동 추출 (M7 후속)
+    owner: agent
+  - id: build-release-manifest-carry-forward
+    note: buildReleaseManifest 시 직전 release의 unresolved 자동 carry-forward (M4 인계 메커니즘 강화)
+    owner: agent
+  - id: parse-changelog-section-date-line
+    note: "parseChangelogSection이 ## 헤더 라인의 날짜를 첫 bullet으로 잡는 사소한 false positive 제거"
+    owner: agent
