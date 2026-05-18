@@ -49,7 +49,7 @@ export function buildSessionBrief(input: SessionBriefInput): string {
   const rootDir = input.rootDir ?? ".";
   const resolved = resolveSessionContext(input.context, now);
   const currentSurface = resolved.displaySurface;
-  const profile = getActiveProfile();
+  const profile = getActiveProfile(rootDir);
   const dryRun = buildSprintDryRunSummary({
     generatedAt: now.toISOString(),
     context: resolved.primarySurface,
@@ -187,7 +187,7 @@ function buildUnresolvedCard(rootDir: string, latestVersion: string): string[] {
 }
 
 function buildPreviousSessionBlock(rootDir: string): string[] {
-  const path = join(rootDir, "memory/resume-brief.md");
+  const path = resolveResumeBriefPath(rootDir);
   const headerLabel = messageLabel(rootDir, "session_start.previous_session_label", "🪧 이전 세션");
   if (!existsSync(path)) {
     const missing = messageLabel(rootDir, "session_start.previous_missing", "이전 세션 기록 없음");
@@ -1148,7 +1148,7 @@ function readReleaseVersion(rootDir: string): string {
 }
 
 function readResumeBriefNextAction(rootDir: string): string | null {
-  const path = join(rootDir, "memory/resume-brief.md");
+  const path = resolveResumeBriefPath(rootDir);
   if (!existsSync(path)) return null;
   const content = readFileSync(path, "utf8");
   const sections = parseResumeBriefSections(content);
@@ -1160,6 +1160,14 @@ function readResumeBriefNextAction(rootDir: string): string | null {
     return match[1].trim();
   }
   return null;
+}
+
+function resolveResumeBriefPath(rootDir: string): string {
+  const profilePath = join(rootDir, getActiveProfile(rootDir).memoryDir, "resume-brief.md");
+  if (existsSync(profilePath)) {
+    return profilePath;
+  }
+  return join(rootDir, "memory/resume-brief.md");
 }
 
 function priorityLabel(priority?: number): string {

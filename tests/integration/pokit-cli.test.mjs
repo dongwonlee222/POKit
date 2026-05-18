@@ -163,6 +163,20 @@ async function loadSessionStartModule() {
   return import(`../../scripts/cli/session-start.ts?cacheBust=${Date.now()}`);
 }
 
+async function withoutPokitProfile(fn) {
+  const previous = process.env.POKIT_PROFILE;
+  delete process.env.POKIT_PROFILE;
+  try {
+    return await fn();
+  } finally {
+    if (previous === undefined) {
+      delete process.env.POKIT_PROFILE;
+    } else {
+      process.env.POKIT_PROFILE = previous;
+    }
+  }
+}
+
 const sampleContext = {
   source: "linear_upcoming",
   cycle: {
@@ -187,6 +201,14 @@ test("buildSessionStart output contains pokit:boot ok signature", async () => {
   await mkdir(join(tempDir, "memory"), { recursive: true });
   await mkdir(join(tempDir, "docs/architecture"), { recursive: true });
   await mkdir(join(tempDir, "workflows"), { recursive: true });
+  await writeFile(join(tempDir, "pokit.local.config.yaml"), [
+    "profiles:",
+    "  pokit:",
+    "    linear_team_key: POKIT",
+    "    memory_dir: memory",
+    "    artifacts_dir: artifacts",
+    "",
+  ].join("\n"));
   await writeFile(join(tempDir, "memory/resume-brief.md"), "# Resume Brief\n");
   await writeFile(join(tempDir, "memory/current-cycle.yaml"), "cycle:\n  id: cycle-137\n");
   await writeFile(join(tempDir, "docs/architecture/01-document-roles.md"), "# Document Roles\n");
@@ -208,7 +230,9 @@ test("buildSessionStart output contains pokit:boot ok signature", async () => {
   );
 
   const { buildSessionStart } = await loadSessionStartModule();
-  const output = buildSessionStart({ rootDir: tempDir, context: sampleContext });
+  const output = await withoutPokitProfile(() =>
+    buildSessionStart({ rootDir: tempDir, context: sampleContext }),
+  );
 
   assert.match(output, /pokit:boot ok/);
   assert.match(output, /cycle=POKit v0\.8\.0 CLI Wrapper PoC/);
@@ -222,6 +246,14 @@ test("buildSessionStart output matches direct node invocation pattern (parity ch
   await mkdir(join(tempDir, "memory"), { recursive: true });
   await mkdir(join(tempDir, "docs/architecture"), { recursive: true });
   await mkdir(join(tempDir, "workflows"), { recursive: true });
+  await writeFile(join(tempDir, "pokit.local.config.yaml"), [
+    "profiles:",
+    "  pokit:",
+    "    linear_team_key: POKIT",
+    "    memory_dir: memory",
+    "    artifacts_dir: artifacts",
+    "",
+  ].join("\n"));
   await writeFile(join(tempDir, "memory/resume-brief.md"), "# Resume Brief\n");
   await writeFile(join(tempDir, "memory/current-cycle.yaml"), "cycle:\n  id: cycle-137\n");
   await writeFile(join(tempDir, "docs/architecture/01-document-roles.md"), "# Document Roles\n");
@@ -244,8 +276,12 @@ test("buildSessionStart output matches direct node invocation pattern (parity ch
 
   // Call buildSessionStart twice with identical inputs — output must be identical
   const { buildSessionStart } = await loadSessionStartModule();
-  const output1 = buildSessionStart({ rootDir: tempDir, context: sampleContext });
-  const output2 = buildSessionStart({ rootDir: tempDir, context: sampleContext });
+  const output1 = await withoutPokitProfile(() =>
+    buildSessionStart({ rootDir: tempDir, context: sampleContext }),
+  );
+  const output2 = await withoutPokitProfile(() =>
+    buildSessionStart({ rootDir: tempDir, context: sampleContext }),
+  );
 
   assert.equal(output1, output2, "buildSessionStart is deterministic — same as direct script invocation");
   assert.match(output1, /pokit:boot ok/);

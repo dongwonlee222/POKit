@@ -10,9 +10,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 
-const HOOK_PATH =
-  "/Users/idong-won/workspace/pokit/.claude/hooks/block-linear-api.sh";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const HOOK_PATH = resolve(__dirname, "../../scripts/hooks/block-linear-api.sh");
 
 function runHook(command) {
   const result = spawnSync(HOOK_PATH, [], {

@@ -21,6 +21,7 @@ const REGISTERED_TOP_LEVEL_FOLDERS = new Set([
   "tests",
   "skills",
   ".claude-plugin",
+  ".codex-plugin",
   "workflows",
   "templates",
   "examples",
@@ -40,6 +41,7 @@ const ALLOWED_TOP_LEVEL_FILES_PATTERN = /^(AGENTS\.md|CLAUDE\.md|README\.md|CHAN
 
 const ALLOWED_TOP_LEVEL_DIR_DOTFILES = new Set([
   "POKit-Day1-Design", // 로컬 design export (gitignored)
+  ".modu-harness", // 로컬 workspace harness state (gitignored)
 ]);
 
 test("폴더 레이아웃 가드: 최상위에 정의되지 않은 폴더 차단", async () => {

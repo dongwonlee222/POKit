@@ -111,10 +111,28 @@ function parseYaml(yaml: string): Record<string, unknown> {
     }
     // 스칼라
     const value = rest.replace(/\s+#.*$/, "").trim();
-    out[key] = value === "null" ? null : stripQuotes(value);
+    out[key] = parseScalarValue(value);
     i++;
   }
   return out;
+}
+
+function parseScalarValue(value: string): unknown {
+  if (value === "null") {
+    return null;
+  }
+  if (value === "[]") {
+    return [];
+  }
+  const inlineList = value.match(/^\[(.*)\]$/);
+  if (inlineList) {
+    const body = inlineList[1].trim();
+    if (!body) {
+      return [];
+    }
+    return body.split(",").map((item) => stripQuotes(item.trim())).filter(Boolean);
+  }
+  return stripQuotes(value);
 }
 
 function stripQuotes(s: string): string {

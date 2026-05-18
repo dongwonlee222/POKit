@@ -6,6 +6,7 @@ import { getWorkingContext, type WorkingContext, type WorkingCycleContext } from
 import { findOpenCycleManifest } from "../internal/manifest-lookup.ts";
 import { loadBacklogRawSummaries, renderPendingRawLines } from "../internal/backlog-raw-collector.ts";
 import { markSessionStart } from "../internal/workflow-state.ts";
+import { getActiveProfile } from "../internal/profile.ts";
 
 export type SessionStartInput = SessionBriefInput & {
   rootDir?: string;
@@ -68,10 +69,25 @@ function readContextMap(rootDir: string): ContextMap {
 
 function validateReadOrder(rootDir: string, readOrder: string[]): void {
   for (const path of readOrder) {
-    if (!existsSync(join(rootDir, path))) {
+    if (!existsReadOrderPath(rootDir, path)) {
       throw new Error(`Session start blocked: missing read_order file ${path}`);
     }
   }
+}
+
+function existsReadOrderPath(rootDir: string, path: string): boolean {
+  if (existsSync(join(rootDir, path))) {
+    return true;
+  }
+  const profilePath = resolveProfileMemoryReadOrderPath(rootDir, path);
+  return profilePath ? existsSync(join(rootDir, profilePath)) : false;
+}
+
+function resolveProfileMemoryReadOrderPath(rootDir: string, path: string): string | null {
+  if (!path.startsWith("memory/")) {
+    return null;
+  }
+  return join(getActiveProfile(rootDir).memoryDir, path.slice("memory/".length));
 }
 
 function validateOrchestratorReadOrder(readOrder: string[]): boolean {

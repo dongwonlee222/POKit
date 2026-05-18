@@ -71,6 +71,29 @@ test("parseMemoFile: frontmatter + body 분리", () => {
   assert.ok(memo.body.includes("## 담당 에이전트"));
 });
 
+test("parseMemoFile: 인라인 빈 배열 frontmatter를 배열로 파싱", () => {
+  const memo = parseMemoFile("/test/path", "bl-inline-empty.md", `---
+id: bl-2026-05-18-001
+created: 2026-05-18
+status: refined
+domain: workflow
+title: "Inline Empty Arrays"
+target_version: v0.17.5
+promoted_to: null
+depends_on: []
+absorbs: []
+---
+
+## AS-IS
+
+테스트.
+`);
+
+  assert.deepEqual(memo.frontmatter.depends_on, []);
+  assert.deepEqual(memo.frontmatter.absorbs, []);
+  assert.doesNotThrow(() => buildCreateInput(memo, "pokit:criteria"));
+});
+
 test("parseMemoFile: frontmatter 누락 시 throw", () => {
   assert.throws(
     () => parseMemoFile("/test/path", "bad.md", "no frontmatter here"),

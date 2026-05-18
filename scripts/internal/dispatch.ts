@@ -147,18 +147,34 @@ export function dispatchByLabels(labels: string[], manifests: SkillManifest[]): 
 }
 
 /**
- * userInput에 trigger_phrases 항목이 부분 일치하는 첫 번째 SKILL 반환.
+ * userInput에 trigger_phrases 항목이 부분 일치하는 SKILL 반환.
+ * 여러 항목이 매칭되면 더 길고 구체적인 phrase를 우선한다.
  * 매칭 없으면 null 반환.
  */
 export function dispatchByTriggerPhrase(userInput: string, manifests: SkillManifest[]): SkillManifest | null {
   const lower = userInput.toLowerCase();
-  for (const manifest of manifests) {
+  const matches: Array<{ manifest: SkillManifest; phrase: string; manifestIndex: number; phraseIndex: number }> = [];
+
+  manifests.forEach((manifest, manifestIndex) => {
     const phrases = manifest.trigger_phrases ?? [];
-    for (const phrase of phrases) {
+    phrases.forEach((phrase, phraseIndex) => {
       if (lower.includes(phrase.toLowerCase())) {
-        return manifest;
+        matches.push({ manifest, phrase, manifestIndex, phraseIndex });
       }
-    }
+    });
+  });
+
+  if (matches.length === 0) {
+    return null;
   }
-  return null;
+
+  matches.sort((a, b) => {
+    const phraseLengthDelta = b.phrase.length - a.phrase.length;
+    if (phraseLengthDelta !== 0) return phraseLengthDelta;
+    const manifestOrderDelta = a.manifestIndex - b.manifestIndex;
+    if (manifestOrderDelta !== 0) return manifestOrderDelta;
+    return a.phraseIndex - b.phraseIndex;
+  });
+
+  return matches[0].manifest;
 }

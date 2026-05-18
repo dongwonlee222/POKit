@@ -12,6 +12,7 @@ The main agent orchestrates POKit work; it does not replace hooks, templates, sc
 
 - Keep user intent, scope, approval boundary, and final judgment in the main context.
 - Use subagents only for bounded draft work; the main agent integrates, verifies, and owns completion claims.
+- Local Skill Trigger Contract: before generic reasoning, match user intent against `skills/*/SKILL.md` `trigger_phrases`, labels, and entry; if matched, follow that skill before generic reasoning.
 
 ## POKit session start contract
 

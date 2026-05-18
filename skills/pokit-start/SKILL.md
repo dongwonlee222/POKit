@@ -1,12 +1,15 @@
 ---
 name: pokit-start
-description: 포킷 세션 시작 브리프 실행 후 stdout을 verbatim 출력. "포킷 시작", "포킷 start", "/pokit-start" 트리거 시 발동. 다른 도메인 세션(work/hire/analyze/design/study)에서는 실행 금지.
+description: 포킷 세션 시작 브리프 실행 후 stdout을 verbatim 출력. "포킷 시작", "POKit 시작해줘", "포킷 start", "/pokit-start" 트리거 시 발동. 다른 도메인 세션(work/hire/analyze/design/study)에서는 실행 금지.
 entry: pokit start
 labels: []
 trigger_phrases:
   - "포킷 시작"
   - "포킷 시작해줘"
+  - "POKit 시작"
+  - "POKit 시작해줘"
   - "포킷 start"
+  - "POKit start"
   - "/pokit-start"
 ---
 

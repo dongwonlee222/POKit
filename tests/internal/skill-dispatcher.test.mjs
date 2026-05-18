@@ -39,16 +39,18 @@ test("loadSkillManifests: each manifest has required fields", async () => {
   }
 });
 
-test("loadSkillManifests: all 11 expected skill names are present", async () => {
+test("loadSkillManifests: all 13 expected skill names are present", async () => {
   const { loadSkillManifests } = await loadDispatchModule();
   const manifests = loadSkillManifests(SKILLS_DIR);
   const names = manifests.map((m) => m.name);
   const EXPECTED = [
     "acceptance-criteria-author",
     "backlog-memo",
+    "backlog-promote",
     "linear-issue-manager",
     "backlog-router",
     "history-maintainer",
+    "plan-gate",
     "pokit-end",
     "pokit-start",
     "prd-author",
@@ -162,4 +164,22 @@ test("dispatchByTriggerPhrase: case-insensitive matching", async () => {
   const result = dispatchByTriggerPhrase("Release Audit 실행", manifests);
   assert.ok(result !== null, "Expected a match for 'Release Audit 실행', got null");
   assert.equal(result.name, "release-md-auditor");
+});
+
+test("dispatchByTriggerPhrase: longer and more specific trigger wins over generic backlog registration", async () => {
+  const { loadSkillManifests, dispatchByTriggerPhrase } = await loadDispatchModule();
+  const manifests = loadSkillManifests(SKILLS_DIR);
+
+  const cases = [
+    ["Linear 백로그 등록", "linear-issue-manager"],
+    ["백로그 등록해줘", "backlog-memo"],
+    ["Linear에 refined 다 등록", "backlog-promote"],
+    ["POKit 시작해줘", "pokit-start"],
+  ];
+
+  for (const [input, expectedName] of cases) {
+    const result = dispatchByTriggerPhrase(input, manifests);
+    assert.ok(result !== null, `Expected a match for '${input}', got null`);
+    assert.equal(result.name, expectedName, `${input} should route to ${expectedName}`);
+  }
 });

@@ -6,8 +6,8 @@
 
 | 사용자 입력 | 실행 명령 |
 |---|---|
-| "포킷 시작" / "포킷 start" / "/pokit-start" | `./bin/pokit start` |
-| "포킷 종료" / "포킷 end" / "/pokit-end" | `./bin/pokit end --hypothesis "..." --next-action "..."` |
+| "포킷 시작" / "POKit 시작해줘" / "포킷 start" / "POKit start" / "/pokit-start" | `./bin/pokit start` |
+| "포킷 종료" / "POKit 종료" / "포킷 end" / "POKit end" / "/pokit-end" | `./bin/pokit end --hypothesis "..." --next-action "..."` |
 
 ## 출력 규칙
 
@@ -23,8 +23,8 @@
 
 ## 도구별 발동 메커니즘
 
-- **Claude Code**: `skills/pokit-start/SKILL.md`, `skills/pokit-end/SKILL.md` 자동 로딩.
-- **Codex**: 위 SKILL.md 파일을 직접 읽고 동일 절차로 실행.
+- **Claude Code**: `.claude-plugin/plugin.json`과 `skills/pokit-start/SKILL.md`, `skills/pokit-end/SKILL.md` 자동 로딩.
+- **Codex**: `.codex-plugin/plugin.json`과 위 SKILL.md 파일을 기준으로 동일 절차 실행.
 
 ## 출력 포맷
 
@@ -68,3 +68,4 @@ pokit:boot ok ...
 - 모든 스킬은 repo 루트 `skills/<name>/SKILL.md` 단일 위치 사용
 - 스키마: `name`, `description`, `entry`(verb), `labels`, `trigger_phrases`, body
 - Claude Code / Codex / POKit 내부 dispatcher 모두 같은 디렉토리에서 읽음
+- plugin manifest 버전은 `package.json`의 `version`과 동기화

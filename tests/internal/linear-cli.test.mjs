@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { writeFileSync, readFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const CLI = "/Users/idong-won/workspace/pokit/scripts/internal/linear.ts";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CLI = resolve(__dirname, "../../scripts/internal/linear.ts");
 
 function runCli(args, { env = {} } = {}) {
   const result = spawnSync(
@@ -286,7 +288,7 @@ decisions:
 latest_decision_at: "2026-05-17T10:00:00.000Z"
 `;
 
-const INTERNAL_LINEAR = "/Users/idong-won/workspace/pokit/scripts/internal/linear.ts";
+const INTERNAL_LINEAR = CLI;
 
 function importFn(name) {
   // Node.js --experimental-strip-types 로 TypeScript 모듈에서 named export 추출

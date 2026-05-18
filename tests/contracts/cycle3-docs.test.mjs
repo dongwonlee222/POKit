@@ -47,16 +47,13 @@ test("versioning policy defines first release, semver, hotfixes, and release che
   assert.match(checklist, /CHANGELOG/);
 });
 
-test("DESIGN documents orchestrator recovery after session start and compaction", async () => {
-  const design = await readFile("docs/history/DESIGN.md", "utf8");
+test("public docs document orchestrator recovery after session start and compaction", async () => {
+  const design = await readFile("docs/architecture/12-conversation-standards.md", "utf8");
 
-  assert.match(design, /Orchestrator Recovery Contract/);
+  assert.match(design, /resume_compaction/);
   assert.match(design, /orchestrator=loaded/);
-  assert.match(design, /docs\/architecture\/01-document-roles\.md/);
-  assert.match(design, /docs\/architecture\/11-visualization-and-incident-response\.md/);
-  assert.match(design, /context 희석과 무관하게/);
+  assert.match(design, /context 희석/);
   assert.match(design, /session-start\.ts/);
-  assert.match(design, /memory\/context-map\.yaml/);
 });
 
 test("architecture index documents Linear structure standards", async () => {

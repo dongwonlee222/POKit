@@ -1,6 +1,6 @@
 ---
 name: backlog-memo
-description: 백로그 아이디어를 로컬 메모(dry-run)로만 정리한다. 외부 write 절대 금지. 사용자 승인 후 linear-backlog-manager로 위임.
+description: 백로그 아이디어를 로컬 메모(dry-run)로만 정리한다. 외부 write 절대 금지. 사용자 승인 후 linear-issue-manager로 위임.
 entry: conversational
 labels: []
 trigger_phrases:
@@ -98,7 +98,7 @@ scope-hash: title의 앞 8자 소문자 슬러그 (공백→하이픈, 특수문
 
 ### Step 5 — 사용자 승인 대기
 
-- "Linear 백로그 등록" / "Linear에 올려" / "linear-backlog-manager로 넘겨" → linear-backlog-manager 스킬로 위임. **자동 호출 금지** — 사용자가 명시적으로 요청할 때만.
+- "Linear 백로그 등록" / "Linear에 올려" / "linear-issue-manager로 넘겨" → linear-issue-manager 스킬로 위임. **자동 호출 금지** — 사용자가 명시적으로 요청할 때만.
 - 수정 요청 → Step 3~4 반복.
 - "됐어" / "그냥 저장" / 그 외 모호한 응답 → 메모로 종료. 외부 등록 없음.
 

@@ -1,13 +1,17 @@
 ---
 name: pokit-end
-description: 포킷 세션 종료 브리프 생성 후 stdout을 verbatim 출력. "포킷 종료", "포킷 end", "/pokit-end" 트리거 시 발동. 사용자가 명시적으로 세션 종료를 요청할 때만 실행.
+description: 포킷 세션 종료 브리프 생성 후 stdout을 verbatim 출력. "포킷 종료", "POKit 종료", "포킷 end", "/pokit-end" 트리거 시 발동. 사용자가 명시적으로 세션 종료를 요청할 때만 실행.
 entry: pokit end
 labels: []
 trigger_phrases:
   - "포킷 종료"
   - "포킷 끝"
   - "포킷 마무리"
+  - "POKit 종료"
+  - "POKit 끝"
+  - "POKit 마무리"
   - "포킷 end"
+  - "POKit end"
   - "/pokit-end"
 ---
 

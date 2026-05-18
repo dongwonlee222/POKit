@@ -30,6 +30,8 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `scripts/` | 실행 코드 (TypeScript) | `cli/` 진입점, `internal/` 헬퍼, `ci/` 릴리스 |
 | `tests/` | 자동 테스트 + fixture | `*.test.mjs`, `fixtures/` |
 | `skills/` | skill 정의 | `<skill-name>/SKILL.md` + 부속 |
+| `.codex-plugin/` | Codex plugin manifest | `plugin.json` |
+| `.claude-plugin/` | Claude Code plugin manifest | `plugin.json` |
 | `workflows/` | **선언적 yaml만** | `agent-roles.yaml`, `hooks.yaml`, `messages.yaml`, `definition-pipeline.yaml` |
 | `templates/` | 빈 양식 (스켈레톤) | `definition-pipeline/*.md` 같은 채우기 전 양식 |
 | `examples/` | **외부 공유용 sanitized sample** | 익명화된 사용 예시 |
@@ -58,6 +60,8 @@ POKit 리포지토리의 폴더 구조와 각 폴더의 책임을 정의한다. 
 | `scripts/` | ✅ Public | |
 | `tests/` | ✅ Public | fixture 포함 |
 | `skills/` | ✅ Public | |
+| `.codex-plugin/` | ✅ Public | Codex plugin manifest |
+| `.claude-plugin/` | ✅ Public | Claude Code plugin manifest |
 | `workflows/` | ✅ Public | yaml 4개만 |
 | `templates/` | ✅ Public | |
 | `examples/` | ✅ Public | sanitized만 |

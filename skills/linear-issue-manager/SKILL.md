@@ -72,6 +72,8 @@ backlog-memo 출력 또는 다음 항목을 포함한 동등 구조를 받는다
 
 ### Step 4 — dry-run plan 제시
 
+`plan*` 함수(`planCreateIssue`, `planUpdateIssue`)는 dry-run plan 생성 전용이다. Linear에 쓰지 않고, 사용자에게 제목·라벨·description preview·idempotency key를 보여주는 단계에서만 호출한다.
+
 사용자에게 아래 항목을 보여주고 승인을 기다린다:
 
 ```
@@ -86,7 +88,7 @@ Linear에 등록할까요? (yes / 수정)
 
 ### Step 5 — 사용자 승인 후 실제 등록
 
-사용자가 승인하면 `planCreateIssue` (또는 `scripts/internal/linear.ts` 진입점)를 호출해 Linear에 이슈를 생성한다.
+사용자가 승인하면 Step 4의 plan을 입력으로 `applyCreateIssue(plan, { approved: true, actor: "main_agent" })`를 호출해 Linear에 이슈를 생성한다.
 
 **금지:** `curl api.linear.app` 직접 호출. 반드시 내부 함수 경유. (T3 hook이 런타임에도 차단함.)
 
@@ -145,7 +147,12 @@ idempotencyKey: linear:update_issue:<issueIdentifier>:<YYYYMMDD>:<scope-hash>
 
 ## External Write Rule
 
-dry-run plan을 먼저 제시한다. PO의 명시적 승인 전까지 `apply*` / `planCreateIssue` / `planUpdateIssue` 를 호출하지 않는다.
+`plan*`은 dry-run 생성 경계, `apply*`는 Linear write 경계다.
+
+- `planCreateIssue` / `planUpdateIssue`: 사용자에게 보여줄 dry-run plan 생성까지만 허용한다.
+- `applyCreateIssue` / `applyUpdateIssue`: PO의 명시적 승인 후에만 호출한다.
+- 사용자 승인 없이 `apply*` 호출 금지.
+- `curl api.linear.app` 직접 호출 금지. 모든 write는 내부 `apply*` 함수 경유.
 
 ## LLM-first Rule
 
